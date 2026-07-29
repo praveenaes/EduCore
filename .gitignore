@@ -1,0 +1,30 @@
+# Dependency folders
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Environment files
+.env
+.env.*
+backend/.env
+frontend/.env
+*.env
+
+# Build outputs
+dist/
+backend/dist/
+frontend/dist/
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+
+# Seeding Scripts containing credentials
+backend/src/scripts/seedAdmin.ts
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
