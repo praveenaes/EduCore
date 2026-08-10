@@ -60,9 +60,9 @@ export const ResetPasswordPage: React.FC = () => {
       // 1. Submit reset password request
       const response = await resetPasswordApi(email, password, token);
 
-      if (response.success && response.accessToken) {
+      if (response.success && response.data?.accessToken) {
         // 2. Save new token
-        tokenService.setToken(response.accessToken);
+        tokenService.setToken(response.data.accessToken);
 
         // 3. Auto-login by loading the authenticated user details
         const resultAction = await dispatch(loadUser());

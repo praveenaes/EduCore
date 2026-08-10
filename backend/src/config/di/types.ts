@@ -6,6 +6,7 @@ const TYPES = {
   // Services
   AuthService: Symbol.for("AuthService"),
   EmailService: Symbol.for("EmailService"),
+  TokenBlacklistService: Symbol.for("TokenBlacklistService"),
 
   // Controllers
   AuthController: Symbol.for("AuthController"),
@@ -15,6 +16,7 @@ const TYPES = {
   // Use Cases
   LoginUserUseCase: Symbol.for("LoginUserUseCase"),
   RefreshTokenUseCase: Symbol.for("RefreshTokenUseCase"),
+  LogoutUserUseCase: Symbol.for("LogoutUserUseCase"),
   GetMeUseCase: Symbol.for("GetMeUseCase"),
   ForgotPasswordUseCase: Symbol.for("ForgotPasswordUseCase"),
   VerifyOtpUseCase: Symbol.for("VerifyOtpUseCase"),

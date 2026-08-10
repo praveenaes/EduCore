@@ -3,6 +3,7 @@ import type { UserInfo, UserRole, LoginPayload } from "../types/auth";
 import { loginUserApi } from "../api/authApi";
 import { axiosInstance } from "../api/axiosInstance";
 import { tokenService } from "../utils/tokenService";
+import { API_ROUTES } from "../api/apiRoutes";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -12,17 +13,17 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const response = await loginUserApi(payload.role, payload.credentials);
-      if (response.success) {
+      if (response.success && response.data) {
         const mappedUser: UserInfo = {
-          id: response.user.id,
-          email: response.user.email,
-          name: response.user.name,
-          role: response.user.role.toLowerCase() as UserRole,
-          photo: response.user.photo,
+          id: response.data.user.id,
+          email: response.data.user.email,
+          name: response.data.user.name,
+          role: response.data.user.role.toLowerCase() as UserRole,
+          photo: response.data.user.photo,
         };
-        tokenService.setToken(response.accessToken);
+        tokenService.setToken(response.data.accessToken);
         return {
-          accessToken: response.accessToken,
+          accessToken: response.data.accessToken,
           user: mappedUser,
         };
       } else {
@@ -32,7 +33,6 @@ export const loginUser = createAsyncThunk(
       const errorMessage =
         err.response?.data?.error ||
         err.response?.data?.message ||
-        err.message ||
         "Login failed";
       return rejectWithValue(errorMessage);
     }
@@ -43,9 +43,9 @@ export const loadUser = createAsyncThunk(
   "auth/loadUser",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/auth/me");
-      if (response.data?.success && response.data?.user) {
-        const user = response.data.user;
+      const response = await axiosInstance.get(API_ROUTES.AUTH.ME);
+      if (response.data?.success && response.data?.data?.user) {
+        const user = response.data.data.user;
         const mappedUser: UserInfo = {
           id: user.id,
           email: user.email,

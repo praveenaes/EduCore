@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { api } from "../services/api";
 import { UserRole } from "../domain/enums/UserRole";
+import { API_ROUTES } from "../api/apiRoutes";
 
 interface LoginFormProps {
   role: UserRole;
@@ -24,7 +25,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     setError(null);
 
     try {
-      const response = await api.post("/auth/login", {
+      const response = await api.post(API_ROUTES.AUTH.LOGIN, {
         email,
         password,
         role,

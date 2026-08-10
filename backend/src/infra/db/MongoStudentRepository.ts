@@ -3,62 +3,14 @@ import { FilterQuery } from "mongoose";
 import { IStudentRepository, StudentFilters, StudentPagination, StudentListResult } from "../../application/ports/repositories/IStudentRepository";
 import { Student } from "../../domain/entities/Student";
 import { StudentModel, IStudentDocument } from "./models/StudentModel";
+import { StudentMapper } from "../../application/mappers/StudentMapper";
 
 @injectable()
 export class MongoStudentRepository implements IStudentRepository {
-  private mapToDomain(doc: IStudentDocument): Student {
-    return new Student(
-      doc._id.toString(),
-      doc.firstName,
-      doc.lastName,
-      doc.admissionNumber,
-      doc.admissionDate,
-      doc.gender,
-      doc.dateOfBirth,
-      doc.bloodGroup,
-      doc.nationalId,
-      doc.photo,
-      doc.phone,
-      doc.email,
-      doc.house,
-      doc.area,
-      doc.city,
-      doc.state,
-      doc.postalCode,
-      doc.country,
-      doc.isDeleted,
-      doc.isActive,
-      doc.userId.toString(),
-      doc.createdAt,
-      doc.updatedAt
-    );
-  }
-
   async create(student: Student): Promise<Student> {
-    const doc = new StudentModel({
-      firstName: student.firstName,
-      lastName: student.lastName,
-      admissionNumber: student.admissionNumber,
-      admissionDate: student.admissionDate,
-      gender: student.gender,
-      dateOfBirth: student.dateOfBirth,
-      bloodGroup: student.bloodGroup,
-      nationalId: student.nationalId,
-      photo: student.photo,
-      phone: student.phone,
-      email: student.email,
-      house: student.house,
-      area: student.area,
-      city: student.city,
-      state: student.state,
-      postalCode: student.postalCode,
-      country: student.country,
-      isDeleted: student.isDeleted,
-      isActive: student.isActive,
-      userId: student.userId,
-    });
+    const doc = new StudentModel(StudentMapper.toPersistence(student));
     await doc.save();
-    return this.mapToDomain(doc);
+    return StudentMapper.toDomain(doc);
   }
 
   async findByAdmissionNumber(admissionNumber: string): Promise<Student | null> {
@@ -67,7 +19,7 @@ export class MongoStudentRepository implements IStudentRepository {
       isDeleted: false,
     });
     if (!doc) return null;
-    return this.mapToDomain(doc);
+    return StudentMapper.toDomain(doc);
   }
 
   async findByEmail(email: string): Promise<Student | null> {
@@ -76,8 +28,10 @@ export class MongoStudentRepository implements IStudentRepository {
       isDeleted: false,
     });
     if (!doc) return null;
-    return this.mapToDomain(doc);
+    return StudentMapper.toDomain(doc);
   }
+
+
 
   async findByNationalId(nationalId: string): Promise<Student | null> {
     const doc = await StudentModel.findOne({
@@ -85,7 +39,7 @@ export class MongoStudentRepository implements IStudentRepository {
       isDeleted: false,
     });
     if (!doc) return null;
-    return this.mapToDomain(doc);
+    return StudentMapper.toDomain(doc);
   }
 
   async findByName(firstName: string, lastName: string): Promise<Student | null> {
@@ -95,14 +49,14 @@ export class MongoStudentRepository implements IStudentRepository {
       isDeleted: false,
     });
     if (!doc) return null;
-    return this.mapToDomain(doc);
+    return StudentMapper.toDomain(doc);
   }
 
   async findAll(filters: StudentFilters, pagination: StudentPagination): Promise<StudentListResult> {
     const query: FilterQuery<IStudentDocument> = { isDeleted: false };
 
     if (filters.search) {
-      const searchRegex = new RegExp(filters.search, "i");
+      const searchRegex = new RegExp(filters.search, "i");// /john/i
       query.$or = [
         { firstName: searchRegex },
         { lastName: searchRegex },
@@ -110,6 +64,16 @@ export class MongoStudentRepository implements IStudentRepository {
         { email: searchRegex },
       ];
     }
+
+//     {
+//   isDeleted: false,
+//   $or: [
+//     { firstName: /john/i },
+//     { lastName: /john/i },
+//     { admissionNumber: /john/i },
+//     { email: /john/i }
+//   ]
+// }
 
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
@@ -120,7 +84,7 @@ export class MongoStudentRepository implements IStudentRepository {
     ]);
 
     return {
-      students: docs.map(doc => this.mapToDomain(doc)),
+      students: docs.map(doc => StudentMapper.toDomain(doc)),
       total,
     };
   }
@@ -130,9 +94,9 @@ export class MongoStudentRepository implements IStudentRepository {
       { _id: id, isDeleted: false },
       { $set: { isActive } },
       { new: true }
-    );
+    )
     if (!doc) return null;
-    return this.mapToDomain(doc);
+    return StudentMapper.toDomain(doc);
   }
 
   async exportAll(filters: StudentFilters): Promise<Student[]> {
@@ -149,33 +113,17 @@ export class MongoStudentRepository implements IStudentRepository {
     }
 
     const docs = await StudentModel.find(query).sort({ createdAt: -1 });
-    return docs.map(doc => this.mapToDomain(doc));
+    return docs.map(doc => StudentMapper.toDomain(doc));
   }
 
   async findById(id: string): Promise<Student | null> {
     const doc = await StudentModel.findOne({ _id: id, isDeleted: false });
     if (!doc) return null;
-    return this.mapToDomain(doc);
+    return StudentMapper.toDomain(doc);
   }
 
   async update(id: string, student: Partial<Student>): Promise<Student | null> {
-    const updateData: any = {};
-    if (student.firstName !== undefined) updateData.firstName = student.firstName;
-    if (student.lastName !== undefined) updateData.lastName = student.lastName;
-    if (student.admissionDate !== undefined) updateData.admissionDate = student.admissionDate;
-    if (student.gender !== undefined) updateData.gender = student.gender;
-    if (student.dateOfBirth !== undefined) updateData.dateOfBirth = student.dateOfBirth;
-    if (student.bloodGroup !== undefined) updateData.bloodGroup = student.bloodGroup;
-    if (student.nationalId !== undefined) updateData.nationalId = student.nationalId;
-    if (student.photo !== undefined) updateData.photo = student.photo;
-    if (student.phone !== undefined) updateData.phone = student.phone;
-    if (student.email !== undefined) updateData.email = student.email;
-    if (student.house !== undefined) updateData.house = student.house;
-    if (student.area !== undefined) updateData.area = student.area;
-    if (student.city !== undefined) updateData.city = student.city;
-    if (student.state !== undefined) updateData.state = student.state;
-    if (student.postalCode !== undefined) updateData.postalCode = student.postalCode;
-    if (student.country !== undefined) updateData.country = student.country;
+    const updateData = StudentMapper.toPersistencePartial(student);
 
     const doc = await StudentModel.findOneAndUpdate(
       { _id: id, isDeleted: false },
@@ -183,7 +131,7 @@ export class MongoStudentRepository implements IStudentRepository {
       { new: true }
     );
     if (!doc) return null;
-    return this.mapToDomain(doc);
+    return StudentMapper.toDomain(doc);
   }
 
   async softDelete(id: string): Promise<boolean> {

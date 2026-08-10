@@ -18,6 +18,8 @@ import { NodemailerEmailService } from "@/infra/services/NodemailerEmailService"
 import { S3StorageService } from "@/infra/services/S3StorageService";
 import { IOrganizationRepository } from "@/application/ports/repositories/IOrganizationRepository";
 import { MongoOrganizationRepository } from "@/infra/db/MongoOrganizationRepository";
+import { ITokenBlacklistService } from "@/application/ports/services/ITokenBlacklistService";
+import { MongoTokenBlacklistService } from "@/infra/services/MongoTokenBlacklistService";
 
 export const coreModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
@@ -46,5 +48,9 @@ export const coreModule = new ContainerModule((bind) => {
 
   bind<IStorageService>(TYPES.StorageService)
     .to(S3StorageService)
+    .inSingletonScope();
+
+  bind<ITokenBlacklistService>(TYPES.TokenBlacklistService)
+    .to(MongoTokenBlacklistService)
     .inSingletonScope();
 });

@@ -1,7 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
-import { Settings } from 'lucide-react';
+import { Settings, LogOut } from 'lucide-react';
+import { useAppDispatch } from '../../app/hooks';
+import { clearUser } from '../../app/slices/authSlice';
+import { clearOrganization } from '../../app/slices/organizationSlice';
+import { logoutUserApi } from '../../api/authApi';
 
 
 export interface SidebarItem {
@@ -54,6 +58,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const displayName = 'EduCore';
   const logoUrl = null;
+  const dispatch = useAppDispatch();
+
+  const handleLogoutClick = async () => {
+    onClose();
+    try {
+      await logoutUserApi();
+    } catch (err) {
+      console.error("Logout call failed", err);
+    } finally {
+      dispatch(clearUser());
+      dispatch(clearOrganization());
+    }
+  };
 
  
 
@@ -98,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
 
           {/* Bottom Section: Settings & Logout */}
-          <div className="border-t border-neutral-100 px-3 py-3">
+          <div className="border-t border-neutral-100 px-3 py-3 space-y-1">
             <NavLink
               to={settingsPath}
               onClick={onClose}
@@ -121,6 +138,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </>
               )}
             </NavLink>
+
+            <button
+              onClick={handleLogoutClick}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-neutral-500 hover:bg-red-100 hover:text-red-700 transition-all duration-200 focus:outline-none cursor-pointer group"
+            >
+              <LogOut className="h-4.5 w-4.5 text-neutral-450 group-hover:text-red-700 transition-colors duration-200" />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </aside>

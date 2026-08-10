@@ -10,5 +10,4 @@ export const ERROR_MESSAGES = {
   NO_SESSION: "No active session",
   AUTH_FAILED: "Authentication failed",
   INVALID_EMAIL:'Invalid Email'
-  
 };
