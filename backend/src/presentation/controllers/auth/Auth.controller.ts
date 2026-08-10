@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import jwt from "jsonwebtoken";
 import { TYPES } from "@/config/di/types";
 import { ILoginUser } from "@/application/ports/use-cases/auth/ILoginUserUseCase";
 import { IRefreshToken } from "@/application/ports/use-cases/auth/IRefreshTokenUseCase";
+import { ILogoutUser } from "@/application/ports/use-cases/auth/ILogoutUserUseCase";
 import { IGetMe } from "@/application/ports/use-cases/auth/IGetMeUseCase";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
 import { IVerifyOtp } from "@/application/ports/use-cases/auth/IVerifyOtpUseCase";
@@ -15,6 +17,7 @@ import {
   setRefreshTokenCookie,
   clearRefreshTokenCookie,
 } from "@/infra/web/express/utils/cookieUtils";
+import { ResponseHelper } from "@/presentation/http/response/ResponseHelper";
 
 @injectable()
 export class AuthController {
@@ -24,7 +27,8 @@ export class AuthController {
     @inject(TYPES.GetMeUseCase) private _getMeUseCase: IGetMe,
     @inject(TYPES.ForgotPasswordUseCase) private _forgotUseCase: IForgotPassword,
     @inject(TYPES.VerifyOtpUseCase) private _verifyOtpUseCase: IVerifyOtp,
-    @inject(TYPES.ResetPasswordUseCase) private _resetPasswordUseCase: IResetPassword
+    @inject(TYPES.ResetPasswordUseCase) private _resetPasswordUseCase: IResetPassword,
+    @inject(TYPES.LogoutUserUseCase) private _logoutUseCase: ILogoutUser
   ) {}
 
   login = async (req: Request, res: Response): Promise<void> => {
@@ -35,21 +39,24 @@ export class AuthController {
       role);
     setRefreshTokenCookie(res,refreshToken);
 
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: AUTH_MESSAGES.LOGIN_SUCCESS,
+    ResponseHelper.success(res, AUTH_MESSAGES.LOGIN_SUCCESS, {
       accessToken,
       user,
-    });
+    }, HTTP_STATUS.OK);
   };
 
   logout = async (req: Request, res: Response): Promise<void> => {
+    const refreshToken = req.cookies.refreshToken;
+   if (!refreshToken) {
+       throw new UnauthorizedError(AUTH_MESSAGES.NO_REFRESH_TOKEN);
+    }
+    const expiresAt: Date = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000,//7 days from now
+    )
+    await this._logoutUseCase.execute(refreshToken, expiresAt);
     clearRefreshTokenCookie(res);
 
-    res.json({
-      success: true,
-      message: AUTH_MESSAGES.LOGOUT_SUCCESS,
-    });
+    ResponseHelper.success(res, AUTH_MESSAGES.LOGOUT_SUCCESS, null);
   };
 
   refresh = async (req: Request, res: Response): Promise<void> => {
@@ -57,20 +64,18 @@ export class AuthController {
     if (!refreshToken) {
        throw new UnauthorizedError(AUTH_MESSAGES.NO_REFRESH_TOKEN);
     }
-      const accessToken = await this._refreshUseCase.execute(refreshToken);
-      res.json({accessToken});
-    
+    const accessToken = await this._refreshUseCase.execute(refreshToken);
+    ResponseHelper.success(res, "Token refreshed successfully", { accessToken });
   };
 
   me = async (req: Request, res: Response): Promise<void> => {
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.id//since its a custom req
     if (!userId) {
        throw new UnauthorizedError(ERROR_MESSAGES.AUTH_FAILED)
     }
 
     const user = await this._getMeUseCase.execute(userId);
-    res.json({
-      success: true,
+    ResponseHelper.success(res, "Profile retrieved successfully", {
       user: {
         id: user.id!,
         name: user.name!,
@@ -84,16 +89,13 @@ export class AuthController {
   forgotPassword = async (req: Request, res: Response): Promise<void> => {
     const result = forgotPasswordSchema.safeParse(req.body);
     if (!result.success) {
-      throw new ValidationError(ERROR_MESSAGES.INVALID_EMAIL);
+       throw new ValidationError(ERROR_MESSAGES.INVALID_EMAIL);
     }
 
     const { email } = result.data;
     await this._forgotUseCase.execute(email);
 
-    res.json({
-      success: true,
-      message: "OTP generated successfully",
-    });
+    ResponseHelper.success(res, "OTP generated successfully", null);
   };
 
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
@@ -105,11 +107,7 @@ export class AuthController {
     const { email, otp } = result.data;
     const resetToken = await this._verifyOtpUseCase.execute(email, otp);
 
-    res.json({
-      success: true,
-      message: "OTP verified successfully",
-      resetToken,
-    });
+    ResponseHelper.success(res, "OTP verified successfully", { resetToken });
   };
 
   resetPassword = async (req: Request, res: Response): Promise<void> => {
@@ -123,9 +121,7 @@ export class AuthController {
 
     setRefreshTokenCookie(res, refreshToken);
 
-    res.json({
-      success: true,
-      message: "Password reset successfully",
+    ResponseHelper.success(res, "Password reset successfully", {
       accessToken,
       user,
     });
