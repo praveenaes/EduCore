@@ -43,7 +43,7 @@ export const AdminLayout: React.FC = () => {
         />
 
         {/* Content Area */}
-        <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full transition-all duration-300">
+        <main className="flex-1 flex flex-col px-6 pb-6 pt-3 md:px-8 md:pb-8 md:pt-4 max-w-7xl mx-auto w-full transition-all duration-300">
           <Outlet />
         </main>
       </div>
