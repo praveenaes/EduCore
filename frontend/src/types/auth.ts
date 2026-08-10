@@ -24,18 +24,21 @@ export interface LoginPayload {
 export interface LoginResponse {
   success: boolean;
   message: string;
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string; // Backend returns uppercase "ADMIN" | "TEACHER" | "STUDENT"
-    photo?: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      role: string; // Backend returns uppercase "ADMIN" | "TEACHER" | "STUDENT"
+      photo?: string;
+    };
   };
 }
 
 export interface LogoutResponse {
   success: boolean;
   message: string;
+  data: null;
 }
