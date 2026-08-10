@@ -16,7 +16,7 @@ import {
 import type { Teacher } from '../../types/teacher';
 import { getPhotoUrl } from '../../utils/photo';
 
-const PAGE_LIMIT = 5;
+const PAGE_LIMIT = 4;
 
 const TeachersPage: React.FC = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -31,6 +31,10 @@ const TeachersPage: React.FC = () => {
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [showStatusConfirm, setShowStatusConfirm] = useState<{
+    show: boolean;
+    teacher: Teacher | null;
+  }>({ show: false, teacher: null });
 
   // Debounce search input
   useEffect(() => {
@@ -170,7 +174,7 @@ const TeachersPage: React.FC = () => {
       accessor: (t) => (
         <button
           id={`toggle-teacher-${t.id}`}
-          onClick={() => handleToggleStatus(t)}
+          onClick={() => setShowStatusConfirm({ show: true, teacher: t })}
           disabled={togglingId === t.id}
           className={`text-xs font-semibold transition-colors cursor-pointer ${
             togglingId === t.id
@@ -187,84 +191,87 @@ const TeachersPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Toast */}
-      {toast && (
-        <div
-          className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ${
-            toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
-          }`}
-        >
-          {toast.type === 'success' ? '✓' : '✕'} {toast.message}
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-800">Teachers</h1>
-          <p className="text-sm text-neutral-450 mt-0.5">
-            {total} teacher{total !== 1 ? 's' : ''} registered
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            leftIcon={<Download className="h-4 w-4" />}
-            onClick={handleExport}
-            disabled={teachers.length === 0}
+    <div className="flex-1 flex flex-col justify-between">
+      <div className="space-y-6">
+        {/* Toast */}
+        {toast && (
+          <div
+            className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ${
+              toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+            }`}
           >
-            Export CSV
-          </Button>
-          <Button
-            size="sm"
-            leftIcon={<UserPlus className="h-4 w-4" />}
-            onClick={() => setShowAddModal(true)}
-          >
-            Add Teacher
-          </Button>
+            {toast.type === 'success' ? '✓' : '✕'} {toast.message}
+          </div>
+        )}
+
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-neutral-800">Teachers</h1>
+            <p className="text-sm text-neutral-450 mt-0.5">
+              {total} teacher{total !== 1 ? 's' : ''} registered
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Download className="h-4 w-4" />}
+              onClick={handleExport}
+              disabled={teachers.length === 0}
+            >
+              Export CSV
+            </Button>
+            <Button
+              size="sm"
+              leftIcon={<UserPlus className="h-4 w-4" />}
+              onClick={() => setShowAddModal(true)}
+            >
+              Add Teacher
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {/* Search */}
-      <SearchBox
-        value={search}
-        onChange={(v) => setSearch(v)}
-        placeholder="Search by name, employee ID, or email…"
-      />
-
-      {/* Content */}
-      {error ? (
-        <ErrorState message={error} onRetry={fetchTeachers} />
-      ) : teachers.length === 0 && !isLoading ? (
-        <EmptyState
-          title="No Teachers Registered Yet"
-          description={
-            debouncedSearch
-              ? `No results for "${debouncedSearch}". Try a different search term.`
-              : 'Click "Add Teacher" to register the first teacher.'
-          }
-          action={
-            !debouncedSearch && (
-              <Button size="sm" onClick={() => setShowAddModal(true)}>
-                Register Your First Teacher
-              </Button>
-            )
-          }
+        {/* Search */}
+        <SearchBox
+          value={search}
+          onChange={(v) => setSearch(v)}
+          placeholder="Search by name, employee ID, or email…"
         />
-      ) : (
-        <>
+
+        {/* Content */}
+        {error ? (
+          <ErrorState message={error} onRetry={fetchTeachers} />
+        ) : teachers.length === 0 && !isLoading ? (
+          <EmptyState
+            title="No Teachers Registered Yet"
+            description={
+              debouncedSearch
+                ? `No results for "${debouncedSearch}". Try a different search term.`
+                : 'Click "Add Teacher" to register the first teacher.'
+            }
+            action={
+              !debouncedSearch && (
+                <Button size="sm" onClick={() => setShowAddModal(true)}>
+                  Register Your First Teacher
+                </Button>
+              )
+            }
+          />
+        ) : (
           <Table
             columns={columns}
             data={teachers}
             keyExtractor={(t) => t.id}
             isLoading={isLoading}
           />
-          {totalPages > 1 && (
-            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
-          )}
-        </>
+        )}
+      </div>
+
+      {teachers.length > 0 && !isLoading && totalPages > 1 && (
+        <div className="mt-auto pt-6">
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+        </div>
       )}
 
       {/* Modals */}
@@ -281,6 +288,54 @@ const TeachersPage: React.FC = () => {
           onUpdated={() => void fetchTeachers()}
           onDeleted={() => void fetchTeachers()}
         />
+      )}
+
+      {/* Status Toggle Confirmation Modal */}
+      {showStatusConfirm.show && showStatusConfirm.teacher && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/45 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-neutral-100">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-base font-bold text-neutral-800">
+                Confirm {showStatusConfirm.teacher.isActive !== false ? 'Deactivation' : 'Activation'}
+              </h3>
+              <button
+                onClick={() => setShowStatusConfirm({ show: false, teacher: null })}
+                className="text-neutral-400 hover:text-neutral-600 cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-sm text-neutral-500 mb-6">
+              Are you sure you want to {showStatusConfirm.teacher.isActive !== false ? 'deactivate' : 'activate'}{' '}
+              <span className="font-semibold text-neutral-800">
+                {showStatusConfirm.teacher.firstName} {showStatusConfirm.teacher.lastName}
+              </span>
+              ? {showStatusConfirm.teacher.isActive !== false
+                  ? 'This will prevent them from logging into the teacher portal.'
+                  : 'This will restore their access to the teacher portal.'}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowStatusConfirm({ show: false, teacher: null })}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={showStatusConfirm.teacher.isActive !== false ? 'danger' : 'primary'}
+                size="sm"
+                onClick={() => {
+                  const t = showStatusConfirm.teacher;
+                  setShowStatusConfirm({ show: false, teacher: null });
+                  if (t) handleToggleStatus(t);
+                }}
+              >
+                {showStatusConfirm.teacher.isActive !== false ? 'Deactivate' : 'Activate'}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
