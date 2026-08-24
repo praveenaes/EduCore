@@ -1,9 +1,10 @@
 import { injectable } from "inversify";
 import { FilterQuery } from "mongoose";
-import { IStudentRepository, StudentFilters, StudentPagination, StudentListResult } from "../../application/ports/repositories/IStudentRepository";
+import { IStudentRepository, StudentFilters, StudentPagination, StudentListResult } from "../../domain/repositories/IStudentRepository";
 import { Student } from "../../domain/entities/Student";
 import { StudentModel, IStudentDocument } from "./models/StudentModel";
 import { StudentMapper } from "../../application/mappers/StudentMapper";
+import { PaginationHelper } from "@/shared/utils/pagination";
 
 @injectable()
 export class MongoStudentRepository implements IStudentRepository {
@@ -65,6 +66,11 @@ export class MongoStudentRepository implements IStudentRepository {
       ];
     }
 
+    if (filters.isActive !== undefined) {
+      query.isActive = filters.isActive;
+    }
+
+
 //     {
 //   isDeleted: false,
 //   $or: [
@@ -75,11 +81,23 @@ export class MongoStudentRepository implements IStudentRepository {
 //   ]
 // }
 
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { page, limit, sortBy, sortOrder } = pagination;
+    const { skip } = PaginationHelper.getSkipAndLimit(page, limit);
+
+    let sortOptions: any = { createdAt: -1 };
+    if (sortBy) {
+      const order = sortOrder === "desc" ? -1 : 1;
+      if (sortBy === "firstName") {
+        sortOptions = { firstName: order, lastName: order };
+        //sort by firstName then lastName when first names are the same
+      } else {
+        sortOptions = { [sortBy]: order };
+        //Use the value inside sortBy as the property name.
+      }
+    }
 
     const [docs, total] = await Promise.all([
-      StudentModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      StudentModel.find(query).sort(sortOptions).skip(skip).limit(limit),
       StudentModel.countDocuments(query),
     ]);
 

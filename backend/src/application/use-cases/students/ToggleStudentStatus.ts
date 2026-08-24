@@ -1,8 +1,8 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
-import { IStudentRepository } from "../../ports/repositories/IStudentRepository";
+import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
 import { Student } from "../../../domain/entities/Student";
-import { AppError } from "../../error/AppError";
+import { AppError } from "@/shared/errors/AppError";
 
 import { IToggleStudentStatus } from "../../ports/use-cases/students/IToggleStudentStatusUseCase";
 
@@ -18,9 +18,18 @@ export class ToggleStudentStatus implements IToggleStudentStatus {
   ) {}
 
   async execute(req: ToggleStatusRequest): Promise<Student> {
-    const updated = await this.studentRepository.updateStatus(req.id, req.isActive);
-    if (!updated) {
+    const student = await this.studentRepository.findById(req.id);
+    if (!student) {
       throw new AppError("Student not found or deleted");
+    }
+    if (req.isActive) {
+      student.activate();
+    } else {
+      student.deactivate();
+    }
+    const updated = await this.studentRepository.update(req.id, student);
+    if (!updated) {
+      throw new AppError("Failed to update student status");
     }
     return updated;
   }

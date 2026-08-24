@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { IUserRepository } from "../../application/ports/repositories/IUserRepository";
+import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { User } from "../../domain/entities/User";
 import { UserModel, IUserDocument } from "./models/UserModel";
 import { UserMapper } from "../../application/mappers/UserMapper";

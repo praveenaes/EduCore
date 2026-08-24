@@ -9,15 +9,15 @@ import { IGetMe } from "@/application/ports/use-cases/auth/IGetMeUseCase";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
 import { IVerifyOtp } from "@/application/ports/use-cases/auth/IVerifyOtpUseCase";
 import { IResetPassword } from "@/application/ports/use-cases/auth/IResetPasswordUseCase";
-import { AUTH_MESSAGES,ERROR_MESSAGES } from "@/presentation/http/constants/messages";
-import { UnauthorizedError, ValidationError } from "@/application/error/AppError";
-import { HTTP_STATUS } from "@/presentation/http/constants/httpStatus";
-import { forgotPasswordSchema, verifyOtpSchema, resetPasswordSchema } from "@/presentation/http/validators/userAuthValidators";
+import { AUTH_MESSAGES,ERROR_MESSAGES } from "@/presentation/constants/messages";
+import { UnauthorizedError, ValidationError } from "@/shared/errors/AppError";
+import { HTTP_STATUS } from "@/presentation/constants/httpStatus";
+import { forgotPasswordSchema, verifyOtpSchema, resetPasswordSchema } from "@/presentation/validators/userAuthValidators";
 import {
   setRefreshTokenCookie,
   clearRefreshTokenCookie,
-} from "@/infra/web/express/utils/cookieUtils";
-import { ResponseHelper } from "@/presentation/http/response/ResponseHelper";
+} from "@/presentation/helpers/cookieUtils";
+import { ResponseHelper } from "@/presentation/helpers/ResponseHelper";
 
 @injectable()
 export class AuthController {
@@ -45,6 +45,7 @@ export class AuthController {
     }, HTTP_STATUS.OK);
   };
 
+
   logout = async (req: Request, res: Response): Promise<void> => {
     const refreshToken = req.cookies.refreshToken;
    if (!refreshToken) {
@@ -59,14 +60,16 @@ export class AuthController {
     ResponseHelper.success(res, AUTH_MESSAGES.LOGOUT_SUCCESS, null);
   };
 
+
   refresh = async (req: Request, res: Response): Promise<void> => {
     const refreshToken = req.cookies.refreshToken
     if (!refreshToken) {
        throw new UnauthorizedError(AUTH_MESSAGES.NO_REFRESH_TOKEN);
     }
     const accessToken = await this._refreshUseCase.execute(refreshToken);
-    ResponseHelper.success(res, "Token refreshed successfully", { accessToken });
+    ResponseHelper.success(res, AUTH_MESSAGES.TOKEN_REFRESHED, { accessToken });
   };
+
 
   me = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as any).user?.id//since its a custom req
@@ -75,7 +78,7 @@ export class AuthController {
     }
 
     const user = await this._getMeUseCase.execute(userId);
-    ResponseHelper.success(res, "Profile retrieved successfully", {
+    ResponseHelper.success(res, AUTH_MESSAGES.PROFILE_RETRIEVED, {
       user: {
         id: user.id!,
         name: user.name!,
@@ -86,6 +89,7 @@ export class AuthController {
     });
   };
 
+
   forgotPassword = async (req: Request, res: Response): Promise<void> => {
     const result = forgotPasswordSchema.safeParse(req.body);
     if (!result.success) {
@@ -95,8 +99,9 @@ export class AuthController {
     const { email } = result.data;
     await this._forgotUseCase.execute(email);
 
-    ResponseHelper.success(res, "OTP generated successfully", null);
+    ResponseHelper.success(res, AUTH_MESSAGES.OTP_CREATION_SUCCESS, null);
   };
+
 
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const result = verifyOtpSchema.safeParse(req.body);
@@ -107,9 +112,10 @@ export class AuthController {
     const { email, otp } = result.data;
     const resetToken = await this._verifyOtpUseCase.execute(email, otp);
 
-    ResponseHelper.success(res, "OTP verified successfully", { resetToken });
+    ResponseHelper.success(res,AUTH_MESSAGES.OTP_VERIFICATION_SUCCESS, { resetToken });
   };
 
+  
   resetPassword = async (req: Request, res: Response): Promise<void> => {
     const result = resetPasswordSchema.safeParse(req.body);
     if (!result.success) {
@@ -121,7 +127,7 @@ export class AuthController {
 
     setRefreshTokenCookie(res, refreshToken);
 
-    ResponseHelper.success(res, "Password reset successfully", {
+    ResponseHelper.success(res, AUTH_MESSAGES.PASSWORD_RESET_SUCCESS, {
       accessToken,
       user,
     });

@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
-import { IUserRepository } from "../../ports/repositories/IUserRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IEmailService } from "../../ports/services/IEmailService";
-import { NotFoundError, BadRequestError } from "../../error/AppError";
+import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
 
 @injectable()
 export class SendEmailChangeOtp {
@@ -21,10 +21,8 @@ export class SendEmailChangeOtp {
       throw new BadRequestError("User email is not configured");
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 60 * 1000); // 1 minute expiration
-
-    await this._userRepo.saveEmailChangeOtp(user.email, otp, expiresAt);
-    await this._emailSvc.sendEmailChangeOtp(user.email, otp);
+    user.generateEmailChangeOtp();
+    await this._userRepo.update(user.id!, user);
+    await this._emailSvc.sendEmailChangeOtp(user.email!, user.emailChangeOtp!);
   }
 }

@@ -1,37 +1,66 @@
 import { Teacher } from "../../domain/entities/Teacher";
-import { ITeacherDocument } from "../../infra/db/models/TeacherModel";
+
+export interface ITeacherPersistenceInput {
+  _id: any;
+  firstName: string;
+  lastName: string;
+  employeeId: string;
+  joiningDate: Date;
+  qualifications: string;
+  specializations: string;
+  experience: number;
+  salary: number;
+  gender: string;
+  dateOfBirth: Date;
+  bloodGroup: string;
+  nationalId: string;
+  photo: string;
+  phone: string;
+  email: string;
+  house: string;
+  area: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDeleted: boolean;
+  isActive: boolean;
+  userId: any;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 export class TeacherMapper {
-  static toDomain(doc: ITeacherDocument): Teacher {
-    return new Teacher(
-      doc._id.toString(),
-      doc.firstName,
-      doc.lastName,
-      doc.employeeId,
-      doc.joiningDate,
-      doc.qualifications,
-      doc.specializations,
-      doc.experience,
-      doc.salary,
-      doc.gender,
-      doc.dateOfBirth,
-      doc.bloodGroup,
-      doc.nationalId,
-      doc.photo,
-      doc.phone,
-      doc.email,
-      doc.house,
-      doc.area,
-      doc.city,
-      doc.state,
-      doc.postalCode,
-      doc.country,
-      doc.isDeleted,
-      doc.isActive,
-      doc.userId.toString(),
-      doc.createdAt,
-      doc.updatedAt
-    );
+  static toDomain(doc: ITeacherPersistenceInput): Teacher {
+    return new Teacher({
+      id: doc._id.toString(),
+      firstName: doc.firstName,
+      lastName: doc.lastName,
+      employeeId: doc.employeeId,
+      joiningDate: doc.joiningDate,
+      qualifications: doc.qualifications,
+      specializations: doc.specializations,
+      experience: doc.experience,
+      salary: doc.salary,
+      gender: doc.gender,
+      dateOfBirth: doc.dateOfBirth,
+      bloodGroup: doc.bloodGroup,
+      nationalId: doc.nationalId,
+      photo: doc.photo,
+      phone: doc.phone,
+      email: doc.email,
+      house: doc.house,
+      area: doc.area,
+      city: doc.city,
+      state: doc.state,
+      postalCode: doc.postalCode,
+      country: doc.country,
+      isDeleted: doc.isDeleted,
+      isActive: doc.isActive,
+      userId: doc.userId.toString(),
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    });
   }
 
   static toPersistence(teacher: Teacher): {
@@ -109,6 +138,8 @@ export class TeacherMapper {
     state?: string;
     postalCode?: string;
     country?: string;
+    isActive?: boolean;
+    isDeleted?: boolean;
   } {
     const updateData: {
       firstName?: string;
@@ -131,6 +162,8 @@ export class TeacherMapper {
       state?: string;
       postalCode?: string;
       country?: string;
+      isActive?: boolean;
+      isDeleted?: boolean;
     } = {};
 
     if (teacher.firstName !== undefined) updateData.firstName = teacher.firstName;
@@ -153,6 +186,8 @@ export class TeacherMapper {
     if (teacher.state !== undefined) updateData.state = teacher.state;
     if (teacher.postalCode !== undefined) updateData.postalCode = teacher.postalCode;
     if (teacher.country !== undefined) updateData.country = teacher.country;
+    if (teacher.isActive !== undefined) updateData.isActive = teacher.isActive;
+    if (teacher.isDeleted !== undefined) updateData.isDeleted = teacher.isDeleted;
 
     return updateData;
   }

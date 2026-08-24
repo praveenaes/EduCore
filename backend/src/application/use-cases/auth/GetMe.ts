@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
-import { IStudentRepository } from "@/application/ports/repositories/IStudentRepository";
-import { ITeacherRepository } from "@/application/ports/repositories/ITeacherRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
+import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
+import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
 import { TYPES } from "@/config/di/types";
-import { UnauthorizedError } from "@/application/error/AppError";
+import { UnauthorizedError } from "@/shared/errors/AppError";
 import { IGetMe } from "@/application/ports/use-cases/auth/IGetMeUseCase";
 import { User } from "@/domain/entities/User";
 import { UserRole } from "@/domain/enums/UserRole";
@@ -31,17 +31,12 @@ export class GetMe implements IGetMe {
       photo = teacher?.photo;
     }
 
-    return new User(
-      user.id,
-      user.email,
-      undefined,
-      user.role,
-      user.name,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
+    return new User({
+      id: user.id,
+      email: user.email!,
+      role: user.role!,
+      name: user.name!,
       photo
-    );
+    });
   }
 }

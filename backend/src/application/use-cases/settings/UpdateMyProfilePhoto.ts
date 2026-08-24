@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
-import { IUserRepository } from "../../ports/repositories/IUserRepository";
-import { IStudentRepository } from "../../ports/repositories/IStudentRepository";
-import { ITeacherRepository } from "../../ports/repositories/ITeacherRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
+import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
+import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
 import { IStorageService } from "../../ports/services/IStorageService";
-import { NotFoundError, BadRequestError } from "../../error/AppError";
+import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
 import { UserRole } from "@/domain/enums/UserRole";
 
 import { IUpdateMyProfilePhoto } from "../../ports/use-cases/settings/IUpdateMyProfilePhotoUseCase";

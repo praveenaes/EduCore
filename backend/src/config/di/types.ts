@@ -1,3 +1,8 @@
+//is TYPES object gives every dependency a unique identifier
+//at runtime, TypeScript interfaces don't exist
+//  because they are removed when TypeScript is compiled.
+
+// // So tsyringe needs another way to identify the dependency.
 const TYPES = {
   // Repositories
   UserRepository: Symbol.for("UserRepository"),

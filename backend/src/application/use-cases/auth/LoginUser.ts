@@ -1,13 +1,13 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { TYPES } from "@/config/di/types";
-import { BadRequestError, UnauthorizedError } from "@/application/error/AppError";
+import { BadRequestError, UnauthorizedError } from "@/shared/errors/AppError";
 import { ILoginUser } from "@/application/ports/use-cases/auth/ILoginUserUseCase";
 import { LoginUserResponseDTO } from "@/application/dto/auth/authDtos";
 import { UserRole } from "@/domain/enums/UserRole";
-import { ITeacherRepository } from "@/application/ports/repositories/ITeacherRepository";
-import {IStudentRepository} from '@/application/ports/repositories/IStudentRepository'
+import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
+import {IStudentRepository} from '@/domain/repositories/IStudentRepository'
 
 @injectable()
 export class LoginUser implements ILoginUser {
@@ -32,8 +32,10 @@ export class LoginUser implements ILoginUser {
       throw new UnauthorizedError("Invalid email or password");
     }
 
-    if (user.role?.toLowerCase() !== role?.toLowerCase()) {
-      throw new UnauthorizedError("Access denied: role mismatch");
+    try {
+      user.verifyRole(role);
+    } catch (err: any) {
+      throw new UnauthorizedError(err.message);
     }
 
     const isMatch = await this._authSvc.comparePassword(password, user.password!);
@@ -44,16 +46,24 @@ export class LoginUser implements ILoginUser {
     let photo: string | undefined = undefined;
     if (role.toUpperCase() === UserRole.STUDENT) {
       const student = await this._studentRepo.findByEmail(email);
-      if (student && student.isActive === false) {
-        throw new UnauthorizedError("Your account has been deactivated by the administrator.");
+      if (student) {
+        try {
+          student.verifyIsActive();
+        } catch (err: any) {
+          throw new UnauthorizedError(err.message);
+        }
+        photo = student.photo;
       }
-      photo = student?.photo;
     } else if (role.toUpperCase() === UserRole.TEACHER) {
       const teacher = await this._teacherRepo.findByEmail(email);
-      if (teacher && teacher.isActive === false) {
-        throw new UnauthorizedError("Your account has been deactivated by the administrator.");
+      if (teacher) {
+        try {
+          teacher.verifyIsActive();
+        } catch (err: any) {
+          throw new UnauthorizedError(err.message);
+        }
+        photo = teacher.photo;
       }
-      photo = teacher?.photo;
     }
 
 

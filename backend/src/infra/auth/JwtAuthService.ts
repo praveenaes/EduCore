@@ -7,7 +7,7 @@ import { ENV } from "@/config/env.config";
 import {
   setRefreshTokenCookie,
   clearRefreshTokenCookie,
-} from "../web/express/utils/cookieUtils";
+} from "@/presentation/helpers/cookieUtils";
 
 @injectable()
 export class JwtAuthService implements IAuthService {

@@ -1,9 +1,10 @@
 import { injectable } from "inversify";
 import { FilterQuery } from "mongoose";
-import { ITeacherRepository, TeacherFilters, TeacherPagination, TeacherListResult } from "../../application/ports/repositories/ITeacherRepository";
+import { ITeacherRepository, TeacherFilters, TeacherPagination, TeacherListResult } from "../../domain/repositories/ITeacherRepository";
 import { Teacher } from "../../domain/entities/Teacher";
 import { TeacherModel, ITeacherDocument } from "./models/TeacherModel";
 import { TeacherMapper } from "../../application/mappers/TeacherMapper";
+import { PaginationHelper } from "@/shared/utils/pagination";
 
 @injectable()
 export class MongoTeacherRepository implements ITeacherRepository {
@@ -70,7 +71,7 @@ export class MongoTeacherRepository implements ITeacherRepository {
     }
 
     const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
+    const { skip } = PaginationHelper.getSkipAndLimit(page, limit);
 
     const [docs, total] = await Promise.all([
       TeacherModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),

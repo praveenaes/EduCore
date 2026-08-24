@@ -1,12 +1,15 @@
-import { Student } from "../../../domain/entities/Student";
+import { Student } from "../entities/Student";
 
 export interface StudentFilters {
   search?: string;
+  isActive?: boolean;
 }
 
 export interface StudentPagination {
   page: number;
   limit: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface StudentListResult {

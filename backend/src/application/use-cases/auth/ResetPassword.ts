@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { TYPES } from "@/config/di/types";
-import { BadRequestError, NotFoundError } from "@/application/error/AppError";
+import { BadRequestError, NotFoundError } from "@/shared/errors/AppError";
 import { IResetPassword } from "@/application/ports/use-cases/auth/IResetPasswordUseCase";
 import { UserRole } from "@/domain/enums/UserRole";
 import { User } from "@/domain/entities/User";
@@ -28,7 +28,8 @@ export class ResetPassword implements IResetPassword {
 
     const hashedPassword = await this._authSvc.hashPassword(passwordHex);
 
-    await this._userRepo.updatePassword(email, hashedPassword);
+    user.changePassword(hashedPassword);
+    await this._userRepo.update(user.id!, user);
 
     const accessToken = this._authSvc.generateAccessToken(user.id!, user.email!, user.role!);
     const refreshToken = this._authSvc.generateRefreshToken(user.id!, user.email!, user.role!);

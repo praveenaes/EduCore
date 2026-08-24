@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { ITokenBlacklistService } from "@/application/ports/services/ITokenBlacklistService";
 import { TYPES } from "@/config/di/types";
-import { UnauthorizedError } from "@/application/error/AppError";
+import { UnauthorizedError } from "@/shared/errors/AppError";
 import { IRefreshToken } from "@/application/ports/use-cases/auth/IRefreshTokenUseCase";
 
 @injectable()

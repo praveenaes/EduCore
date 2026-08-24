@@ -1,15 +1,15 @@
 import { injectable, inject } from "inversify";
 import { randomBytes } from "crypto";
 import { TYPES } from "../../../config/di/types";
-import { ITeacherRepository } from "../../ports/repositories/ITeacherRepository";
-import { IUserRepository } from "../../ports/repositories/IUserRepository";
+import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
 import { IEmailService } from "../../ports/services/IEmailService";
 import { IStorageService } from "../../ports/services/IStorageService";
 import { Teacher } from "../../../domain/entities/Teacher";
 import { User } from "../../../domain/entities/User";
 import { UserRole } from "../../../domain/enums/UserRole";
-import { ValidationError } from "../../error/AppError";
+import { ValidationError } from "@/shared/errors/AppError";
 import { ICreateTeacher } from "../../ports/use-cases/teachers/ICreateTeacherUseCase";
 
 @injectable()
@@ -56,14 +56,12 @@ export class CreateTeacher implements ICreateTeacher {
     // 3. Hash password
     const passwordHash = await this._authSvc.hashPassword(tempPassword);
 
-    // 4. Create linked auth User
-    const userEntity = new User(
-      undefined,
-      dto.email,
-      passwordHash,
-      UserRole.TEACHER,
-      `${dto.firstName} ${dto.lastName}`
-    );
+    const userEntity = User.createNew({
+      email: dto.email,
+      password: passwordHash,
+      role: UserRole.TEACHER,
+      name: `${dto.firstName} ${dto.lastName}`
+    });
 
     // 5. Upload profile photo to S3 if provided
     let photoUrl = "";
@@ -83,33 +81,30 @@ export class CreateTeacher implements ICreateTeacher {
       savedUser = await this._userRepo.create(userEntity);
 
       // 6. Create Teacher entity
-      const teacherEntity = new Teacher(
-        "",
-        dto.firstName,
-        dto.lastName,
-        dto.employeeId,
-        new Date(dto.joiningDate),
-        dto.qualifications,
-        dto.specializations,
-        parseInt(dto.experience) || 0,
-        parseFloat(dto.salary) || 0,
-        dto.gender,
-        new Date(dto.dateOfBirth),
-        dto.bloodGroup,
-        dto.nationalId,
-        photoUrl,
-        dto.phone,
-        dto.email,
-        dto.house,
-        dto.area,
-        dto.city,
-        dto.state,
-        dto.postalCode,
-        dto.country,
-        false,
-        true,
-        savedUser.id!
-      );
+      const teacherEntity = Teacher.createNew({
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        employeeId: dto.employeeId,
+        joiningDate: new Date(dto.joiningDate),
+        qualifications: dto.qualifications,
+        specializations: dto.specializations,
+        experience: parseInt(dto.experience) || 0,
+        salary: parseFloat(dto.salary) || 0,
+        gender: dto.gender,
+        dateOfBirth: new Date(dto.dateOfBirth),
+        bloodGroup: dto.bloodGroup,
+        nationalId: dto.nationalId,
+        photo: photoUrl,
+        phone: dto.phone,
+        email: dto.email,
+        house: dto.house,
+        area: dto.area,
+        city: dto.city,
+        state: dto.state,
+        postalCode: dto.postalCode,
+        country: dto.country,
+        userId: savedUser.id!
+      });
 
       savedTeacher = await this._teacherRepo.create(teacherEntity);
     } catch (err) {

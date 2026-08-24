@@ -1,14 +1,21 @@
 import { Organization } from "../../domain/entities/Organization";
-import { IOrganizationDocument } from "../../infra/db/models/OrganizationModel";
+
+export interface IOrganizationPersistenceInput {
+  _id: any;
+  name: string;
+  logoPath: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 export class OrganizationMapper {
-  static toDomain(doc: IOrganizationDocument): Organization {
-    return new Organization(
-      doc._id.toString(),
-      doc.name,
-      doc.logoPath,
-      doc.createdAt,
-      doc.updatedAt
-    );
+  static toDomain(doc: IOrganizationPersistenceInput): Organization {
+    return new Organization({
+      id: doc._id.toString(),
+      name: doc.name,
+      logoPath: doc.logoPath,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    });
   }
 }

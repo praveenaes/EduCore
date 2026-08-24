@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
-import { IUserRepository } from "../../ports/repositories/IUserRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
-import { NotFoundError, BadRequestError } from "../../error/AppError";
+import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
 
 @injectable()
 export class VerifyEmailChangeOtp {
@@ -17,16 +17,13 @@ export class VerifyEmailChangeOtp {
       throw new NotFoundError("User not found");
     }
 
-    if (!user.emailChangeOtp || user.emailChangeOtp !== otp) {
-      throw new BadRequestError("Invalid OTP");
+    try {
+      user.verifyAndClearEmailChangeOtp(otp);
+      await this._userRepo.update(userId, user);
+    } catch (err: any) {
+      await this._userRepo.update(userId, user);
+      throw new BadRequestError(err.message);
     }
-
-    if (user.emailChangeOtpExpiresAt && user.emailChangeOtpExpiresAt < new Date()) {
-      await this._userRepo.clearEmailChangeOtp(user.email!);
-      throw new BadRequestError("Expired OTP");
-    }
-
-    await this._userRepo.clearEmailChangeOtp(user.email!);
 
     return this._authSvc.generateEmailChangeToken(user.id!, user.email!);
   }

@@ -9,7 +9,7 @@ export const upload = multer({
     const allowedTypes = /jpeg|jpg|png|webp/;
     const ext = file.originalname.split(".").pop()?.toLowerCase();
     const isExtAllowed = ext ? allowedTypes.test(ext) : false;
-    const isMimeAllowed = allowedTypes.test(file.mimetype);
+    const isMimeAllowed = allowedTypes.test(file.mimetype);//"image/png"
 
     if (isExtAllowed && isMimeAllowed) {
       cb(null, true);

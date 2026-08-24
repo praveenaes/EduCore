@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { TYPES } from "@/config/di/types";
-import { NotFoundError, BadRequestError } from "@/application/error/AppError";
+import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
 import { IVerifyOtp } from "@/application/ports/use-cases/auth/IVerifyOtpUseCase";
 import { UserRole } from "@/domain/enums/UserRole";
 
@@ -19,12 +19,10 @@ export class VerifyOtp implements IVerifyOtp {
       throw new NotFoundError("Admin user not found");
     }
 
-    if ( user.passwordResetOtp !== otp) {
-      throw new BadRequestError("Invalid OTP");
-    }
-
-    if (user.passwordResetOtpExpiresAt && user.passwordResetOtpExpiresAt < new Date()) {
-      throw new BadRequestError("Expired OTP");
+    try {
+      user.verifyPasswordResetOtp(otp);
+    } catch (err: any) {
+      throw new BadRequestError(err.message);
     }
 
     return this._authSvc.generateResetToken(user.email!, user.role!);

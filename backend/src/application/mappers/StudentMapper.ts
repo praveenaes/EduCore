@@ -1,35 +1,60 @@
 import { Student } from "../../domain/entities/Student";
-import { IStudentDocument } from "../../infra/db/models/StudentModel";
 
 //mapper converts 1 format of data to another
+export interface IStudentPersistenceInput {
+  _id: any;
+  firstName: string;
+  lastName: string;
+  admissionNumber: string;
+  admissionDate: Date;
+  gender: string;
+  dateOfBirth: Date;
+  bloodGroup: string;
+  nationalId: string;
+  photo: string;
+  phone: string;
+  email: string;
+  house: string;
+  area: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDeleted: boolean;
+  isActive: boolean;
+  userId: any;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 //Whenever data is coming from MongoDB.
 export class StudentMapper {
-  static toDomain(doc: IStudentDocument): Student {
-    return new Student(
-      doc._id.toString(),
-      doc.firstName,
-      doc.lastName,
-      doc.admissionNumber,
-      doc.admissionDate,
-      doc.gender,
-      doc.dateOfBirth,
-      doc.bloodGroup,
-      doc.nationalId,
-      doc.photo,
-      doc.phone,
-      doc.email,
-      doc.house,
-      doc.area,
-      doc.city,
-      doc.state,
-      doc.postalCode,
-      doc.country,
-      doc.isDeleted,
-      doc.isActive,
-      doc.userId.toString(),
-      doc.createdAt,
-      doc.updatedAt
-    );
+  static toDomain(doc: IStudentPersistenceInput): Student {
+    return new Student({
+      id: doc._id.toString(),
+      firstName: doc.firstName,
+      lastName: doc.lastName,
+      admissionNumber: doc.admissionNumber,
+      admissionDate: doc.admissionDate,
+      gender: doc.gender,
+      dateOfBirth: doc.dateOfBirth,
+      bloodGroup: doc.bloodGroup,
+      nationalId: doc.nationalId,
+      photo: doc.photo,
+      phone: doc.phone,
+      email: doc.email,
+      house: doc.house,
+      area: doc.area,
+      city: doc.city,
+      state: doc.state,
+      postalCode: doc.postalCode,
+      country: doc.country,
+      isDeleted: doc.isDeleted,
+      isActive: doc.isActive,
+      userId: doc.userId.toString(),
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    });
   }
 
   // Whenever we want to save a new student into MongoDB.
@@ -98,6 +123,8 @@ export class StudentMapper {
     state?: string;
     postalCode?: string;
     country?: string;
+    isActive?: boolean;
+    isDeleted?: boolean;
   } {
     const updateData: {
       firstName?: string;
@@ -116,6 +143,8 @@ export class StudentMapper {
       state?: string;
       postalCode?: string;
       country?: string;
+      isActive?: boolean;
+      isDeleted?: boolean;
     } = {};
 
     if (student.firstName !== undefined) updateData.firstName = student.firstName;
@@ -134,6 +163,8 @@ export class StudentMapper {
     if (student.state !== undefined) updateData.state = student.state;
     if (student.postalCode !== undefined) updateData.postalCode = student.postalCode;
     if (student.country !== undefined) updateData.country = student.country;
+    if (student.isActive !== undefined) updateData.isActive = student.isActive;
+    if (student.isDeleted !== undefined) updateData.isDeleted = student.isDeleted;
 
     return updateData;
   }

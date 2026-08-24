@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TYPES } from "../../../../config/di/types";
-import { SettingsController } from "../../../../presentation/controllers/settings/Settings.controller";
+import { TYPES } from "@/config/di/types";
+import { SettingsController } from "@/presentation/controllers/settings/Settings.controller";
 import { authenticateUser, authenticateAdmin } from "../middleware/authMiddleware";
 import { upload } from "../middleware/uploadMiddleware";
-import { asyncHandler } from "../handler/asyncHandler";
-import { API_ROUTES } from "../../../../config/routes.config";
+import { asyncHandler } from "@/presentation/helpers/asyncHandler";
+import { API_ROUTES } from "@/config/routes.config";
 
 export const getSettingsRoutes = (container: Container): Router => {
   const router = Router();

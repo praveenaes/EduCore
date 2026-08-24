@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
-import { ITeacherRepository } from "../../ports/repositories/ITeacherRepository";
+import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
 
 export interface ExportTeachersRequest {
   search?: string;

@@ -2,11 +2,11 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "Backend for Educore project following Clean Architecture",
-  "main": "dist/infra/web/server.js",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node -r tsconfig-paths/register dist/infra/web/server.js",
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/infra/web/server.ts",
+    "start": "node -r tsconfig-paths/register dist/server.js",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
     "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/seedAdmin.ts"
   },
   "dependencies": {

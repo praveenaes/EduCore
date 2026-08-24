@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
-import { IUserRepository } from "../../ports/repositories/IUserRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
-import { NotFoundError, BadRequestError } from "../../error/AppError";
+import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
 
 @injectable()
 export class ChangePassword {
@@ -24,6 +24,7 @@ export class ChangePassword {
 
     const newPasswordHash = await this._authSvc.hashPassword(data.newPassword!);
 
-    await this._userRepo.updatePassword(user.email!, newPasswordHash);
+    user.changePassword(newPasswordHash);
+    await this._userRepo.update(user.id!, user);
   }
 }

@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { IOrganizationRepository } from "../../application/ports/repositories/IOrganizationRepository";
+import { IOrganizationRepository } from "../../domain/repositories/IOrganizationRepository";
 import { Organization } from "../../domain/entities/Organization";
 import { OrganizationModel } from "./models/OrganizationModel";
 import { OrganizationMapper } from "../../application/mappers/OrganizationMapper";

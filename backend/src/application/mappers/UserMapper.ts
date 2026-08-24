@@ -1,6 +1,17 @@
 import { UserRole } from "@/domain/enums/UserRole";
 import { User } from "../../domain/entities/User";
-import { IUserDocument } from "../../infra/db/models/UserModel";
+
+export interface IUserPersistenceInput {
+  _id: any;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  passwordResetOtp?: string;
+  passwordResetOtpExpiresAt?: Date;
+  emailChangeOtp?: string;
+  emailChangeOtpExpiresAt?: Date;
+}
 
 interface UserPersistence {
   name?: string;
@@ -10,18 +21,18 @@ interface UserPersistence {
 }
 
 export class UserMapper {
-  static toDomain(doc: IUserDocument): User {
-    return new User(
-      doc._id.toString(),
-      doc.email,
-      doc.password,
-      doc.role as UserRole,
-      doc.name,
-      doc.passwordResetOtp,
-      doc.passwordResetOtpExpiresAt,
-      doc.emailChangeOtp,
-      doc.emailChangeOtpExpiresAt
-    );
+  static toDomain(doc: IUserPersistenceInput): User {
+    return new User({
+      id: doc._id.toString(),
+      email: doc.email,
+      password: doc.password,
+      role: doc.role as UserRole,
+      name: doc.name,
+      passwordResetOtp: doc.passwordResetOtp,
+      passwordResetOtpExpiresAt: doc.passwordResetOtpExpiresAt,
+      emailChangeOtp: doc.emailChangeOtp,
+      emailChangeOtpExpiresAt: doc.emailChangeOtpExpiresAt,
+    });
   }
 
   static toPersistence(user: User):UserPersistence {

@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
-import { IStudentRepository } from "../../ports/repositories/IStudentRepository";
+import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
 
 import { IExportStudentsCsv } from "../../ports/use-cases/students/IExportStudentsCsvUseCase";
 
