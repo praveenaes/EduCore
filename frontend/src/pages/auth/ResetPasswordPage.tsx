@@ -57,27 +57,21 @@ export const ResetPasswordPage: React.FC = () => {
     setError(null);
 
     try {
-      // 1. Submit reset password request
       const response = await resetPasswordApi(email, password, token);
 
       if (response.success && response.data?.accessToken) {
-        // 2. Save new token
         tokenService.setToken(response.data.accessToken);
 
-        // 3. Auto-login by loading the authenticated user details
         const resultAction = await dispatch(loadUser());
 
         if (loadUser.fulfilled.match(resultAction)) {
-          // Initialize school organization details
           dispatch(
             setOrganization({
               name: "EduCore School",
             })
           );
-          // 4. Redirect directly to the dashboard
           navigate(`/${role}/dashboard`);
         } else {
-          // Fallback to login page if token load fails
           navigate(`/${role}/login`);
         }
       } else {

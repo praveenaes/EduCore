@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Download, UserPlus } from 'lucide-react';
+import { Download, UserPlus,X } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
 import { Table, type TableColumn } from '../../components/Table';
@@ -36,6 +36,9 @@ const StudentsPage: React.FC = () => {
     show: boolean;
     student: Student | null;
   }>({ show: false, student: null });
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const[filter,setFilter]=useState<boolean|null>(null)
 
   // Debounce search input
   useEffect(() => {
@@ -54,6 +57,9 @@ const StudentsPage: React.FC = () => {
         page,
         limit: LIMIT,
         search: debouncedSearch || undefined,
+        sortBy,
+        sortOrder,
+        isActive:filter
       });
       setStudents(res.data.data.students);
       setTotal(res.data.data.total);
@@ -63,7 +69,17 @@ const StudentsPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch]);
+  }, [page, debouncedSearch, sortBy, sortOrder,filter]);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    setPage(1);
+  };
 
   //runs when page loads
   useEffect(() => {
@@ -76,6 +92,7 @@ const StudentsPage: React.FC = () => {
     return () => clearTimeout(t);
   }, [toast]);
 
+  //active/inactivate
   const handleToggleStatus = async (student: Student) => {
     setTogglingId(student.id);
     try {
@@ -112,10 +129,26 @@ const StudentsPage: React.FC = () => {
     }
   };
 
+  const handleFilter=()=>{
+       if(filter===null){
+        setFilter(true)
+        setPage(1)
+       }else if(filter===true){
+        setFilter(false)
+        setPage(1)
+       }else{
+        setFilter(null)
+        setPage(1)
+       }
+  }
+
   //creates array of 5 column objects and passes to table component
   const columns: TableColumn<Student>[] = [
+
+  //student detaii button
     {
       header: 'Student',
+      sortField: 'firstName',
       accessor: (s) => (
         <button
           onClick={() => setSelectedStudent(s)}
@@ -146,6 +179,7 @@ const StudentsPage: React.FC = () => {
     },
     {
       header: 'Admission No.',
+      sortField: 'admissionNumber',
       accessor: (s) => (
         <span className="font-mono text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded">
           {s.admissionNumber}
@@ -158,6 +192,7 @@ const StudentsPage: React.FC = () => {
     },
     {
       header: 'Status',
+      sortField: 'isActive',
       accessor: (s) => (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
           s.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
@@ -186,6 +221,7 @@ const StudentsPage: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col justify-between">
       <div className="space-y-6">
+{/* toast showing button*/}
         {toast && (
           <div className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg ${
             toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
@@ -202,6 +238,11 @@ const StudentsPage: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {/* <button  
+              style={{background:'red',width:'50px'}}
+              onClick={()=>handleSort('firstName')}
+               >Sort</button> */}
+{/*exporting button*/}
             <Button
               variant="outline"
               size="sm"
@@ -212,6 +253,8 @@ const StudentsPage: React.FC = () => {
             >
               Export CSV
             </Button>
+            <button onClick={()=>handleFilter()}>{filter===null?'Active':filter===true?'Inactive':'All'}</button>
+{/* Add student Button*/}
             <Button
               size="sm"
               leftIcon={<UserPlus className="h-4 w-4" />}
@@ -221,7 +264,7 @@ const StudentsPage: React.FC = () => {
             </Button>
           </div>
         </div>
-
+{/* search input */}
         <SearchBox
           value={search}
           onChange={(v) => setSearch(v)}
@@ -246,14 +289,19 @@ const StudentsPage: React.FC = () => {
               )
             }
           />
-        ) : (
+        ) : ( 
           <Table
             columns={columns}
             data={students}
             isLoading={isLoading}
             keyExtractor={(s) => s.id}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
+          
         )}
+{/*passing props to table component */}
       </div>
 
       {students.length > 0 && !isLoading && totalPages > 1 && (
@@ -272,6 +320,7 @@ const StudentsPage: React.FC = () => {
         />
       )}
 
+{/* showing specific student details modal */}
       {selectedStudent && (
         <StudentDetailsModal
           student={selectedStudent}
@@ -287,7 +336,7 @@ const StudentsPage: React.FC = () => {
         />
       )}
 
-      {/* Status Toggle Confirmation Modal */}
+{/* Status Toggle Confirmation Modal */}
       {showStatusConfirm.show && showStatusConfirm.student && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/45 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-neutral-100">
@@ -295,6 +344,7 @@ const StudentsPage: React.FC = () => {
               <h3 className="text-base font-bold text-neutral-800">
                 Confirm {showStatusConfirm.student.isActive ? 'Deactivation' : 'Activation'}
               </h3>
+{/* to show x icon on right top*/}
               <button
                 onClick={() => setShowStatusConfirm({ show: false, student: null })}
                 className="text-neutral-400 hover:text-neutral-600 cursor-pointer"

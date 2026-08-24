@@ -38,6 +38,7 @@ export const ForgotPasswordPage: React.FC = () => {
       const response = await forgotPasswordApi(email);
       if (response.success) {
         navigate(`/auth/verify-otp?email=${encodeURIComponent(email)}&role=${role}`);
+        //URL-safe format.
       } else {
         setError(response.message || "Failed to initiate password reset");
       }

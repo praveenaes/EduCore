@@ -2,7 +2,14 @@ import axiosInstance from '../api/axiosInstance';
 import { API_ROUTES } from '../api/apiRoutes';
 import type { StudentListResponse } from '../types/student';
 
-export const getStudentsApi = (params: { page?: number; limit?: number; search?: string }) =>
+export const getStudentsApi = (params: { 
+  page?: number; 
+  limit?: number; 
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  isActive?:boolean | null;
+}) =>
   axiosInstance.get<StudentListResponse>(API_ROUTES.STUDENTS.BASE, { params });
 
 export const createStudentApi = (formData: FormData) =>

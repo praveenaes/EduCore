@@ -8,7 +8,7 @@ export const tokenService = {
     if (token) {
       localStorage.setItem(ACCESS_TOKEN_KEY, token);
     } else {
-      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(ACCESS_TOKEN_KEY);//when token i null 
     }
   },
   clearToken: (): void => {
