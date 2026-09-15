@@ -1,7 +1,6 @@
 import { injectable } from "inversify";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { Response } from "express";
+import jwt, { SignOptions, JwtPayload } from "jsonwebtoken";import { Response } from "express";
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { ENV } from "@/config/env.config";
 import {
@@ -21,19 +20,19 @@ export class JwtAuthService implements IAuthService {
 
   generateAccessToken(userId: string, email: string, role: string): string {
     return jwt.sign({ userId, email, role }, ENV.JWT_SECRET, {
-      expiresIn: ENV.JWT_ACCESS_EXPIRATION as any,
+      expiresIn: ENV.JWT_ACCESS_EXPIRATION as SignOptions["expiresIn"],
     });
   }
 
   generateRefreshToken(userId: string, email: string, role: string): string {
     return jwt.sign({ userId, email, role }, ENV.JWT_SECRET, {
-      expiresIn: ENV.JWT_REFRESH_EXPIRATION as any,
+      expiresIn: ENV.JWT_REFRESH_EXPIRATION as SignOptions["expiresIn"],
     });
   }
 
   generateResetToken(email: string, role: string): string {
     return jwt.sign({ email, role, purpose: "password-reset" }, ENV.JWT_SECRET, {
-      expiresIn: ENV.RESET_PASS_TOKEN_EXPIRY as any,
+      expiresIn: ENV.RESET_PASS_TOKEN_EXPIRY as SignOptions["expiresIn"],
     });
   }
 
@@ -43,9 +42,11 @@ export class JwtAuthService implements IAuthService {
     });
   }
 
-  verifyToken(token: string): any {
+  verifyToken(token: string): JwtPayload | null {
     try {
-      return jwt.verify(token, ENV.JWT_SECRET);
+      const decoded = jwt.verify(token, ENV.JWT_SECRET);
+      if (typeof decoded === "string") return null;
+      return decoded;
     } catch {
       return null;
     }

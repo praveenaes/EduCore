@@ -4,7 +4,6 @@ import { IAuthService } from "@/application/ports/services/IAuthService";
 import { TYPES } from "@/config/di/types";
 import { BadRequestError, NotFoundError } from "@/shared/errors/AppError";
 import { IResetPassword } from "@/application/ports/use-cases/auth/IResetPasswordUseCase";
-import { UserRole } from "@/domain/enums/UserRole";
 import { User } from "@/domain/entities/User";
 
 @injectable()

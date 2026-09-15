@@ -13,7 +13,6 @@ export interface GetStudentsRequest {
   search?: string;
   sortBy?: string;
   sortOrder?: string;
-  isActive?: boolean;
 }
 
 export interface GetStudentsResponse {
@@ -35,8 +34,7 @@ export class GetStudents implements IGetStudents {
     const limit = Math.max(1, req.limit ?? 5)
     
     const filters: StudentFilters = { 
-      search: req.search?.trim() || undefined,
-      isActive: req.isActive
+      search: req.search?.trim() || undefined
     };
     const sortBy = req.sortBy;
     const sortOrder = req.sortOrder as 'asc' | 'desc' | undefined;
@@ -54,6 +52,6 @@ export class GetStudents implements IGetStudents {
       result.total,
       page,
       limit
-    ) as any;
+    ) as GetStudentsResponse
   }
 }

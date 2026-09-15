@@ -4,11 +4,14 @@ import { ITeacherRepository, TeacherFilters } from "@/domain/repositories/ITeach
 import { Teacher } from "../../../domain/entities/Teacher";
 
 import { PaginationHelper } from "@/shared/utils/pagination";
+import { IGetTeachers } from "../../ports/use-cases/teachers/IGetTeachersUseCase";
 
 export interface GetTeachersRequest {
   page?: number;
   limit?: number;
   search?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface GetTeachersResponse {
@@ -20,7 +23,7 @@ export interface GetTeachersResponse {
 }
 
 @injectable()
-export class GetTeachers {
+export class GetTeachers implements IGetTeachers {
   constructor(
     @inject(TYPES.TeacherRepository) private _teacherRepo: ITeacherRepository
   ) {}
@@ -29,8 +32,15 @@ export class GetTeachers {
     const page = Math.max(1, req.page ?? 1);
     const limit = Math.min(100, Math.max(1, req.limit ?? 10));
     const filters: TeacherFilters = { search: req.search?.trim() || undefined };
+    const sortBy = req.sortBy;
+    const sortOrder = req.sortOrder as 'asc' | 'desc' | undefined;
 
-    const result = await this._teacherRepo.findAll(filters, { page, limit });
+    const result = await this._teacherRepo.findAll(filters, { 
+      page, 
+      limit, 
+      sortBy, 
+      sortOrder 
+    });
 
     return PaginationHelper.toPaginatedResult(
       "teachers",
@@ -38,6 +48,6 @@ export class GetTeachers {
       result.total,
       page,
       limit
-    ) as any;
+    ) as GetTeachersResponse
   }
 }

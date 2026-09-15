@@ -1,18 +1,19 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
 import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
+import { IExportTeachersCsv } from "../../ports/use-cases/teachers/IExportTeachersCsvUseCase";
 
 export interface ExportTeachersRequest {
   search?: string;
 }
 
 @injectable()
-export class ExportTeachersCsv {
+export class ExportTeachersCsv implements IExportTeachersCsv {
   constructor(
     @inject(TYPES.TeacherRepository) private _teacherRepo: ITeacherRepository
   ) {}
 
-  private escapeCsvValue(value: any): string {
+  private escapeCsvValue(value: unknown): string {
     const str = value == null ? "" : String(value);
     if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
       return `"${str.replace(/"/g, '""')}"`;

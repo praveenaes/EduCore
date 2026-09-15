@@ -3,25 +3,18 @@ import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { User } from "../../domain/entities/User";
 import { UserModel, IUserDocument } from "./models/UserModel";
 import { UserMapper } from "../../application/mappers/UserMapper";
+import { BaseMongoRepository } from "./BaseMongoRepository";
 
 @injectable()
-export class MongoUserRepository implements IUserRepository {
+export class MongoUserRepository 
+  extends BaseMongoRepository<User, IUserDocument> 
+  implements IUserRepository 
+{
+  protected readonly _model = UserModel;
+  protected readonly _mapper = UserMapper;
+
   async findByEmail(email: string): Promise<User | null> {
     const document = await UserModel.findOne({ email });
-    if (!document) return null;
-
-    return UserMapper.toDomain(document);
-  }
-
-  async create(user: User): Promise<User> {
-    const document = new UserModel(UserMapper.toPersistence(user));
-    await document.save();
-
-    return UserMapper.toDomain(document);
-  }
-
-  async findById(id: string): Promise<User | null> {
-    const document = await UserModel.findById(id);
     if (!document) return null;
 
     return UserMapper.toDomain(document);
@@ -64,20 +57,6 @@ export class MongoUserRepository implements IUserRepository {
         $unset: { passwordResetOtp: 1, passwordResetOtpExpiresAt: 1 }
       }
     );
-  }
-
-  async update(id: string, user: Partial<User>): Promise<User | null> {
-    const updateData = UserMapper.toPersistencePartial(user)
-    //userData will be a single field
-
-    const document = await UserModel.findByIdAndUpdate(
-      id,
-      { $set: updateData },
-      { new: true }
-    );
-    if (!document) return null;
-
-    return UserMapper.toDomain(document);
   }
 
   async delete(id: string): Promise<boolean> {

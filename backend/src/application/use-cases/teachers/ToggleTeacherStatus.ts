@@ -3,6 +3,7 @@ import { TYPES } from "../../../config/di/types";
 import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
 import { Teacher } from "../../../domain/entities/Teacher";
 import { NotFoundError } from "@/shared/errors/AppError";
+import { IToggleTeacherStatus } from "../../ports/use-cases/teachers/IToggleTeacherStatusUseCase";
 
 export interface ToggleTeacherStatusRequest {
   id: string;
@@ -10,7 +11,7 @@ export interface ToggleTeacherStatusRequest {
 }
 
 @injectable()
-export class ToggleTeacherStatus {
+export class ToggleTeacherStatus implements IToggleTeacherStatus {
   constructor(
     @inject(TYPES.TeacherRepository) private _teacherRepo: ITeacherRepository
   ) {}

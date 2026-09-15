@@ -27,8 +27,6 @@ export class StudentController {
   getAll = async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 4;
-    const filterQuery=req.query.isActive
-    const isActive=filterQuery==='true'?true:filterQuery==='false'?false:undefined
     const search = req.query.search as string;
     const sortBy = req.query.sortBy as string;
     const sortOrder = req.query.sortOrder as string;
@@ -39,7 +37,6 @@ export class StudentController {
       search, 
       sortBy, 
       sortOrder,
-      isActive,
     });
 
     ResponseHelper.success(res, "Students retrieved successfully", result, 200);

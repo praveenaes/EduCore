@@ -1,7 +1,8 @@
+import { Types } from "mongoose";
 import { Organization } from "../../domain/entities/Organization";
 
 export interface IOrganizationPersistenceInput {
-  _id: any;
+  _id: Types.ObjectId |string
   name: string;
   logoPath: string;
   createdAt?: Date;

@@ -2,9 +2,7 @@ import { inject, injectable } from "inversify";
 import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IEmailService } from "@/application/ports/services/IEmailService";
 import { TYPES } from "@/config/di/types";
-import { NotFoundError, UnauthorizedError } from "@/shared/errors/AppError";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
-import { UserRole } from "@/domain/enums/UserRole";
 
 @injectable()
 export class ForgotPassword implements IForgotPassword {

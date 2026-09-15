@@ -1,5 +1,5 @@
-import { CreateStudentResponseDTO } from "../../../dto/students/studentDtos";
+import { CreateStudentDTO, CreateStudentResponseDTO } from "../../../dto/students/studentDtos";
 
 export interface ICreateStudent {
-  execute(dto: any, photoFile?: Express.Multer.File): Promise<CreateStudentResponseDTO>;
+  execute(dto: CreateStudentDTO, photoFile?: Express.Multer.File): Promise<CreateStudentResponseDTO>;
 }

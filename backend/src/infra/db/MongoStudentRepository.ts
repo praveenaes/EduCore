@@ -5,14 +5,17 @@ import { Student } from "../../domain/entities/Student";
 import { StudentModel, IStudentDocument } from "./models/StudentModel";
 import { StudentMapper } from "../../application/mappers/StudentMapper";
 import { PaginationHelper } from "@/shared/utils/pagination";
+import { BaseMongoRepository } from "./BaseMongoRepository";
 
 @injectable()
-export class MongoStudentRepository implements IStudentRepository {
-  async create(student: Student): Promise<Student> {
-    const doc = new StudentModel(StudentMapper.toPersistence(student));
-    await doc.save();
-    return StudentMapper.toDomain(doc);
-  }
+export class MongoStudentRepository 
+  extends BaseMongoRepository<Student, IStudentDocument> 
+  implements IStudentRepository 
+{
+  protected readonly _model = StudentModel;
+  protected readonly _mapper = StudentMapper;
+
+
 
   async findByAdmissionNumber(admissionNumber: string): Promise<Student | null> {
     const doc = await StudentModel.findOne({
@@ -66,9 +69,7 @@ export class MongoStudentRepository implements IStudentRepository {
       ];
     }
 
-    if (filters.isActive !== undefined) {
-      query.isActive = filters.isActive;
-    }
+
 
 
 //     {
@@ -84,17 +85,17 @@ export class MongoStudentRepository implements IStudentRepository {
     const { page, limit, sortBy, sortOrder } = pagination;
     const { skip } = PaginationHelper.getSkipAndLimit(page, limit);
 
-    let sortOptions: any = { createdAt: -1 };
+    let sortOptions: Record<string, 1 | -1> = { createdAt: -1 };
     if (sortBy) {
       const order = sortOrder === "desc" ? -1 : 1;
       if (sortBy === "firstName") {
         sortOptions = { firstName: order, lastName: order };
-        //sort by firstName then lastName when first names are the same
       } else {
         sortOptions = { [sortBy]: order };
         //Use the value inside sortBy as the property name.
       }
     }
+  
 
     const [docs, total] = await Promise.all([
       StudentModel.find(query).sort(sortOptions).skip(skip).limit(limit),
@@ -132,24 +133,6 @@ export class MongoStudentRepository implements IStudentRepository {
 
     const docs = await StudentModel.find(query).sort({ createdAt: -1 });
     return docs.map(doc => StudentMapper.toDomain(doc));
-  }
-
-  async findById(id: string): Promise<Student | null> {
-    const doc = await StudentModel.findOne({ _id: id, isDeleted: false });
-    if (!doc) return null;
-    return StudentMapper.toDomain(doc);
-  }
-
-  async update(id: string, student: Partial<Student>): Promise<Student | null> {
-    const updateData = StudentMapper.toPersistencePartial(student);
-
-    const doc = await StudentModel.findOneAndUpdate(
-      { _id: id, isDeleted: false },
-      { $set: updateData },
-      { new: true }
-    );
-    if (!doc) return null;
-    return StudentMapper.toDomain(doc);
   }
 
   async softDelete(id: string): Promise<boolean> {

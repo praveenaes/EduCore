@@ -5,9 +5,10 @@ import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
 import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
 import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
+import { IChangeEmail, ChangeEmailDTO } from "../../ports/use-cases/auth/IChangeEmailUseCase";
 
 @injectable()
-export class ChangeEmail {
+export class ChangeEmail implements IChangeEmail {
   constructor(
     @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
     @inject(TYPES.StudentRepository) private _studentRepo: IStudentRepository,
@@ -17,11 +18,7 @@ export class ChangeEmail {
 
   async execute(
     userId: string,
-    data: {
-      newEmail?: string;
-      confirmNewEmail?: string;
-      emailChangeToken?: string;
-    }
+    data: ChangeEmailDTO
   ): Promise<void> {
     const { newEmail, confirmNewEmail, emailChangeToken } = data;
 

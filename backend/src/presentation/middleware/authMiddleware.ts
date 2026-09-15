@@ -18,7 +18,7 @@ export const authenticateAdmin = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  let token = req.headers.authorization?.startsWith("Bearer ")
+  const token = req.headers.authorization?.startsWith("Bearer ")
     ? req.headers.authorization.split(" ")[1]
     : req.cookies?.accessToken;
 
@@ -54,7 +54,7 @@ export const authenticateUser = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  let token = req.headers.authorization?.startsWith("Bearer ")
+  const token = req.headers.authorization?.startsWith("Bearer ")
     ? req.headers.authorization.split(" ")[1]
     : req.cookies?.accessToken;
 

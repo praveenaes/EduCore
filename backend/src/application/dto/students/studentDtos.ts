@@ -1,3 +1,26 @@
+﻿export interface CreateStudentDTO {
+  firstName: string;
+  lastName: string;
+  admissionNumber: string;
+  admissionDate: string | Date;
+  gender: string;
+  dateOfBirth: string | Date;
+  bloodGroup: string;
+  nationalId: string;
+  photo?: string;
+  phone: string;
+  email: string;
+  house: string;
+  area: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  removePhoto?: string;
+}
+
+export type UpdateStudentDTO = Partial<Omit<CreateStudentDTO, 'admissionNumber'>>;
+
 export interface CreateStudentResponseDTO {
   id: string;
   firstName: string;
@@ -20,4 +43,9 @@ export interface CreateStudentResponseDTO {
   userId: string;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface StudentListResultDTO {
+  students: CreateStudentResponseDTO[];
+  total: number;
 }

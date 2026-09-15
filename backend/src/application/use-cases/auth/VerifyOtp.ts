@@ -4,7 +4,6 @@ import { IAuthService } from "@/application/ports/services/IAuthService";
 import { TYPES } from "@/config/di/types";
 import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
 import { IVerifyOtp } from "@/application/ports/use-cases/auth/IVerifyOtpUseCase";
-import { UserRole } from "@/domain/enums/UserRole";
 
 @injectable()
 export class VerifyOtp implements IVerifyOtp {
@@ -21,8 +20,8 @@ export class VerifyOtp implements IVerifyOtp {
 
     try {
       user.verifyPasswordResetOtp(otp);
-    } catch (err: any) {
-      throw new BadRequestError(err.message);
+    } catch (err) {
+      throw new BadRequestError((err as Error).message);
     }
 
     return this._authSvc.generateResetToken(user.email!, user.role!);

@@ -12,6 +12,8 @@ import { UserRole } from "../../../domain/enums/UserRole";
 import { ValidationError } from "@/shared/errors/AppError";
 import { ICreateTeacher } from "../../ports/use-cases/teachers/ICreateTeacherUseCase";
 
+import { CreateTeacherDTO } from "@/application/dto/teachers/teacherDtos";
+
 @injectable()
 export class CreateTeacher implements ICreateTeacher {
   constructor(
@@ -22,7 +24,7 @@ export class CreateTeacher implements ICreateTeacher {
     @inject(TYPES.StorageService) private _storageSvc: IStorageService
   ) {}
 
-  async execute(dto: any, photoFile?: Express.Multer.File): Promise<Teacher> {
+  async execute(dto: CreateTeacherDTO, photoFile?: Express.Multer.File): Promise<Teacher> {
     // 1. Uniqueness Validation
     
     // Employee ID uniqueness check
@@ -88,8 +90,8 @@ export class CreateTeacher implements ICreateTeacher {
         joiningDate: new Date(dto.joiningDate),
         qualifications: dto.qualifications,
         specializations: dto.specializations,
-        experience: parseInt(dto.experience) || 0,
-        salary: parseFloat(dto.salary) || 0,
+        experience: typeof dto.experience === "number" ? dto.experience : parseInt(dto.experience, 10) || 0,
+        salary: typeof dto.salary === "number" ? dto.salary : parseFloat(String(dto.salary)) || 0,
         gender: dto.gender,
         dateOfBirth: new Date(dto.dateOfBirth),
         bloodGroup: dto.bloodGroup,

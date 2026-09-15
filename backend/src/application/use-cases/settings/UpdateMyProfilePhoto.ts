@@ -4,7 +4,7 @@ import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
 import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
 import { IStorageService } from "../../ports/services/IStorageService";
-import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
+import { NotFoundError } from "@/shared/errors/AppError";
 import { UserRole } from "@/domain/enums/UserRole";
 
 import { IUpdateMyProfilePhoto } from "../../ports/use-cases/settings/IUpdateMyProfilePhotoUseCase";
@@ -29,18 +29,15 @@ export class UpdateMyProfilePhoto implements IUpdateMyProfilePhoto {
       throw new NotFoundError("User not found");
     }
 
-    let profile: any = null;
-    let repo: any = null;
+    let profile = null;
 
     if (role.toUpperCase() === UserRole.STUDENT) {
       profile = await this._studentRepo.findByEmail(user.email!);
-      repo = this._studentRepo;
     } else if (role.toUpperCase() === UserRole.TEACHER) {
       profile = await this._teacherRepo.findByEmail(user.email!);
-      repo = this._teacherRepo;
     }
 
-    if (!profile) {
+    if (!profile || !profile.id) {
       throw new NotFoundError("Profile record not found");
     }
 
@@ -75,7 +72,11 @@ export class UpdateMyProfilePhoto implements IUpdateMyProfilePhoto {
       );
     }
 
-    await repo.update(profile.id, { photo: photoPath });
+    if (role.toUpperCase() === UserRole.STUDENT) {
+      await this._studentRepo.update(profile.id, { photo: photoPath });
+    } else {
+      await this._teacherRepo.update(profile.id, { photo: photoPath });
+    }
 
     return { photoPath };
   }

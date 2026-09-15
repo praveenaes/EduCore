@@ -31,4 +31,34 @@ export const API_ROUTES = {
     CHANGE_EMAIL_VERIFY_OTP: "/change-email/verify-otp",
     CHANGE_EMAIL_UPDATE: "/change-email/update",
   },
+   PROGRAMS: {
+    ROOT: "/academics/programs",
+    LIST: "/",
+    DETAIL: "/:id",
+  },
+  COURSES: {
+    ROOT: "/academics/courses",
+    LIST: "/",
+    DETAIL: "/:id",
+  },
+  SUBJECTS: {
+    ROOT: "/academics/subjects",
+    LIST: "/",
+    DETAIL: "/:id",
+  },
+  CENTERS: {
+    ROOT: "/centers",
+    LIST: "/",
+    DETAIL: "/:id",
+  },
+  ACADEMIC_YEARS: {
+    ROOT: "/centers/academic-years",
+    LIST: "/",
+    DETAIL: "/:id",
+  },
+  SUBJECT_ASSIGNMENTS: {
+    ROOT: "/academics/subject-assignments",
+    LIST: "/",
+    DETAIL: "/:id",
+  },
 } as const;

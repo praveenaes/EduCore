@@ -5,20 +5,15 @@ import { Teacher } from "../../domain/entities/Teacher";
 import { TeacherModel, ITeacherDocument } from "./models/TeacherModel";
 import { TeacherMapper } from "../../application/mappers/TeacherMapper";
 import { PaginationHelper } from "@/shared/utils/pagination";
+import { BaseMongoRepository } from "./BaseMongoRepository";
 
 @injectable()
-export class MongoTeacherRepository implements ITeacherRepository {
-  async create(teacher: Teacher): Promise<Teacher> {
-    const doc = new TeacherModel(TeacherMapper.toPersistence(teacher));
-    await doc.save();
-    return TeacherMapper.toDomain(doc);
-  }
-
-  async findById(id: string): Promise<Teacher | null> {
-    const doc = await TeacherModel.findOne({ _id: id, isDeleted: false });
-    if (!doc) return null;
-    return TeacherMapper.toDomain(doc);
-  }
+export class MongoTeacherRepository 
+  extends BaseMongoRepository<Teacher, ITeacherDocument> 
+  implements ITeacherRepository 
+{
+  protected readonly _model = TeacherModel;
+  protected readonly _mapper = TeacherMapper;
 
   async findByEmployeeId(employeeId: string): Promise<Teacher | null> {
     const doc = await TeacherModel.findOne({
@@ -70,11 +65,21 @@ export class MongoTeacherRepository implements ITeacherRepository {
       ];
     }
 
-    const { page, limit } = pagination;
+    const { page, limit, sortBy, sortOrder } = pagination;
     const { skip } = PaginationHelper.getSkipAndLimit(page, limit);
 
+    let sortOptions: Record<string, 1 | -1> = { createdAt: -1 };
+    if (sortBy) {
+      const order = sortOrder === "desc" ? -1 : 1;
+      if (sortBy === "firstName") {
+        sortOptions = { firstName: order, lastName: order };
+      } else {
+        sortOptions = { [sortBy]: order };
+      }
+    }
+
     const [docs, total] = await Promise.all([
-      TeacherModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      TeacherModel.find(query).sort(sortOptions).skip(skip).limit(limit),
       TeacherModel.countDocuments(query),
     ]);
 
@@ -82,18 +87,6 @@ export class MongoTeacherRepository implements ITeacherRepository {
       teachers: docs.map(doc => TeacherMapper.toDomain(doc)),
       total,
     };
-  }
-
-  async update(id: string, teacher: Partial<Teacher>): Promise<Teacher | null> {
-    const updateData = TeacherMapper.toPersistencePartial(teacher);
-
-    const doc = await TeacherModel.findOneAndUpdate(
-      { _id: id, isDeleted: false },
-      { $set: updateData },
-      { new: true }
-    );
-    if (!doc) return null;
-    return TeacherMapper.toDomain(doc);
   }
 
   async updateStatus(id: string, isActive: boolean): Promise<Teacher | null> {

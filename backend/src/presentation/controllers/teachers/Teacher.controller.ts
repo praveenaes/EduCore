@@ -4,9 +4,9 @@ import { TYPES } from '../../../config/di/types';
 import { ICreateTeacher } from '../../../application/ports/use-cases/teachers/ICreateTeacherUseCase';
 import { IUpdateTeacher } from '../../../application/ports/use-cases/teachers/IUpdateTeacherUseCase';
 import { IDeleteTeacher } from '../../../application/ports/use-cases/teachers/IDeleteTeacherUseCase';
-import { GetTeachers } from '../../../application/use-cases/teachers/GetTeachers';
-import { ToggleTeacherStatus } from '../../../application/use-cases/teachers/ToggleTeacherStatus';
-import { ExportTeachersCsv } from '../../../application/use-cases/teachers/ExportTeachersCsv';
+import { IGetTeachers } from '../../../application/ports/use-cases/teachers/IGetTeachersUseCase';
+import { IToggleTeacherStatus } from '../../../application/ports/use-cases/teachers/IToggleTeacherStatusUseCase';
+import { IExportTeachersCsv } from '../../../application/ports/use-cases/teachers/IExportTeachersCsvUseCase';
 import { createTeacherSchema, updateTeacherSchema } from '../../validators/teacherValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
@@ -15,9 +15,9 @@ import { ResponseHelper } from '../../helpers/ResponseHelper';
 @injectable()
 export class TeacherController {
   constructor(
-    @inject(TYPES.GetTeachersUseCase) private _getTeachersUseCase: GetTeachers,
-    @inject(TYPES.ToggleTeacherStatusUseCase) private _toggleTeacherStatusUseCase: ToggleTeacherStatus,
-    @inject(TYPES.ExportTeachersCsvUseCase) private _exportTeachersCsvUseCase: ExportTeachersCsv,
+    @inject(TYPES.GetTeachersUseCase) private _getTeachersUseCase: IGetTeachers,
+    @inject(TYPES.ToggleTeacherStatusUseCase) private _toggleTeacherStatusUseCase: IToggleTeacherStatus,
+    @inject(TYPES.ExportTeachersCsvUseCase) private _exportTeachersCsvUseCase: IExportTeachersCsv,
     @inject(TYPES.CreateTeacherUseCase) private _createTeacherUseCase: ICreateTeacher,
     @inject(TYPES.UpdateTeacherUseCase) private _updateTeacherUseCase: IUpdateTeacher,
     @inject(TYPES.DeleteTeacherUseCase) private _deleteTeacherUseCase: IDeleteTeacher
@@ -27,8 +27,16 @@ export class TeacherController {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as string;
 
-    const result = await this._getTeachersUseCase.execute({ page, limit, search });
+    const result = await this._getTeachersUseCase.execute({ 
+      page, 
+      limit, 
+      search, 
+      sortBy, 
+      sortOrder 
+    });
 
     ResponseHelper.success(res, "Teachers retrieved successfully", result, 200);
   };
@@ -58,7 +66,8 @@ export class TeacherController {
   register = async (req: Request, res: Response): Promise<void> => {
     const result = createTeacherSchema.safeParse(req.body);
     if (!result.success) {
-      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
+      const fieldErrors = result.error.issues.map(i => ({ field: i.path.join('.'), message: i.message }));
+      throw new ValidationError(result.error.issues[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR, fieldErrors);
     }
 
     const resultDto = await this._createTeacherUseCase.execute(result.data, req.file);
@@ -73,7 +82,8 @@ export class TeacherController {
     // Validate request body
     const result = updateTeacherSchema.safeParse(req.body);
     if (!result.success) {
-        throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
+      const fieldErrors = result.error.issues.map(i => ({ field: i.path.join('.'), message: i.message }));
+      throw new ValidationError(result.error.issues[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR, fieldErrors);
     }
 
     const resultDto = await this._updateTeacherUseCase.execute(id, result.data, req.file);

@@ -11,7 +11,7 @@ import { User } from "../../../domain/entities/User";
 import { UserRole } from "../../../domain/enums/UserRole";
 import { ValidationError } from "@/shared/errors/AppError";
 import { ICreateStudent } from "../../ports/use-cases/students/ICreateStudentUseCase";
-import { CreateStudentResponseDTO } from "../../dto/students/studentDtos";
+import { CreateStudentDTO, CreateStudentResponseDTO } from "../../dto/students/studentDtos";
 
 @injectable()
 export class CreateStudent implements ICreateStudent {
@@ -23,7 +23,7 @@ export class CreateStudent implements ICreateStudent {
     @inject(TYPES.StorageService) private _storageSvc: IStorageService
   ) {}
 
-  async execute(dto: any, photoFile?: Express.Multer.File): Promise<CreateStudentResponseDTO> {
+  async execute(dto: CreateStudentDTO, photoFile?: Express.Multer.File): Promise<CreateStudentResponseDTO> {
     const existingByName = await this._studentRepo.findByName(dto.firstName, dto.lastName);
     if (existingByName) {
       throw new ValidationError("Student with this name already exists.");

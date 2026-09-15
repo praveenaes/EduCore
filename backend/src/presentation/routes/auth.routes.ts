@@ -3,7 +3,7 @@ import { Container } from "inversify";
 import { TYPES } from "@/config/di/types";
 import { AuthController } from "@/presentation/controllers/auth/Auth.controller";
 import { API_ROUTES } from "@/config/routes.config";
-import { authenticateAdmin, authenticateUser } from "../middleware/authMiddleware";
+import {  authenticateUser } from "../middleware/authMiddleware";
 import { asyncHandler } from "@/presentation/helpers/asyncHandler";
 
 export const getAuthRoutes = (container: Container): Router => {

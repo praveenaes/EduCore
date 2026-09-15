@@ -21,7 +21,7 @@ export class GetMe implements IGetMe {
     if (!user) {
       throw new UnauthorizedError("User not found");
     }
-
+  
     let photo: string | undefined = undefined;
     if (user.role?.toUpperCase() === UserRole.STUDENT) {
       const student = await this._studentRepo.findByEmail(user.email!);

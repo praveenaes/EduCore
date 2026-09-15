@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node -r tsconfig-paths/register dist/server.js",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
-    "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/seedAdmin.ts"
+    "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/seedAdmin.ts",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.500.0",
@@ -28,6 +29,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
@@ -37,8 +39,10 @@
     "@types/multer": "^1.4.11",
     "@types/node": "^20.14.2",
     "@types/nodemailer": "^8.0.1",
+    "eslint": "^9.39.5",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^8.67.0"
   }
 }

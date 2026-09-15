@@ -1,8 +1,9 @@
+import { Types } from "mongoose";
 import { Student } from "../../domain/entities/Student";
 
 //mapper converts 1 format of data to another
 export interface IStudentPersistenceInput {
-  _id: any;
+  _id: Types.ObjectId |string
   firstName: string;
   lastName: string;
   admissionNumber: string;
@@ -22,7 +23,7 @@ export interface IStudentPersistenceInput {
   country: string;
   isDeleted: boolean;
   isActive: boolean;
-  userId: any;
+  userId: Types.ObjectId|string
   createdAt?: Date;
   updatedAt?: Date;
 }

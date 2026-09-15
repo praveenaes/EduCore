@@ -109,6 +109,7 @@ export const createTeacherSchema = z.object({
   country: z.string().trim().min(1, "Country is required").max(100),
 });
 
-export const updateTeacherSchema = createTeacherSchema.extend({
+export const updateTeacherSchema = createTeacherSchema.omit({ employeeId: true }).extend({
+  employeeId: z.string().optional(),
   removePhoto: z.string().optional(),
 });

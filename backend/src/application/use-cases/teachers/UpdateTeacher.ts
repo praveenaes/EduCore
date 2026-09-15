@@ -7,6 +7,9 @@ import { Teacher } from "../../../domain/entities/Teacher";
 import { ValidationError, NotFoundError } from "@/shared/errors/AppError";
 import { IUpdateTeacher } from "../../ports/use-cases/teachers/IUpdateTeacherUseCase";
 
+import { UpdateTeacherDTO } from "@/application/dto/teachers/teacherDtos";
+import { TeacherProps } from "@/domain/entities/Teacher";
+
 @injectable()
 export class UpdateTeacher implements IUpdateTeacher {
   constructor(
@@ -15,7 +18,7 @@ export class UpdateTeacher implements IUpdateTeacher {
     @inject(TYPES.StorageService) private _storageSvc: IStorageService
   ) {}
 
-  async execute(id: string, dto: any, photoFile?: Express.Multer.File): Promise<Teacher> {
+  async execute(id: string, dto: UpdateTeacherDTO, photoFile?: Express.Multer.File): Promise<Teacher> {
     const existing = await this._teacherRepo.findById(id);
     if (!existing) {
       throw new NotFoundError("Teacher not found");
@@ -63,15 +66,15 @@ export class UpdateTeacher implements IUpdateTeacher {
     }
 
     // 2. Build update payload
-    const updatePayload: any = {};
+    const updatePayload: Partial<TeacherProps> = {};
     if (dto.employeeId !== undefined) updatePayload.employeeId = dto.employeeId;
     if (dto.firstName !== undefined) updatePayload.firstName = dto.firstName;
     if (dto.lastName !== undefined) updatePayload.lastName = dto.lastName;
     if (dto.joiningDate !== undefined) updatePayload.joiningDate = new Date(dto.joiningDate);
     if (dto.qualifications !== undefined) updatePayload.qualifications = dto.qualifications;
     if (dto.specializations !== undefined) updatePayload.specializations = dto.specializations;
-    if (dto.experience !== undefined) updatePayload.experience = parseInt(dto.experience) || 0;
-    if (dto.salary !== undefined) updatePayload.salary = parseFloat(dto.salary) || 0;
+    if (dto.experience !== undefined) updatePayload.experience = typeof dto.experience === "number" ? dto.experience : parseInt(dto.experience, 10) || 0;
+    if (dto.salary !== undefined) updatePayload.salary = typeof dto.salary === "number" ? dto.salary : parseFloat(String(dto.salary)) || 0;
     if (dto.gender !== undefined) updatePayload.gender = dto.gender;
     if (dto.dateOfBirth !== undefined) updatePayload.dateOfBirth = new Date(dto.dateOfBirth);
     if (dto.bloodGroup !== undefined) updatePayload.bloodGroup = dto.bloodGroup;

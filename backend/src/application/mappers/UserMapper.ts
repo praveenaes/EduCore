@@ -1,8 +1,9 @@
 import { UserRole } from "@/domain/enums/UserRole";
 import { User } from "../../domain/entities/User";
+import { Types } from "mongoose";
 
 export interface IUserPersistenceInput {
-  _id: any;
+  _id: Types.ObjectId |string
   name: string;
   email: string;
   password: string;

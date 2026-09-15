@@ -1,5 +1,5 @@
-import { Student } from "../../../../domain/entities/Student";
+import { CreateStudentResponseDTO, UpdateStudentDTO } from "../../../dto/students/studentDtos";
 
 export interface IUpdateStudent {
-  execute(id: string, dto: any, photoFile?: Express.Multer.File): Promise<Student>;
+  execute(id: string, dto: UpdateStudentDTO, photoFile?: Express.Multer.File): Promise<CreateStudentResponseDTO>;
 }

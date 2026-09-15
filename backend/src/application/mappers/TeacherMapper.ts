@@ -1,7 +1,8 @@
+import { Types } from "mongoose";
 import { Teacher } from "../../domain/entities/Teacher";
 
 export interface ITeacherPersistenceInput {
-  _id: any;
+  _id: Types.ObjectId |string
   firstName: string;
   lastName: string;
   employeeId: string;
@@ -25,7 +26,7 @@ export interface ITeacherPersistenceInput {
   country: string;
   isDeleted: boolean;
   isActive: boolean;
-  userId: any;
+  userId: Types.ObjectId|string
   createdAt?: Date;
   updatedAt?: Date;
 }

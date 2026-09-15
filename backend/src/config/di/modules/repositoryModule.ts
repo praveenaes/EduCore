@@ -6,6 +6,8 @@ import { IStudentRepository } from "../../../domain/repositories/IStudentReposit
 import { MongoStudentRepository } from "../../../infra/db/MongoStudentRepository";
 import { ITeacherRepository } from "../../../domain/repositories/ITeacherRepository";
 import { MongoTeacherRepository } from "../../../infra/db/MongoTeacherRepository";
+import { IProgramRepository } from "@/domain/repositories/IProgramRepository";
+import { MongoProgramRepository } from "@/infra/db/MongoProgramRepository";
 
 export const repositoryModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
@@ -18,5 +20,11 @@ export const repositoryModule = new ContainerModule((bind) => {
 
   bind<ITeacherRepository>(TYPES.TeacherRepository)
     .to(MongoTeacherRepository)
+    .inSingletonScope();
+  bind<IProgramRepository>(TYPES.ProgramRepository)
+    .to(MongoProgramRepository)
+    .inSingletonScope();
+  bind<IProgramRepository>(TYPES.ProgramRepository)
+    .to(MongoProgramRepository)
     .inSingletonScope();
 });

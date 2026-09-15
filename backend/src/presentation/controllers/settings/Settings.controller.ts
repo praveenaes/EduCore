@@ -5,10 +5,10 @@ import { IGetOrganizationSettings } from "@/application/ports/use-cases/settings
 import { IUpdateOrganizationSettings } from "@/application/ports/use-cases/settings/IUpdateOrganizationSettingsUseCase";
 import { IGetMySettings } from "@/application/ports/use-cases/settings/IGetMySettingsUseCase";
 import { IUpdateMyProfilePhoto } from "@/application/ports/use-cases/settings/IUpdateMyProfilePhotoUseCase";
-import { ChangePassword } from "@/application/use-cases/auth/ChangePassword";
-import { SendEmailChangeOtp } from "@/application/use-cases/auth/SendEmailChangeOtp";
-import { VerifyEmailChangeOtp } from "@/application/use-cases/auth/VerifyEmailChangeOtp";
-import { ChangeEmail } from "@/application/use-cases/auth/ChangeEmail";
+import { IChangePassword } from "@/application/ports/use-cases/auth/IChangePasswordUseCase";
+import { ISendEmailChangeOtp } from "@/application/ports/use-cases/auth/ISendEmailChangeOtpUseCase";
+import { IVerifyEmailChangeOtp } from "@/application/ports/use-cases/auth/IVerifyEmailChangeOtpUseCase";
+import { IChangeEmail } from "@/application/ports/use-cases/auth/IChangeEmailUseCase";
 import { UnauthorizedError, ValidationError } from "@/shared/errors/AppError";
 import { HTTP_STATUS } from "@/presentation/constants/httpStatus";
 import { ERROR_MESSAGES } from "@/presentation/constants/messages";
@@ -27,10 +27,10 @@ export class SettingsController {
     @inject(TYPES.UpdateOrganizationSettingsUseCase) private _updateOrgUseCase: IUpdateOrganizationSettings,
     @inject(TYPES.GetMySettingsUseCase) private _getMySettingsUseCase: IGetMySettings,
     @inject(TYPES.UpdateMyProfilePhotoUseCase) private _updateMyPhotoUseCase: IUpdateMyProfilePhoto,
-    @inject(TYPES.ChangePasswordUseCase) private _changePasswordUseCase: ChangePassword,
-    @inject(TYPES.SendEmailChangeOtpUseCase) private _sendEmailOtpUseCase: SendEmailChangeOtp,
-    @inject(TYPES.VerifyEmailChangeOtpUseCase) private _verifyEmailOtpUseCase: VerifyEmailChangeOtp,
-    @inject(TYPES.ChangeEmailUseCase) private _changeEmailUseCase: ChangeEmail
+    @inject(TYPES.ChangePasswordUseCase) private _changePasswordUseCase: IChangePassword,
+    @inject(TYPES.SendEmailChangeOtpUseCase) private _sendEmailOtpUseCase: ISendEmailChangeOtp,
+    @inject(TYPES.VerifyEmailChangeOtpUseCase) private _verifyEmailOtpUseCase: IVerifyEmailChangeOtp,
+    @inject(TYPES.ChangeEmailUseCase) private _changeEmailUseCase: IChangeEmail
   ) {}
 
   getOrganization = async (req: Request, res: Response): Promise<void> => {

@@ -52,6 +52,49 @@ const TYPES = {
   VerifyEmailChangeOtpUseCase: Symbol.for("VerifyEmailChangeOtpUseCase"),
   ChangeEmailUseCase: Symbol.for("ChangeEmailUseCase"),
   SettingsController: Symbol.for("SettingsController"),
+
+    // Programs
+  ProgramRepository: Symbol.for("ProgramRepository"),
+  CreateProgramUseCase: Symbol.for("CreateProgramUseCase"),
+  GetProgramsUseCase: Symbol.for("GetProgramsUseCase"),
+  UpdateProgramUseCase: Symbol.for("UpdateProgramUseCase"),
+  DeleteProgramUseCase: Symbol.for("DeleteProgramUseCase"),
+  ProgramController: Symbol.for("ProgramController"),
+  // Courses
+  CourseRepository: Symbol.for("CourseRepository"),
+  CreateCourseUseCase: Symbol.for("CreateCourseUseCase"),
+  GetCoursesUseCase: Symbol.for("GetCoursesUseCase"),
+  UpdateCourseUseCase: Symbol.for("UpdateCourseUseCase"),
+  DeleteCourseUseCase: Symbol.for("DeleteCourseUseCase"),
+  CourseController: Symbol.for("CourseController"),
+  // Subjects
+  SubjectRepository: Symbol.for("SubjectRepository"),
+  CreateSubjectUseCase: Symbol.for("CreateSubjectUseCase"),
+  GetSubjectsUseCase: Symbol.for("GetSubjectsUseCase"),
+  UpdateSubjectUseCase: Symbol.for("UpdateSubjectUseCase"),
+  DeleteSubjectUseCase: Symbol.for("DeleteSubjectUseCase"),
+  SubjectController: Symbol.for("SubjectController"),
+  // Centers
+  CenterRepository: Symbol.for("CenterRepository"),
+  CreateCenterUseCase: Symbol.for("CreateCenterUseCase"),
+  GetCentersUseCase: Symbol.for("GetCentersUseCase"),
+  UpdateCenterUseCase: Symbol.for("UpdateCenterUseCase"),
+  DeleteCenterUseCase: Symbol.for("DeleteCenterUseCase"),
+  CenterController: Symbol.for("CenterController"),
+  // Academic Years
+  AcademicYearRepository: Symbol.for("AcademicYearRepository"),
+  CreateAcademicYearUseCase: Symbol.for("CreateAcademicYearUseCase"),
+  GetAcademicYearsUseCase: Symbol.for("GetAcademicYearsUseCase"),
+  UpdateAcademicYearUseCase: Symbol.for("UpdateAcademicYearUseCase"),
+  DeleteAcademicYearUseCase: Symbol.for("DeleteAcademicYearUseCase"),
+  AcademicYearController: Symbol.for("AcademicYearController"),
+  // Subject Assignments
+  SubjectAssignmentRepository: Symbol.for("SubjectAssignmentRepository"),
+  CreateSubjectAssignmentUseCase: Symbol.for("CreateSubjectAssignmentUseCase"),
+  GetSubjectAssignmentsUseCase: Symbol.for("GetSubjectAssignmentsUseCase"),
+  UpdateSubjectAssignmentUseCase: Symbol.for("UpdateSubjectAssignmentUseCase"),
+  DeleteSubjectAssignmentUseCase: Symbol.for("DeleteSubjectAssignmentUseCase"),
+  SubjectAssignmentController: Symbol.for("SubjectAssignmentController"),
 };
 
 export { TYPES };

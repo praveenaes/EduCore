@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import jwt from "jsonwebtoken";
 import { TYPES } from "@/config/di/types";
 import { ILoginUser } from "@/application/ports/use-cases/auth/ILoginUserUseCase";
 import { IRefreshToken } from "@/application/ports/use-cases/auth/IRefreshTokenUseCase";
@@ -72,8 +71,8 @@ export class AuthController {
 
 
   me = async (req: Request, res: Response): Promise<void> => {
-    const userId = (req as any).user?.id//since its a custom req
-    if (!userId) {
+        const userId = req.user?.id;    
+        if (!userId) {
        throw new UnauthorizedError(ERROR_MESSAGES.AUTH_FAILED)
     }
 

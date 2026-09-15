@@ -20,6 +20,18 @@ import { IOrganizationRepository } from "@/domain/repositories/IOrganizationRepo
 import { MongoOrganizationRepository } from "@/infra/db/MongoOrganizationRepository";
 import { ITokenBlacklistService } from "@/application/ports/services/ITokenBlacklistService";
 import { MongoTokenBlacklistService } from "@/infra/services/MongoTokenBlacklistService";
+import { IProgramRepository } from "@/domain/repositories/IProgramRepository";
+import { MongoProgramRepository } from "@/infra/db/MongoProgramRepository";
+import { ICourseRepository } from "@/domain/repositories/ICourseRepository";
+import { MongoCourseRepository } from "@/infra/db/MongoCourseRepository";
+import { ISubjectRepository } from "@/domain/repositories/ISubjectRepository";
+import { MongoSubjectRepository } from "@/infra/db/MongoSubjectRepository";
+import { ICenterRepository } from "@/domain/repositories/ICenterRepository";
+import { MongoCenterRepository } from "@/infra/db/MongoCenterRepository";
+import { IAcademicYearRepository } from "@/domain/repositories/IAcademicYearRepository";
+import { MongoAcademicYearRepository } from "@/infra/db/MongoAcademicYearRepository";
+import { ISubjectAssignmentRepository } from "@/domain/repositories/ISubjectAssignmentRepository";
+import { MongoSubjectAssignmentRepository } from "@/infra/db/MongoSubjectAssignmentRepository";
 
 export const coreModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
@@ -36,6 +48,24 @@ export const coreModule = new ContainerModule((bind) => {
 
   bind<ITeacherRepository>(TYPES.TeacherRepository)
     .to(MongoTeacherRepository)
+    .inSingletonScope();
+  bind<IProgramRepository>(TYPES.ProgramRepository)
+    .to(MongoProgramRepository)
+    .inSingletonScope();
+  bind<ICourseRepository>(TYPES.CourseRepository)
+    .to(MongoCourseRepository)
+    .inSingletonScope();
+  bind<ISubjectRepository>(TYPES.SubjectRepository)
+    .to(MongoSubjectRepository)
+    .inSingletonScope();
+  bind<ICenterRepository>(TYPES.CenterRepository)
+    .to(MongoCenterRepository)
+    .inSingletonScope();
+  bind<IAcademicYearRepository>(TYPES.AcademicYearRepository)
+    .to(MongoAcademicYearRepository)
+    .inSingletonScope();
+  bind<ISubjectAssignmentRepository>(TYPES.SubjectAssignmentRepository)
+    .to(MongoSubjectAssignmentRepository)
     .inSingletonScope();
 
   bind<IAuthService>(TYPES.AuthService)

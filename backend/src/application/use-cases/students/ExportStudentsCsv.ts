@@ -14,7 +14,7 @@ export class ExportStudentsCsv implements IExportStudentsCsv {
     @inject(TYPES.StudentRepository) private studentRepository: IStudentRepository
   ) {}
 
-  private escapeCsvValue(value: any): string {
+  private escapeCsvValue(value:unknown): string {
     const str = value == null ? "" : String(value);
     if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
       return `"${str.replace(/"/g, '""')}"`

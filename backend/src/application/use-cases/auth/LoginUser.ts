@@ -34,8 +34,8 @@ export class LoginUser implements ILoginUser {
 
     try {
       user.verifyRole(role);
-    } catch (err: any) {
-      throw new UnauthorizedError(err.message);
+    } catch (err) {
+      throw new UnauthorizedError((err as Error).message);
     }
 
     const isMatch = await this._authSvc.comparePassword(password, user.password!);
@@ -49,8 +49,8 @@ export class LoginUser implements ILoginUser {
       if (student) {
         try {
           student.verifyIsActive();
-        } catch (err: any) {
-          throw new UnauthorizedError(err.message);
+        } catch (err) {
+          throw new UnauthorizedError((err as Error).message);
         }
         photo = student.photo;
       }
@@ -59,8 +59,8 @@ export class LoginUser implements ILoginUser {
       if (teacher) {
         try {
           teacher.verifyIsActive();
-        } catch (err: any) {
-          throw new UnauthorizedError(err.message);
+        } catch (err) {
+          throw new UnauthorizedError((err as Error).message);
         }
         photo = teacher.photo;
       }
