@@ -1,17 +1,23 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
-import { Settings, LogOut } from 'lucide-react';
+import { Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useAppDispatch } from '../../app/hooks';
 import { clearUser } from '../../app/slices/authSlice';
 import { clearOrganization } from '../../app/slices/organizationSlice';
 import { logoutUserApi } from '../../api/authApi';
 
 
-export interface SidebarItem {
+export interface SidebarSubItem {
   label: string;
   path: string;
+}
+
+export interface SidebarItem {
+  label: string;
+  path?: string;
   icon: LucideIcon;
+  children?: SidebarSubItem[];
 }
 
 interface SidebarProps {
@@ -21,34 +27,96 @@ interface SidebarProps {
   settingsPath: string;
 }
 
-const NavItem: React.FC<{ item: SidebarItem; onClose: () => void }> = ({ item, onClose }) => (
-  <NavLink
-    to={item.path}
-    end={item.path.split('/').length === 2}
-    onClick={onClose}
-    className={({ isActive }) =>
-      `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
-        isActive
-          ? 'bg-brand-50 text-brand-600 shadow-xs'
-          : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700'
-      }`
-    }
-  >
-    {({ isActive }) => {
-      const Icon = item.icon;
-      return (
-        <>
+const NavItem: React.FC<{ item: SidebarItem; onClose: () => void }> = ({ item, onClose }) => {
+  const path = item.path ?? '#';
+  return (
+    <NavLink
+      to={path}
+      end={path.split('/').length === 2}
+      onClick={onClose}
+      className={({ isActive }) =>
+        `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+          isActive
+            ? 'bg-brand-50 text-brand-600 shadow-xs'
+            : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700'
+        }`
+      }
+    >
+      {({ isActive }) => {
+        const Icon = item.icon;
+        return (
+          <>
+            <Icon
+              className={`h-4.5 w-4.5 transition-colors duration-200 ${
+                isActive ? 'text-brand-600' : 'text-neutral-450'
+              }`}
+            />
+            <span>{item.label}</span>
+          </>
+        );
+      }}
+    </NavLink>
+  );
+};
+
+const NavDropdown: React.FC<{ item: SidebarItem; onClose: () => void }> = ({ item, onClose }) => {
+  const location = useLocation();
+  const hasActiveChild = (item.children ?? []).some((child) => location.pathname === child.path);
+  const [isOpenState, setIsOpenState] = useState<boolean | null>(null);
+
+  const isOpen = isOpenState !== null ? isOpenState : hasActiveChild;
+
+  const Icon = item.icon;
+
+  return (
+    <div className="space-y-1">
+      <button
+        type="button"
+        onClick={() => setIsOpenState(!isOpen)}
+        className={`flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${
+          hasActiveChild
+            ? 'bg-brand-50/60 text-brand-600'
+            : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700'
+        }`}
+      >
+        <div className="flex items-center gap-3">
           <Icon
             className={`h-4.5 w-4.5 transition-colors duration-200 ${
-              isActive ? 'text-brand-600' : 'text-neutral-450'
+              hasActiveChild ? 'text-brand-600' : 'text-neutral-450'
             }`}
           />
           <span>{item.label}</span>
-        </>
-      );
-    }}
-  </NavLink>
-);
+        </div>
+        <ChevronDown
+          className={`h-4 w-4 text-neutral-400 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {isOpen && item.children && (
+        <div className="space-y-0.5 pl-9 pr-1">
+          {item.children.map((child) => (
+            <NavLink
+              key={child.path}
+              to={child.path}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `flex items-center rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 ${
+                  isActive
+                    ? 'bg-brand-50 text-brand-600 font-bold'
+                    : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700'
+                }`
+              }
+            >
+              <span>{child.label}</span>
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
@@ -109,9 +177,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Main Navigation */}
           <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-            {items.map((item) => (
-              <NavItem key={item.label} item={item} onClose={onClose} />
-            ))}
+            {items.map((item) =>
+              item.children && item.children.length > 0 ? (
+                <NavDropdown key={item.label} item={item} onClose={onClose} />
+              ) : (
+                <NavItem key={item.label} item={item} onClose={onClose} />
+              )
+            )}
           </nav>
 
           {/* Bottom Section: Settings & Logout */}

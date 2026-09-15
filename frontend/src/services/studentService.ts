@@ -8,7 +8,6 @@ export const getStudentsApi = (params: {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-  isActive?:boolean | null;
 }) =>
   axiosInstance.get<StudentListResponse>(API_ROUTES.STUDENTS.BASE, { params });
 

@@ -23,10 +23,6 @@ export const TeacherSettingsPage: React.FC = () => {
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [isEmailOpen, setIsEmailOpen] = useState(false);
 
-  useEffect(() => {
-    fetchProfileSettings();
-  }, []);
-
   const fetchProfileSettings = async () => {
     setFetching(true);
     setApiError(null);
@@ -40,6 +36,10 @@ export const TeacherSettingsPage: React.FC = () => {
       setFetching(false);
     }
   };
+
+  useEffect(() => {
+    fetchProfileSettings();
+  }, []);
 
   const handlePhotoUpload = async (file: File) => {
     setLoading(true);

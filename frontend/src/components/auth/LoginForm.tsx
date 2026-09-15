@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import type { UserRole, LoginPayload } from "../../types/auth";
-import { loginValidationSchema } from "../../utils/validators";
+import { loginValidationSchema } from "../../validators/authValidator";
 
 interface LoginFormProps {
   title: string;

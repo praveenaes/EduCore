@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { usePagination } from '../../hooks/usePagination';
 import { UserPlus, Download,X } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
@@ -20,9 +21,8 @@ const PAGE_LIMIT = 4;
 
 const TeachersPage: React.FC = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [page, setPage] = useState(1);
+  const pagination = usePagination({ initialLimit: PAGE_LIMIT });
+  const { page, limit, resetPage, setPaginationData, totalPages, setPage } = pagination;
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,15 +35,17 @@ const TeachersPage: React.FC = () => {
     show: boolean;
     teacher: Teacher | null;
   }>({ show: false, teacher: null });
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(1);
+      resetPage();
     }, 350);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [search, resetPage]);
 
   // Fetch teachers
   const fetchTeachers = useCallback(async () => {
@@ -52,22 +54,34 @@ const TeachersPage: React.FC = () => {
     try {
       const data = await getTeachersApi({
         page,
-        limit: PAGE_LIMIT,
+        limit,
         search: debouncedSearch || undefined,
+        sortBy,
+        sortOrder,
       });
       setTeachers(data.teachers);
-      setTotal(data.total);
-      setTotalPages(data.totalPages);
+      setPaginationData(data.total, data.totalPages);
     } catch {
       setError('Failed to load teachers. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder, setPaginationData]);
 
   useEffect(() => {
-    void fetchTeachers();
+    // oxlint-disable-next-line react/set-state-in-effect
+    fetchTeachers();
   }, [fetchTeachers]);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    resetPage();
+  };
 
   // Auto-dismiss toast after 3 seconds
   useEffect(() => {
@@ -112,6 +126,7 @@ const TeachersPage: React.FC = () => {
   const columns: TableColumn<Teacher>[] = [
     {
       header: 'Teacher',
+      sortField: 'firstName',
       accessor: (t) => (
         <button
           onClick={() => setSelectedTeacher(t)}
@@ -142,6 +157,7 @@ const TeachersPage: React.FC = () => {
     },
     {
       header: 'Employee ID',
+      sortField: 'employeeId',
       accessor: (t) => (
         <span className="font-mono text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded">
           {t.employeeId}
@@ -154,6 +170,7 @@ const TeachersPage: React.FC = () => {
     },
     {
       header: 'Status',
+     
       accessor: (t) => (
         <span
           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
@@ -196,7 +213,7 @@ const TeachersPage: React.FC = () => {
         {/* Toast */}
         {toast && (
           <div
-            className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ${
+            className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ${
               toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
             }`}
           >
@@ -209,7 +226,7 @@ const TeachersPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-neutral-800">Teachers</h1>
             <p className="text-sm text-neutral-450 mt-0.5">
-              {total} teacher{total !== 1 ? 's' : ''} registered
+              {pagination.total} teacher{pagination.total !== 1 ? 's' : ''} registered
             </p>
           </div>
           <div className="flex gap-2">
@@ -264,6 +281,9 @@ const TeachersPage: React.FC = () => {
             data={teachers}
             keyExtractor={(t) => t.id}
             isLoading={isLoading}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
         )}
       </div>

@@ -34,24 +34,24 @@ export const AdminSettingsPage: React.FC = () => {
   const [nameError, setNameError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSettings();
-  }, []);
+    const fetchSettings = async () => {
+      setFetching(true);
+      setApiError(null);
+      try {
+        const response = await getOrganizationSettingsApi();
+        setOrgName(response.data.name);
+        setOrgLogo(response.data.logoPath || "");
+        dispatch(setOrganization(response.data));
+      } catch (err) {
+        console.error(err);
+        setApiError("Failed to load organization settings.");
+      } finally {
+        setFetching(false);
+      }
+    };
 
-  const fetchSettings = async () => {
-    setFetching(true);
-    setApiError(null);
-    try {
-      const response = await getOrganizationSettingsApi();
-      setOrgName(response.data.name);
-      setOrgLogo(response.data.logoPath || "");
-      dispatch(setOrganization(response.data));
-    } catch (err) {
-      console.error(err);
-      setApiError("Failed to load organization settings.");
-    } finally {
-      setFetching(false);
-    }
-  };
+    fetchSettings();
+  }, [dispatch]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

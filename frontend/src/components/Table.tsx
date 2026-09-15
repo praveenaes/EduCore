@@ -71,7 +71,7 @@ export const Table = <T,>({
             </tr>
           ) : data.length === 0 ? (
             <tr>
-              //Without colSpan, your loading cell would occupy only one column.
+              {/* Without colSpan, your loading cell would occupy only one column. */}
               <td colSpan={columns.length} className="px-6 py-12 text-center text-neutral-400">
                 No records found.
               </td>

@@ -28,4 +28,28 @@ export const API_ROUTES = {
     STATUS: (id: string) => `/teachers/${id}/status`,
     EXPORT: "/teachers/export/csv",
   },
+   PROGRAMS: {
+    BASE: "/academics/programs",
+    DETAIL: (id: string) => `/academics/programs/${id}`,
+  },
+  COURSES: {
+    BASE: "/academics/courses",
+    DETAIL: (id: string) => `/academics/courses/${id}`,
+  },
+  SUBJECTS: {
+    BASE: "/academics/subjects",
+    DETAIL: (id: string) => `/academics/subjects/${id}`,
+  },
+  CENTERS: {
+    BASE: "/centers",
+    DETAIL: (id: string) => `/centers/${id}`,
+  },
+  ACADEMIC_YEARS: {
+    BASE: "/centers/academic-years",
+    DETAIL: (id: string) => `/centers/academic-years/${id}`,
+  },
+  SUBJECT_ASSIGNMENTS: {
+    BASE: "/academics/subject-assignments",
+    DETAIL: (id: string) => `/academics/subject-assignments/${id}`,
+  },
 } as const;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { verifyOtpValidationSchema } from "../../utils/validators";
+import { verifyOtpValidationSchema } from "../../validators/authValidator";
 import { verifyOtpApi, forgotPasswordApi } from "../../api/authApi";
 import { ArrowLeft } from "lucide-react";
 import { UserRoleEnum } from "../../types/auth";
@@ -20,13 +20,10 @@ export const VerifyOtpPage: React.FC = () => {
 
   // Timer states (60 seconds = 1 minute)
   const [timeLeft, setTimeLeft] = useState(60);
-  const [canResend, setCanResend] = useState(false);
+  const canResend = timeLeft <= 0;
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      setCanResend(true);
-      return;
-    }
+    if (timeLeft <= 0) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
@@ -90,15 +87,15 @@ export const VerifyOtpPage: React.FC = () => {
       if (response.success) {
         setSuccessMessage("A new OTP has been generated and sent.");
         setTimeLeft(60);
-        setCanResend(false);
         setOtp(""); // Clear previous input
       } else {
         setError(response.message || "Failed to resend OTP");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { error?: string; message?: string } } };
       const message =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
+        errorObj.response?.data?.error ||
+        errorObj.response?.data?.message ||
         "Failed to resend OTP. Please try again.";
       setError(message);
     } finally {

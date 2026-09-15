@@ -5,7 +5,7 @@ import { clearOrganization } from "../app/slices/organizationSlice";
 import { tokenService } from "../utils/tokenService";
 import { API_ROUTES } from "./apiRoutes";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const baseURL = import.meta.env.VITE_API_URL || "/api";
 
 export const axiosInstance = axios.create({
   baseURL,

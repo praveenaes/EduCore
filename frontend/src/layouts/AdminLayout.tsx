@@ -7,22 +7,49 @@ import {
   LayoutDashboard,
   Users,
   GraduationCap,
-  Building2,
-  BookOpen,
+  Layers,
   ClipboardCheck,
-  FileSpreadsheet,
+  BookOpen,
+  Building2,
   CreditCard,
+  Bell,
 } from 'lucide-react';
+
+//---------------------------------
+
+         /*real routes */
+
+//---------------------------------       
 
 const adminNavItems: SidebarItem[] = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'Students', path: '/admin/students', icon: Users },
   { label: 'Teachers', path: '/admin/teachers', icon: GraduationCap },
-  { label: 'Classes', path: '/admin/classes', icon: Building2 },
-  { label: 'Subjects', path: '/admin/subjects', icon: BookOpen },
-  { label: 'Attendance', path: '/admin/attendance', icon: ClipboardCheck },
-  { label: 'Exams', path: '/admin/exams', icon: FileSpreadsheet },
+  { label: 'Batches', path: '/admin/batches', icon: Layers },
+  {
+    label: 'Assessments',
+    icon: ClipboardCheck,
+    children: [
+      { label: 'Results', path: '/admin/assessments/results' },
+      { label: 'Schedules', path: '/admin/assessments/schedules' },
+      { label: 'Assessment Criteria', path: '/admin/assessments/criteria' },
+      { label: 'Assessment Events', path: '/admin/assessments' },
+    ],
+  },
+  {
+    label: 'Academics',
+    icon: BookOpen,
+    children: [
+      { label: 'Subject Assignments', path: '/admin/subject-assignments' },
+      { label: 'Subjects', path: '/admin/subjects' },
+      { label: 'Courses', path: '/admin/courses' },
+      { label: 'Programs', path: '/admin/programs' },
+      { label: 'Academic Years', path: '/admin/academic-years' },
+    ],
+  },
+  { label: 'Centers', path: '/admin/centers', icon: Building2 },
   { label: 'Fees', path: '/admin/fees', icon: CreditCard },
+  { label: 'Notifications', path: '/admin/notifications', icon: Bell },
 ];
 
 export const AdminLayout: React.FC = () => {

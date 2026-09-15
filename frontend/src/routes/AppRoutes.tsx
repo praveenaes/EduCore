@@ -22,6 +22,19 @@ import { UserRoleEnum } from '../types/auth';
 import { AdminSettingsPage } from '../pages/admin/AdminSettingsPage';
 import { StudentSettingsPage } from '../pages/settings/StudentSettingsPage';
 import { TeacherSettingsPage } from '../pages/settings/TeacherSettingsPage';
+import ProgramsPage from '../pages/admin/ProgramsPage';
+import CoursesPage from '../pages/admin/CoursesPage';
+import SubjectsPage from '../pages/admin/SubjectsPage';
+import CentersPage from '../pages/admin/CentersPage';
+import AcademicYearsPage from '../pages/admin/AcademicYearsPage';
+import SubjectAssignmentsPage from '../pages/admin/SubjectAssignmentsPage';
+
+const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
+  <div className="p-6 space-y-4">
+    <h1 className="text-2xl font-bold tracking-tight text-neutral-800">{title}</h1>
+    <p className="text-sm text-neutral-500">{title} — coming soon</p>
+  </div>
+);
 
 export const AppRoutes: React.FC = () => {//Creates a React Functional Component.returns JSX.
   return (
@@ -99,6 +112,19 @@ export const AppRoutes: React.FC = () => {//Creates a React Functional Component
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="students" element={<StudentsPage />} />
         <Route path="teachers" element={<TeachersPage />} />
+        <Route path="batches" element={<PlaceholderPage title="Batches" />} />
+        <Route path="assessments" element={<PlaceholderPage title="Assessment Events" />} />
+        <Route path="assessments/results" element={<PlaceholderPage title="Results" />} />
+        <Route path="assessments/schedules" element={<PlaceholderPage title="Schedules" />} />
+        <Route path="assessments/criteria" element={<PlaceholderPage title="Assessment Criteria" />} />
+        <Route path="subject-assignments" element={<SubjectAssignmentsPage />} />
+        <Route path="subjects" element={<SubjectsPage />} />
+        <Route path="courses" element={<CoursesPage />} />
+        <Route path="programs" element={<ProgramsPage />} />
+        <Route path="academic-years" element={<AcademicYearsPage />} />
+        <Route path="centers" element={<CentersPage />} />
+        <Route path="fees" element={<PlaceholderPage title="Fees" />} />
+        <Route path="notifications" element={<PlaceholderPage title="Notifications" />} />
         <Route path="settings" element={<AdminSettingsPage />} />
         <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Route>

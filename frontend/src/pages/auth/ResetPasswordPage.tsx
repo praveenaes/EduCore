@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch } from "../../app/hooks";
-import { resetPasswordValidationSchema } from "../../utils/validators";
+import { resetPasswordValidationSchema } from "../../validators/authValidator";
 import { resetPasswordApi } from "../../api/authApi";
 import { tokenService } from "../../utils/tokenService";
 import { loadUser } from "../../app/authThunk";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { forgotPasswordValidationSchema } from "../../utils/validators";
+import { forgotPasswordValidationSchema } from "../../validators/authValidator";
 import { forgotPasswordApi } from "../../api/authApi";
 import { UserRoleEnum } from "../../types/auth";
 

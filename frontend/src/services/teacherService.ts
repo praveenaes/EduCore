@@ -12,6 +12,8 @@ export const getTeachersApi = async (params: {
   page?: number;
   limit?: number;
   search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }): Promise<TeacherListResponse> => {
   const res = await axiosInstance.get<ApiResponse<TeacherListResponse>>(API_ROUTES.TEACHERS.BASE, { params });
   return res.data.data;

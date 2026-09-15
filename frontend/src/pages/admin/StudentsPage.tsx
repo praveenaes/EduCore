@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { usePagination } from '../../hooks/usePagination';
 import { Download, UserPlus,X } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
@@ -20,9 +21,8 @@ const LIMIT = 4;
 
 const StudentsPage: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const pagination = usePagination({ initialLimit: LIMIT });
+  const { page, limit, resetPage, setPaginationData, totalPages, setPage } = pagination;
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -38,16 +38,15 @@ const StudentsPage: React.FC = () => {
   }>({ show: false, student: null });
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const[filter,setFilter]=useState<boolean|null>(null)
-
+  
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(1);
+      resetPage();
     }, 400);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [search, resetPage]);
 
   const fetchStudents = useCallback(async () => {
     setIsLoading(true);
@@ -55,21 +54,19 @@ const StudentsPage: React.FC = () => {
     try {
       const res = await getStudentsApi({
         page,
-        limit: LIMIT,
+        limit,
         search: debouncedSearch || undefined,
         sortBy,
-        sortOrder,
-        isActive:filter
+        sortOrder
       });
       setStudents(res.data.data.students);
-      setTotal(res.data.data.total);
-      setTotalPages(res.data.data.totalPages);
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? 'Failed to load students.');
+      setPaginationData(res.data.data.total, res.data.data.totalPages);
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to load students.');
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch, sortBy, sortOrder,filter]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder, setPaginationData]);
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -78,11 +75,12 @@ const StudentsPage: React.FC = () => {
       setSortBy(field);
       setSortOrder('asc');
     }
-    setPage(1);
+    resetPage();
   };
 
   //runs when page loads
   useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect
     fetchStudents();
   }, [fetchStudents]);
 
@@ -129,18 +127,7 @@ const StudentsPage: React.FC = () => {
     }
   };
 
-  const handleFilter=()=>{
-       if(filter===null){
-        setFilter(true)
-        setPage(1)
-       }else if(filter===true){
-        setFilter(false)
-        setPage(1)
-       }else{
-        setFilter(null)
-        setPage(1)
-       }
-  }
+
 
   //creates array of 5 column objects and passes to table component
   const columns: TableColumn<Student>[] = [
@@ -192,7 +179,7 @@ const StudentsPage: React.FC = () => {
     },
     {
       header: 'Status',
-      sortField: 'isActive',
+  
       accessor: (s) => (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
           s.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
@@ -223,7 +210,7 @@ const StudentsPage: React.FC = () => {
       <div className="space-y-6">
 {/* toast showing button*/}
         {toast && (
-          <div className={`fixed top-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg ${
+          <div className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg ${
             toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
           }`}>
             {toast.type === 'success' ? '✓' : '✕'} {toast.message}
@@ -234,7 +221,7 @@ const StudentsPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-neutral-800">Students</h1>
             <p className="mt-0.5 text-sm text-neutral-400">
-              {total > 0 ? `${total} students registered` : 'Manage all student records'}
+              {pagination.total > 0 ? `${pagination.total} students registered` : 'Manage all student records'}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -253,7 +240,7 @@ const StudentsPage: React.FC = () => {
             >
               Export CSV
             </Button>
-            <button onClick={()=>handleFilter()}>{filter===null?'Active':filter===true?'Inactive':'All'}</button>
+
 {/* Add student Button*/}
             <Button
               size="sm"
