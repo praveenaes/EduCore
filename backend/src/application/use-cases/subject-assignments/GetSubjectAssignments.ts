@@ -7,7 +7,6 @@ import {
   SubjectAssignmentListResultDTO,
   SubjectAssignmentResponseDTO,
 } from '../../dto/subject-assignments/subjectAssignmentDtos';
-import { NotFoundError } from '@/shared/errors/AppError';
 
 @injectable()
 export class GetSubjectAssignments implements IGetSubjectAssignmentsUseCase {
@@ -17,22 +16,31 @@ export class GetSubjectAssignments implements IGetSubjectAssignmentsUseCase {
   ) {}
 
   async execute(query: SubjectAssignmentQueryDTO): Promise<SubjectAssignmentListResultDTO> {
-    const page = query.page && query.page > 0 ? Number(query.page) : 1;
-    const limit = query.limit && query.limit > 0 ? Number(query.limit) : 10;
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      courseId,
+      levelNumber,
+      subjectId,
+      teacherId,
+      sortBy,
+      sortOrder,
+    } = query;
 
     const result = await this._assignmentRepo.findAll(
       {
-        search: query.search?.trim(),
-        courseId: query.courseId,
-        levelNumber: query.levelNumber !== undefined ? Number(query.levelNumber) : undefined,
-        subjectId: query.subjectId,
-        teacherId: query.teacherId,
+        search: search?.trim(),
+        courseId,
+        levelNumber,
+        subjectId,
+        teacherId,
       },
       {
         page,
         limit,
-        sortBy: query.sortBy,
-        sortOrder: query.sortOrder,
+        sortBy,
+        sortOrder,
       }
     );
 
@@ -57,31 +65,6 @@ export class GetSubjectAssignments implements IGetSubjectAssignmentsUseCase {
     return {
       assignments,
       total: result.total,
-    };
-  }
-
-  async getById(id: string): Promise<SubjectAssignmentResponseDTO> {
-    const assignment = await this._assignmentRepo.findById(id);
-    if (!assignment || assignment.isDeleted) {
-      throw new NotFoundError(`Subject assignment with id "${id}" not found`);
-    }
-
-    return {
-      id: assignment.id!,
-      courseId: assignment.courseId,
-      courseName: assignment.courseName,
-      courseCode: assignment.courseCode,
-      levelNumber: assignment.levelNumber,
-      levelName: assignment.levelName,
-      subjectId: assignment.subjectId,
-      subjectName: assignment.subjectName,
-      subjectCode: assignment.subjectCode,
-      teacherId: assignment.teacherId,
-      teacherName: assignment.teacherName,
-      teacherEmployeeId: assignment.teacherEmployeeId,
-      isDeleted: assignment.isDeleted,
-      createdAt: assignment.createdAt?.toISOString(),
-      updatedAt: assignment.updatedAt?.toISOString(),
     };
   }
 }

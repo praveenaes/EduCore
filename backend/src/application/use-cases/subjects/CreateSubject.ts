@@ -26,7 +26,7 @@ export class CreateSubject implements ICreateSubject {
     const subject = Subject.createNew({
       name: dto.name,
       code: dto.code,
-      description: dto.description || '',
+      description: dto.description,
     });
 
     const saved = await this._subjectRepo.create(subject);

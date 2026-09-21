@@ -1,6 +1,9 @@
 import axiosInstance from '../api/axiosInstance';
 import { API_ROUTES } from '../api/apiRoutes';
-import type { TeacherListResponse } from '../types/teacher';
+import type { TeacherListResponse, TeacherCurriculumResponse } from '../types/teacher';
+
+export const getTeacherCurriculumApi = () =>
+  axiosInstance.get<TeacherCurriculumResponse>(API_ROUTES.TEACHERS.CURRICULUM);
 
 interface ApiResponse<T> {
   success: boolean;

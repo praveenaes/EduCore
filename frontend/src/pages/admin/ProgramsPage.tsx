@@ -23,6 +23,10 @@ const ProgramsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sorting states
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
@@ -37,7 +41,16 @@ const ProgramsPage: React.FC = () => {
   // Toast notification
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  // Debounce search input
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    resetPage();
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -46,7 +59,7 @@ const ProgramsPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [search, resetPage]);
 
-  // Fetch programs
+
   const fetchPrograms = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -55,6 +68,8 @@ const ProgramsPage: React.FC = () => {
         page,
         limit,
         search: debouncedSearch || undefined,
+        sortBy,
+        sortOrder,
       });
       setPrograms(res.data.data.programs);
       setPaginationData(res.data.data.total, res.data.data.totalPages);
@@ -64,33 +79,34 @@ const ProgramsPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, debouncedSearch, setPaginationData]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder, setPaginationData]);
+
 
   useEffect(() => {
-    // oxlint-disable-next-line react/set-state-in-effect
     fetchPrograms();
   }, [fetchPrograms]);
 
-  // Auto-dismiss toast after 3 seconds
+
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 3000);
     return () => clearTimeout(t);
   }, [toast]);
 
-  // Open Edit Modal
+
+// Open Edit Modal
   const handleEdit = (program: Program) => {
     setSelectedProgram(program);
     setShowModal(true);
   };
 
-  // Open Add Modal
+
+// Open Add Modal
   const handleAddNew = () => {
     setSelectedProgram(null);
     setShowModal(true);
   };
 
-  // Handle Delete
   const handleDeleteConfirm = async () => {
     if (!deleteConfirm.program) return;
     setIsDeleting(true);
@@ -111,7 +127,6 @@ const ProgramsPage: React.FC = () => {
     }
   };
 
-  // Columns definition
   const columns: TableColumn<Program>[] = [
     {
       header: 'Program Name',
@@ -136,14 +151,6 @@ const ProgramsPage: React.FC = () => {
       accessor: (p) => (
         <span className="text-neutral-500 line-clamp-1 max-w-xs">
           {p.description || '—'}
-        </span>
-      ),
-    },
-    {
-      header: 'Created At',
-      accessor: (p) => (
-        <span className="text-neutral-400 text-xs">
-          {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '—'}
         </span>
       ),
     },
@@ -173,7 +180,8 @@ const ProgramsPage: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col justify-between">
       <div className="space-y-6">
-        {/* Toast */}
+
+ {/* Toast */}
         {toast && (
           <div
             className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ${
@@ -203,14 +211,14 @@ const ProgramsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Search */}
+ {/* Search */}
         <SearchBox
           value={search}
           onChange={(v) => setSearch(v)}
           placeholder="Search by program name or code…"
         />
 
-        {/* Content */}
+ {/* Content */}
         {error ? (
           <ErrorState message={error} onRetry={fetchPrograms} />
         ) : programs.length === 0 && !isLoading ? (
@@ -235,11 +243,14 @@ const ProgramsPage: React.FC = () => {
             data={programs}
             keyExtractor={(p) => p.id}
             isLoading={isLoading}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
         )}
       </div>
 
-      {/* Pagination */}
+{/* Pagination */}
       {programs.length > 0 && !isLoading && totalPages > 1 && (
         <div className="mt-auto pt-6">
           <Pagination
@@ -250,7 +261,7 @@ const ProgramsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Add / Edit Modal */}
+ {/* Add / Edit Modal */}
       {showModal && (
         <ProgramModal
           isOpen={showModal}
@@ -271,7 +282,7 @@ const ProgramsPage: React.FC = () => {
         />
       )}
 
-      {/* Delete Confirmation Modal */}
+ {/* Delete Confirmation Modal */}
       <ConfirmationModal
         isOpen={deleteConfirm.show}
         title="Delete Program"

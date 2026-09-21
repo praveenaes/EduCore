@@ -5,7 +5,7 @@ export interface ISubjectPersistenceInput {
   _id: Types.ObjectId | string;
   name: string;
   code: string;
-  description?: string;
+  description: string;
   isDeleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -17,7 +17,7 @@ export class SubjectMapper {
       id: doc._id.toString(),
       name: doc.name,
       code: doc.code,
-      description: doc.description || '',
+      description: doc.description,
       isDeleted: doc.isDeleted,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

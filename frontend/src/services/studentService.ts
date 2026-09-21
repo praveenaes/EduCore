@@ -1,6 +1,9 @@
 import axiosInstance from '../api/axiosInstance';
 import { API_ROUTES } from '../api/apiRoutes';
-import type { StudentListResponse } from '../types/student';
+import type { StudentListResponse, StudentCurriculumResponse } from '../types/student';
+
+export const getStudentCurriculumApi = () =>
+  axiosInstance.get<StudentCurriculumResponse>(API_ROUTES.STUDENTS.CURRICULUM);
 
 export const getStudentsApi = (params: { 
   page?: number; 

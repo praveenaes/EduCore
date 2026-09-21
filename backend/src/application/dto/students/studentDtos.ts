@@ -1,4 +1,4 @@
-﻿export interface CreateStudentDTO {
+export interface CreateStudentDTO {
   firstName: string;
   lastName: string;
   admissionNumber: string;
@@ -16,12 +16,13 @@
   state: string;
   postalCode: string;
   country: string;
+  batchId: string;
   removePhoto?: string;
 }
 
 export type UpdateStudentDTO = Partial<Omit<CreateStudentDTO, 'admissionNumber'>>;
 
-export interface CreateStudentResponseDTO {
+export interface StudentResponseDTO {
   id: string;
   firstName: string;
   lastName: string;
@@ -40,12 +41,19 @@ export interface CreateStudentResponseDTO {
   state: string;
   postalCode: string;
   country: string;
+  batchId: string;
+  batchName?: string;
   userId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
+export type CreateStudentResponseDTO = StudentResponseDTO;
+
 export interface StudentListResultDTO {
-  students: CreateStudentResponseDTO[];
+  students: StudentResponseDTO[];
   total: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
 }

@@ -12,12 +12,7 @@ export const updateOrganizationSettingsApi = async (
 ): Promise<{ success: boolean; message: string; data: OrganizationSettings }> => {
   const response = await axiosInstance.put<{ success: boolean; message: string; data: OrganizationSettings }>(
     API_ROUTES.SETTINGS.ORGANIZATION,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+    formData
   );
   return response.data;
 };
@@ -32,12 +27,7 @@ export const updateMyProfilePhotoApi = async (
 ): Promise<{ success: boolean; message: string; data: { photoPath: string } }> => {
   const response = await axiosInstance.patch<{ success: boolean; message: string; data: { photoPath: string } }>(
     API_ROUTES.SETTINGS.PROFILE,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+    formData
   );
   return response.data;
 };

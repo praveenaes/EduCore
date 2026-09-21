@@ -1,13 +1,13 @@
-﻿import { Types } from "mongoose";
+import { Types } from "mongoose";
 import { Course, CourseLevelProps } from "../../domain/entities/Course";
 
 export interface ICoursePersistenceInput {
-  _id: Types.ObjectId |string
-  programId: Types.ObjectId |string
+  _id: Types.ObjectId | string;
+  programId: any;
   name: string;
   code: string;
   description: string;
-  durationMonths: number;
+  durationMonths?: number;
   levelName: string;
   levelCount: number;
   levels: CourseLevelProps[];
@@ -18,13 +18,19 @@ export interface ICoursePersistenceInput {
 
 export class CourseMapper {
   static toDomain(doc: ICoursePersistenceInput): Course {
+    const programId = doc.programId?._id
+      ? doc.programId._id.toString()
+      : (doc.programId ? doc.programId.toString() : '');
+    const programName = doc.programId?.name;
+
     return new Course({
       id: doc._id.toString(),
-      programId: doc.programId ? doc.programId.toString() : '',
+      programId,
+      programName,
       name: doc.name,
       code: doc.code,
       description: doc.description,
-      durationMonths: doc.durationMonths,
+      durationMonths: doc.durationMonths ?? 0,
       levelName: doc.levelName,
       levelCount: doc.levelCount,
       levels: doc.levels || [],
@@ -39,7 +45,7 @@ export class CourseMapper {
     name: string;
     code: string;
     description: string;
-    durationMonths: number;
+    durationMonths?: number;
     levelName: string;
     levelCount: number;
     levels: CourseLevelProps[];
@@ -50,7 +56,7 @@ export class CourseMapper {
       name: course.name,
       code: course.code,
       description: course.description,
-      durationMonths: course.durationMonths,
+      durationMonths: course.durationMonths ?? 0,
       levelName: course.levelName,
       levelCount: course.levelCount,
       levels: course.levels,

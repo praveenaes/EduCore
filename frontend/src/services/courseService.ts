@@ -1,4 +1,4 @@
-﻿import axiosInstance from '../api/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 import { API_ROUTES } from '../api/apiRoutes';
 import type { CourseListResponse, CreateCoursePayload, UpdateCoursePayload } from '../types/course';
 
@@ -7,6 +7,8 @@ export const getCoursesApi = (params: {
   limit?: number;
   search?: string;
   programId?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }) =>
   axiosInstance.get<CourseListResponse>(API_ROUTES.COURSES.BASE, { params });
 

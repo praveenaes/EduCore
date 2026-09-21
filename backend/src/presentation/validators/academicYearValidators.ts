@@ -96,18 +96,3 @@ export const updateAcademicYearSchema = z
     },
     { message: 'End date must be after start date', path: ['endDate'] }
   );
-
-export const getAcademicYearsQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().default(10),
-  search: z.string().trim().optional(),
-  status: z.enum(['active', 'inactive']).optional(),
-  centerId: z.string().trim().optional(),
-  current: z.preprocess((val) => {
-    if (val === 'true' || val === true) return true;
-    if (val === 'false' || val === false) return false;
-    return undefined;
-  }, z.boolean().optional()),
-  sortBy: z.string().trim().optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
-});

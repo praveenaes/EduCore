@@ -15,6 +15,15 @@ export class MongoTeacherRepository
   protected readonly _model = TeacherModel;
   protected readonly _mapper = TeacherMapper;
 
+  async findByUserId(userId: string): Promise<Teacher | null> {
+    const doc = await TeacherModel.findOne({
+      userId,
+      isDeleted: false,
+    });
+    if (!doc) return null;
+    return TeacherMapper.toDomain(doc);
+  }
+
   async findByEmployeeId(employeeId: string): Promise<Teacher | null> {
     const doc = await TeacherModel.findOne({
       employeeId: { $regex: new RegExp(`^${employeeId}$`, "i") },

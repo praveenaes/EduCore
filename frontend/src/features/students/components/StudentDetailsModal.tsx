@@ -139,7 +139,17 @@ export const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
             </div>
           </div>
 
- {/* Personal */}
+          {/* Academic */}
+          <section>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+              Academic
+            </h3>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+              <DetailRow label="Batch" value={student.batchName || '—'} />
+            </div>
+          </section>
+
+          {/* Personal */}
           <section>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
               Personal

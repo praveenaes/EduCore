@@ -32,7 +32,7 @@ export const AppShellLayout: React.FC<AppShellLayoutProps> = ({
         />
 
         {/* Content Area */}
-        <main className="flex-1 flex flex-col px-6 pb-6 pt-3 md:px-8 md:pb-8 md:pt-4 max-w-7xl mx-auto w-full transition-all duration-300">
+        <main className="flex-1 min-w-0 flex flex-col px-6 pb-6 pt-3 md:px-8 md:pb-8 md:pt-4 max-w-7xl mx-auto w-full transition-all duration-300">
           <Outlet />
         </main>
       </div>

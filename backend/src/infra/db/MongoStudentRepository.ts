@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 import { IStudentRepository, StudentFilters, StudentPagination, StudentListResult } from "../../domain/repositories/IStudentRepository";
 import { Student } from "../../domain/entities/Student";
 import { StudentModel, IStudentDocument } from "./models/StudentModel";
@@ -14,6 +14,21 @@ export class MongoStudentRepository
 {
   protected readonly _model = StudentModel;
   protected readonly _mapper = StudentMapper;
+
+  override async findById(id: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({ _id: id, isDeleted: false }).populate("batchId", "name");
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
+
+  async findByUserId(userId: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({
+      userId: Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId,
+      isDeleted: false,
+    }).populate("batchId", "name");
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
 
 
 
@@ -98,7 +113,11 @@ export class MongoStudentRepository
   
 
     const [docs, total] = await Promise.all([
-      StudentModel.find(query).sort(sortOptions).skip(skip).limit(limit),
+      StudentModel.find(query)
+        .populate("batchId", "name")
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limit),
       StudentModel.countDocuments(query),
     ]);
 

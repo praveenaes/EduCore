@@ -33,7 +33,7 @@ const TeacherSchema = new Schema<ITeacherDocument>(
   {
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
-    employeeId: { type: String, required: true, unique: true, trim: true },
+    employeeId: { type: String, required: true, trim: true },
     joiningDate: { type: Date, required: true },
     qualifications: { type: String, required: true, trim: true },
     specializations: { type: String, required: true, trim: true },
@@ -45,7 +45,7 @@ const TeacherSchema = new Schema<ITeacherDocument>(
     nationalId: { type: String, required: true, trim: true },
     photo: { type: String, default: '' },
     phone: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    email: { type: String, required: true, lowercase: true, trim: true },
     house: { type: String, required: true, trim: true },
     area: { type: String, required: true, trim: true },
     city: { type: String, required: true, trim: true },
@@ -61,8 +61,13 @@ const TeacherSchema = new Schema<ITeacherDocument>(
   }
 );
 
-// Indexes for fast lookup and uniqueness checks
-TeacherSchema.index({ employeeId: 1, isDeleted: 1 });
-TeacherSchema.index({ email: 1, isDeleted: 1 });
+TeacherSchema.index(
+  { employeeId: 1 },
+  { unique: true, partialFilterExpression: { isDeleted: false } }
+);
+TeacherSchema.index(
+  { email: 1 },
+  { unique: true, partialFilterExpression: { isDeleted: false } }
+);
 
 export const TeacherModel = mongoose.model<ITeacherDocument>('Teacher', TeacherSchema);

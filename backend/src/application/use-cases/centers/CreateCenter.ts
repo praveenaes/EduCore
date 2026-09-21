@@ -10,7 +10,7 @@ import { ConflictError } from '@/shared/errors/AppError';
 export class CreateCenter implements ICreateCenterUseCase {
   constructor(
     @inject(TYPES.CenterRepository)
-    private readonly _centerRepository: ICenterRepository
+    private _centerRepository: ICenterRepository
   ) {}
 
   async execute(dto: CreateCenterDTO): Promise<CenterResponseDTO> {

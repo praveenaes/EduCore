@@ -25,6 +25,7 @@ export const AdminSettingsPage: React.FC = () => {
   const [orgLogo, setOrgLogo] = useState("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isLogoRemoved, setIsLogoRemoved] = useState(false);
 
   // Status states
   const [loading, setLoading] = useState(false);
@@ -39,9 +40,11 @@ export const AdminSettingsPage: React.FC = () => {
       setApiError(null);
       try {
         const response = await getOrganizationSettingsApi();
-        setOrgName(response.data.name);
-        setOrgLogo(response.data.logoPath || "");
-        dispatch(setOrganization(response.data));
+        const orgData = (response.data as any)?._props || response.data;
+        setOrgName(orgData.name || "");
+        setOrgLogo(orgData.logoPath || "");
+        setIsLogoRemoved(false);
+        dispatch(setOrganization(orgData));
       } catch (err) {
         console.error(err);
         setApiError("Failed to load organization settings.");
@@ -71,11 +74,13 @@ export const AdminSettingsPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setIsLogoRemoved(false);
     setLogoFile(file);
     setLogoPreview(URL.createObjectURL(file));
   };
 
   const handleRemoveLogo = () => {
+    setIsLogoRemoved(true);
     setLogoFile(null);
     setLogoPreview(null);
     setOrgLogo("");
@@ -95,16 +100,18 @@ export const AdminSettingsPage: React.FC = () => {
 
     if (logoFile) {
       formData.append("logo", logoFile);
-    } else if (orgLogo === "") {
+    } else if (isLogoRemoved) {
       formData.append("removeLogo", "true");
     }
 
     try {
       const response = await updateOrganizationSettingsApi(formData);
-      dispatch(setOrganization(response.data));
-      setOrgLogo(response.data.logoPath || "");
+      const orgData = (response.data as any)?._props || response.data;
+      dispatch(setOrganization(orgData));
+      setOrgLogo(orgData.logoPath || "");
       setLogoFile(null);
       setLogoPreview(null);
+      setIsLogoRemoved(false);
       setApiSuccess("Branding settings saved successfully.");
       setTimeout(() => {
         setApiSuccess(null);
@@ -184,16 +191,28 @@ export const AdminSettingsPage: React.FC = () => {
                     Upload New
                   </Button>
                 ) : (
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="sm"
-                    onClick={handleRemoveLogo}
-                    disabled={loading}
-                  >
-                    <Trash2 className="mr-1.5 h-4 w-4" />
-                    Remove
-                  </Button>
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={loading}
+                    >
+                      <Camera className="mr-1.5 h-4 w-4" />
+                      Change
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={handleRemoveLogo}
+                      disabled={loading}
+                    >
+                      <Trash2 className="mr-1.5 h-4 w-4" />
+                      Remove
+                    </Button>
+                  </>
                 )}
               </div>
               <p className="text-xs text-neutral-400">

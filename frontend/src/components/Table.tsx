@@ -19,6 +19,7 @@ export interface TableProps<T> {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSort?: (field: string) => void;
+  minTableWidth?: string;
 }
 
 export const Table = <T,>({ 
@@ -28,11 +29,12 @@ export const Table = <T,>({
   isLoading = false,
   sortBy,
   sortOrder,
-  onSort
+  onSort,
+  minTableWidth,
 }: TableProps<T>) => {
   return (
-    <div className="w-full overflow-x-auto rounded-xl border border-neutral-200/50 bg-white shadow-xs">
-      <table className="min-w-full divide-y divide-neutral-200/60 text-left text-sm text-neutral-600">
+    <div className="w-full overflow-x-auto custom-scrollbar rounded-xl border border-neutral-200/50 bg-white shadow-xs">
+      <table className={`min-w-full divide-y divide-neutral-200/60 text-left text-sm text-neutral-600 ${minTableWidth ?? ''}`}>
         <thead className="bg-neutral-50 font-semibold text-neutral-700 uppercase tracking-wider text-xs">
           <tr>
             {columns.map((column, index) => (

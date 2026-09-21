@@ -8,7 +8,6 @@ import { IDeleteCenterUseCase } from '../../../application/ports/use-cases/cente
 import {
   createCenterSchema,
   updateCenterSchema,
-  getCentersQuerySchema,
 } from '../../validators/centerValidators';
 import { ResponseHelper } from '../../helpers/ResponseHelper';
 import { HTTP_STATUS } from '@/presentation/constants/httpStatus';
@@ -28,25 +27,30 @@ export class CenterController {
     private _deleteCenterUseCase: IDeleteCenterUseCase
   ) {}
 
-  async create(req: Request, res: Response): Promise<void> {
+  create = async (req: Request, res: Response): Promise<void> => {
     const parsed = createCenterSchema.safeParse(req.body);
     if (!parsed.success) {
       throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
     }
     const result = await this._createCenterUseCase.execute(parsed.data);
     ResponseHelper.created(res, 'Center created successfully.', result);
-  }
+  };
 
-  async getAll(req: Request, res: Response): Promise<void> {
-    const parsed = getCentersQuerySchema.safeParse(req.query);
-    if (!parsed.success) {
-      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
-    }
-    const result = await this._getCentersUseCase.execute(parsed.data);
+  getAll = async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.search as string;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as 'asc' | 'desc';
+
+    const result = await this._getCentersUseCase.execute(
+      { search },
+      { page, limit, sortBy, sortOrder }
+    );
     ResponseHelper.success(res, 'Centers retrieved successfully', result, HTTP_STATUS.OK);
-  }
+  };
 
-  async update(req: Request, res: Response): Promise<void> {
+  update = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const parsed = updateCenterSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -54,11 +58,11 @@ export class CenterController {
     }
     const result = await this._updateCenterUseCase.execute(id, parsed.data);
     ResponseHelper.success(res, 'Center updated successfully.', result, HTTP_STATUS.OK);
-  }
+  };
 
-  async delete(req: Request, res: Response): Promise<void> {
+  delete = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await this._deleteCenterUseCase.execute(id);
     ResponseHelper.success(res, 'Center deleted successfully.', null, HTTP_STATUS.OK);
-  }
+  };
 }

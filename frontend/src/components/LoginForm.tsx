@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { api } from "../services/api";
+import axiosInstance from "../api/axiosInstance";
 import { UserRole } from "../domain/enums/UserRole";
 import { API_ROUTES } from "../api/apiRoutes";
 
@@ -25,7 +25,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     setError(null);
 
     try {
-      const response = await api.post(API_ROUTES.AUTH.LOGIN, {
+      const response = await axiosInstance.post(API_ROUTES.AUTH.LOGIN, {
         email,
         password,
         role,

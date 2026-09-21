@@ -74,8 +74,7 @@ const ProgramForm = forwardRef<HTMLFormElement, ProgramFormProps>(
           </div>
           <div className="mt-4">
             <label className="block text-sm font-medium text-neutral-700 mb-1">
-              Description{' '}
-              <span className="text-neutral-400 font-normal">(optional)</span>
+              Description
             </label>
             <textarea
               {...register('description')}

@@ -7,11 +7,13 @@ import { IExportStudentsCsv } from '../../../application/ports/use-cases/student
 import { ICreateStudent } from '../../../application/ports/use-cases/students/ICreateStudentUseCase';
 import { IUpdateStudent } from '../../../application/ports/use-cases/students/IUpdateStudentUseCase';
 import { IDeleteStudent } from '../../../application/ports/use-cases/students/IDeleteStudentUseCase';
+import { IGetStudentCurriculum } from '../../../application/ports/use-cases/students/IGetStudentCurriculumUseCase';
 import { createStudentSchema, updateStudentSchema } from '../../validators/studentValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
 import { HTTP_STATUS } from '@/presentation/constants/httpStatus';
 import { ResponseHelper } from '../../helpers/ResponseHelper';
+import { AuthenticatedRequest } from '../../middleware/authMiddleware';
 
 @injectable()
 export class StudentController {
@@ -21,23 +23,21 @@ export class StudentController {
     @inject(TYPES.ExportStudentsCsvUseCase) private _exportStudentsCsvUseCase: IExportStudentsCsv,
     @inject(TYPES.CreateStudentUseCase) private _createStudentUseCase: ICreateStudent,
     @inject(TYPES.UpdateStudentUseCase) private _updateStudentUseCase: IUpdateStudent,
-    @inject(TYPES.DeleteStudentUseCase) private _deleteStudentUseCase: IDeleteStudent
+    @inject(TYPES.DeleteStudentUseCase) private _deleteStudentUseCase: IDeleteStudent,
+    @inject(TYPES.GetStudentCurriculumUseCase) private _getStudentCurriculumUseCase: IGetStudentCurriculum
   ) {}
 
   getAll = async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 4;
+    const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string;
     const sortBy = req.query.sortBy as string;
-    const sortOrder = req.query.sortOrder as string;
+    const sortOrder = req.query.sortOrder as 'asc' | 'desc';
 
-    const result = await this._getStudentsUseCase.execute({ 
-      page, 
-      limit, 
-      search, 
-      sortBy, 
-      sortOrder,
-    });
+    const result = await this._getStudentsUseCase.execute(
+      { search },
+      { page, limit, sortBy, sortOrder }
+    );
 
     ResponseHelper.success(res, "Students retrieved successfully", result, 200);
   };
@@ -94,5 +94,11 @@ toggleStatus = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await this._deleteStudentUseCase.execute(id);
     ResponseHelper.success(res, 'Student deleted successfully.', null);
+  };
+
+  getCurriculum = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const result = await this._getStudentCurriculumUseCase.execute(userId);
+    ResponseHelper.success(res, 'Student curriculum retrieved successfully', result, HTTP_STATUS.OK);
   };
 }

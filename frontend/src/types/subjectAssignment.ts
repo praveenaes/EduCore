@@ -29,7 +29,7 @@ export interface CreateSubjectAssignmentPayload {
   courseId: string;
   levelNumber: number;
   subjectId: string;
-  teacherId?: string;
+  teacherId?: string | null;
 }
 
 export type UpdateSubjectAssignmentPayload = Partial<CreateSubjectAssignmentPayload>;

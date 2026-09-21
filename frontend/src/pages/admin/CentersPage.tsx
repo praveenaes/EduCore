@@ -23,6 +23,10 @@ const CentersPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sorting states
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedCenter, setSelectedCenter] = useState<Center | null>(null);
@@ -36,6 +40,16 @@ const CentersPage: React.FC = () => {
 
   // Toast notification (bottom-right corner)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    resetPage();
+  };
 
   // Debounce search input
   useEffect(() => {
@@ -55,6 +69,8 @@ const CentersPage: React.FC = () => {
         page,
         limit,
         search: debouncedSearch || undefined,
+        sortBy,
+        sortOrder,
       });
       setCenters(res.data.data.centers);
       setPaginationData(res.data.data.total, Math.ceil(res.data.data.total / limit) || 1);
@@ -64,7 +80,7 @@ const CentersPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, debouncedSearch, setPaginationData]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder, setPaginationData]);
 
   useEffect(() => {
     fetchCenters();
@@ -127,6 +143,14 @@ const CentersPage: React.FC = () => {
       accessor: (c) => (
         <span className="font-mono text-xs bg-neutral-100 text-neutral-700 px-2 py-1 rounded font-medium">
           {c.code}
+        </span>
+      ),
+    },
+    {
+      header: 'City',
+      accessor: (c) => (
+        <span className="text-sm text-neutral-700 font-medium">
+          {c.address?.city || '—'}
         </span>
       ),
     },
@@ -200,7 +224,7 @@ const CentersPage: React.FC = () => {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full sm:w-72">
             <SearchBox
-              placeholder="Search centers by name or code…"
+              placeholder="Search centers by name, code, or city…"
               value={search}
               onChange={setSearch}
             />
@@ -232,6 +256,9 @@ const CentersPage: React.FC = () => {
             data={centers}
             keyExtractor={(c) => c.id}
             isLoading={isLoading}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
         )}
       </div>

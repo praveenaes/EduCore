@@ -1,25 +1,29 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../../config/di/types';
-import { ICenterRepository } from '../../../domain/repositories/ICenterRepository';
+import {
+  ICenterRepository,
+  CenterFilters,
+  CenterPagination,
+} from '../../../domain/repositories/ICenterRepository';
 import {
   IGetCentersUseCase,
   GetCentersResult,
 } from '../../ports/use-cases/centers/IGetCentersUseCase';
-import { CenterListQueryDTO } from '../../dto/centers/centerDtos';
 
 @injectable()
 export class GetCenters implements IGetCentersUseCase {
   constructor(
     @inject(TYPES.CenterRepository)
-    private readonly _centerRepository: ICenterRepository
+    private _centerRepository: ICenterRepository
   ) {}
 
-  async execute(query: CenterListQueryDTO): Promise<GetCentersResult> {
-    const { page = 1, limit = 10, search, status, sortBy, sortOrder } = query;
-
+  async execute(
+    filters: CenterFilters,
+    pagination: CenterPagination
+  ): Promise<GetCentersResult> {
     const { centers, total } = await this._centerRepository.findAll(
-      { search, status },
-      { page, limit, sortBy, sortOrder }
+      filters,
+      pagination
     );
 
     return {

@@ -38,13 +38,12 @@ export class MongoAcademicYearRepository
     return AcademicYearMapper.toDomain(doc);
   }
 
-  async findCurrent(): Promise<AcademicYear | null> {
-    const doc = await AcademicYearModel.findOne({
-      current: true,
+  async findByCenterId(centerId: string): Promise<AcademicYear[]> {
+    const docs = await AcademicYearModel.find({
+      centers: centerId,
       isDeleted: false,
-    }).populate('centers', 'name code');
-    if (!doc) return null;
-    return AcademicYearMapper.toDomain(doc);
+    });
+    return docs.map((doc) => AcademicYearMapper.toDomain(doc));
   }
 
   async unsetCurrent(): Promise<void> {
@@ -84,7 +83,7 @@ export class MongoAcademicYearRepository
 
     const [docs, total] = await Promise.all([
       AcademicYearModel.find(query)
-        .populate('centers', 'name code')
+        .populate({ path: 'centers', match: { isDeleted: false }, select: 'name code' })
         .sort(sortOptions)
         .skip(skip)
         .limit(limit),

@@ -40,7 +40,6 @@ export const centerSchema = z.object({
   country: z
     .string()
     .min(1, 'Country is required'),
-  status: z.enum(['active', 'inactive']),
 });
 
 export type CenterFormData = z.infer<typeof centerSchema>;

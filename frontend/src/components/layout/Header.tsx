@@ -21,7 +21,8 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     if (!org) {
       getOrganizationSettingsApi()
         .then((response) => {
-          dispatch(setOrganization(response.data));
+          const orgData = (response.data as any)?._props || response.data;
+          dispatch(setOrganization(orgData));
         })
         .catch((err) => {
           console.error("Failed to load organization settings in header:", err);

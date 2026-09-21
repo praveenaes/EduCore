@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from "inversify";
+import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
 import { ICourseRepository } from "../../../domain/repositories/ICourseRepository";
 import { IProgramRepository } from "../../../domain/repositories/IProgramRepository";
@@ -19,11 +19,16 @@ export class UpdateCourse implements IUpdateCourse {
       throw new NotFoundError("Course not found.");
     }
 
+    let programName = course.programName;
     if (dto.programId && dto.programId !== course.programId) {
       const program = await this._programRepo.findById(dto.programId);
       if (!program || program.isDeleted) {
         throw new NotFoundError("Selected program does not exist or has been deleted.");
       }
+      programName = program.name;
+    } else if (!programName) {
+      const program = await this._programRepo.findById(course.programId);
+      if (program) programName = program.name;
     }
 
     if (dto.code && dto.code.trim().toUpperCase() !== course.code) {
@@ -50,6 +55,7 @@ export class UpdateCourse implements IUpdateCourse {
     return {
       id: updated.id!,
       programId: updated.programId,
+      programName,
       name: updated.name,
       code: updated.code,
       description: updated.description,

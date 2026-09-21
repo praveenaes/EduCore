@@ -8,7 +8,6 @@ import { IDeleteSubjectAssignmentUseCase } from '../../../application/ports/use-
 import {
   createSubjectAssignmentSchema,
   updateSubjectAssignmentSchema,
-  subjectAssignmentQuerySchema,
 } from '../../validators/subjectAssignmentValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
@@ -29,21 +28,36 @@ export class SubjectAssignmentController {
   ) {}
 
   getAll = async (req: Request, res: Response): Promise<void> => {
-    const query = subjectAssignmentQuerySchema.parse(req.query);
-    const result = await this._getUseCase.execute(query);
-    ResponseHelper.success(res, "Subject assignments retrieved successfully", result, HTTP_STATUS.OK);
-  };
+    const { search, courseId, subjectId, teacherId, sortBy } =
+      req.query as Record<string, string | undefined>;
 
-  getById = async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-    const result = await this._getUseCase.getById(id);
-    ResponseHelper.success(res, "Subject assignment retrieved successfully", result, HTTP_STATUS.OK);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const levelNumber =
+      req.query.levelNumber !== undefined
+        ? parseInt(req.query.levelNumber as string)
+        : undefined;
+    const sortOrder = req.query.sortOrder as 'asc' | 'desc';
+
+    const result = await this._getUseCase.execute({
+      page,
+      limit,
+      search,
+      courseId,
+      levelNumber,
+      subjectId,
+      teacherId,
+      sortBy,
+      sortOrder,
+    });
+
+    ResponseHelper.success(res, "Subject assignments retrieved successfully", result, HTTP_STATUS.OK);
   };
 
   create = async (req: Request, res: Response): Promise<void> => {
     const parsed = createSubjectAssignmentSchema.safeParse(req.body);
     if (!parsed.success) {
-      throw new ValidationError(parsed.error.errors[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR);
+      throw new ValidationError( ERROR_MESSAGES.VALIDATION_ERROR);
     }
     const result = await this._createUseCase.execute(parsed.data);
     ResponseHelper.created(res, "Subject assigned successfully", result);
@@ -53,7 +67,7 @@ export class SubjectAssignmentController {
     const { id } = req.params;
     const parsed = updateSubjectAssignmentSchema.safeParse(req.body);
     if (!parsed.success) {
-      throw new ValidationError(parsed.error.errors[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR);
+      throw new ValidationError( ERROR_MESSAGES.VALIDATION_ERROR);
     }
     const result = await this._updateUseCase.execute(id, parsed.data);
     ResponseHelper.success(res, "Subject assignment updated successfully", result, HTTP_STATUS.OK);

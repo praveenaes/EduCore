@@ -9,7 +9,7 @@ import { NotFoundError, ConflictError } from '@/shared/errors/AppError';
 export class UpdateCenter implements IUpdateCenterUseCase {
   constructor(
     @inject(TYPES.CenterRepository)
-    private readonly _centerRepository: ICenterRepository
+    private _centerRepository: ICenterRepository
   ) {}
 
   async execute(id: string, dto: UpdateCenterDTO): Promise<CenterResponseDTO> {

@@ -28,6 +28,7 @@ import SubjectsPage from '../pages/admin/SubjectsPage';
 import CentersPage from '../pages/admin/CentersPage';
 import AcademicYearsPage from '../pages/admin/AcademicYearsPage';
 import SubjectAssignmentsPage from '../pages/admin/SubjectAssignmentsPage';
+import BatchesPage from '../pages/admin/BatchesPage';
 
 const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
   <div className="p-6 space-y-4">
@@ -112,7 +113,7 @@ export const AppRoutes: React.FC = () => {//Creates a React Functional Component
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="students" element={<StudentsPage />} />
         <Route path="teachers" element={<TeachersPage />} />
-        <Route path="batches" element={<PlaceholderPage title="Batches" />} />
+        <Route path="batches" element={<BatchesPage />} />
         <Route path="assessments" element={<PlaceholderPage title="Assessment Events" />} />
         <Route path="assessments/results" element={<PlaceholderPage title="Results" />} />
         <Route path="assessments/schedules" element={<PlaceholderPage title="Schedules" />} />

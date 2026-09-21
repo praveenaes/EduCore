@@ -58,4 +58,7 @@ export interface TeacherResponseDTO {
 export interface TeacherListResultDTO {
   teachers: TeacherResponseDTO[];
   total: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
 }

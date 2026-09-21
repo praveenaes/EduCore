@@ -19,7 +19,6 @@ export const getSubjectAssignmentRoutes = (container: Container): Router => {
 
   router
     .route(API_ROUTES.SUBJECT_ASSIGNMENTS.DETAIL)
-    .get(asyncHandler(controller.getById.bind(controller)))
     .put(asyncHandler(controller.update.bind(controller)))
     .delete(asyncHandler(controller.delete.bind(controller)));
 

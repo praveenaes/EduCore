@@ -8,7 +8,7 @@ import { NotFoundError } from '@/shared/errors/AppError';
 export class DeleteAcademicYear implements IDeleteAcademicYearUseCase {
   constructor(
     @inject(TYPES.AcademicYearRepository)
-    private readonly _academicYearRepository: IAcademicYearRepository
+    private _academicYearRepository: IAcademicYearRepository
   ) {}
 
   async execute(id: string): Promise<void> {

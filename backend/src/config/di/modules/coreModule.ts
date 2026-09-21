@@ -32,6 +32,8 @@ import { IAcademicYearRepository } from "@/domain/repositories/IAcademicYearRepo
 import { MongoAcademicYearRepository } from "@/infra/db/MongoAcademicYearRepository";
 import { ISubjectAssignmentRepository } from "@/domain/repositories/ISubjectAssignmentRepository";
 import { MongoSubjectAssignmentRepository } from "@/infra/db/MongoSubjectAssignmentRepository";
+import { IBatchRepository } from "@/domain/repositories/IBatchRepository";
+import { MongoBatchRepository } from "@/infra/db/MongoBatchRepository";
 
 export const coreModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
@@ -66,6 +68,9 @@ export const coreModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<ISubjectAssignmentRepository>(TYPES.SubjectAssignmentRepository)
     .to(MongoSubjectAssignmentRepository)
+    .inSingletonScope();
+  bind<IBatchRepository>(TYPES.BatchRepository)
+    .to(MongoBatchRepository)
     .inSingletonScope();
 
   bind<IAuthService>(TYPES.AuthService)

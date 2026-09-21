@@ -21,6 +21,7 @@ export interface IStudentPersistenceInput {
   state: string;
   postalCode: string;
   country: string;
+  batchId: Types.ObjectId | string | { _id: Types.ObjectId | string; name: string };
   isDeleted: boolean;
   isActive: boolean;
   userId: Types.ObjectId|string
@@ -31,6 +32,18 @@ export interface IStudentPersistenceInput {
 //Whenever data is coming from MongoDB.
 export class StudentMapper {
   static toDomain(doc: IStudentPersistenceInput): Student {
+    let batchId = "";
+    let batchName: string | undefined;
+
+    if (doc.batchId) {
+      if (typeof doc.batchId === "object" && "name" in doc.batchId) {
+        batchId = (doc.batchId as any)._id?.toString() || (doc.batchId as any).id?.toString() || "";
+        batchName = (doc.batchId as any).name;
+      } else {
+        batchId = doc.batchId.toString();
+      }
+    }
+
     return new Student({
       id: doc._id.toString(),
       firstName: doc.firstName,
@@ -50,6 +63,8 @@ export class StudentMapper {
       state: doc.state,
       postalCode: doc.postalCode,
       country: doc.country,
+      batchId,
+      batchName,
       isDeleted: doc.isDeleted,
       isActive: doc.isActive,
       userId: doc.userId.toString(),
@@ -77,6 +92,7 @@ export class StudentMapper {
     state: string;
     postalCode: string;
     country: string;
+    batchId: string;
     isDeleted: boolean;
     isActive: boolean;
     userId: string;
@@ -99,6 +115,7 @@ export class StudentMapper {
       state: student.state,
       postalCode: student.postalCode,
       country: student.country,
+      batchId: student.batchId,
       isDeleted: student.isDeleted,
       isActive: student.isActive,
       userId: student.userId,
@@ -124,6 +141,7 @@ export class StudentMapper {
     state?: string;
     postalCode?: string;
     country?: string;
+    batchId?: string;
     isActive?: boolean;
     isDeleted?: boolean;
   } {
@@ -144,6 +162,7 @@ export class StudentMapper {
       state?: string;
       postalCode?: string;
       country?: string;
+      batchId?: string;
       isActive?: boolean;
       isDeleted?: boolean;
     } = {};
@@ -164,6 +183,7 @@ export class StudentMapper {
     if (student.state !== undefined) updateData.state = student.state;
     if (student.postalCode !== undefined) updateData.postalCode = student.postalCode;
     if (student.country !== undefined) updateData.country = student.country;
+    if (student.batchId !== undefined) updateData.batchId = student.batchId;
     if (student.isActive !== undefined) updateData.isActive = student.isActive;
     if (student.isDeleted !== undefined) updateData.isDeleted = student.isDeleted;
 

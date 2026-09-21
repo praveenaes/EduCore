@@ -16,8 +16,8 @@ export const createProgramSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(500, "Description must be at most 500 characters")
-    .optional(),
+    .min(1, "Description is required")
+    .max(500, "Description must be at most 500 characters"),
 });
 
 export const updateProgramSchema = z.object({

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Container } from "inversify";
 import { TYPES } from "@/config/di/types";
 import { StudentController } from "@/presentation/controllers/students/Student.controller";
-import { authenticateAdmin } from "../middleware/authMiddleware";
+import { authenticateAdmin, authenticateUser } from "../middleware/authMiddleware";
 import { upload } from "../middleware/uploadMiddleware";
 import { asyncHandler } from "@/presentation/helpers/asyncHandler";
 import { API_ROUTES } from "@/config/routes.config";
@@ -10,6 +10,13 @@ import { API_ROUTES } from "@/config/routes.config";
 export const getStudentRoutes = (container: Container): Router => {
   const router = Router();
   const studentController = container.get<StudentController>(TYPES.StudentController);
+
+  // Student self-service route
+  router.get(
+    "/me/curriculum",
+    authenticateUser,
+    asyncHandler(studentController.getCurriculum.bind(studentController))
+  );
 
   router.use(authenticateAdmin);
 

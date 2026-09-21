@@ -1,4 +1,4 @@
-﻿export interface CourseLevelProps {
+export interface CourseLevelProps {
   levelNumber: number;
   name: string;
 }
@@ -6,10 +6,11 @@
 export interface CourseProps {
   id?: string;
   programId: string;
+  programName?: string;
   name: string;
   code: string;
   description: string;
-  durationMonths: number;
+  durationMonths?: number;
   levelName: string;
   levelCount: number;
   levels: CourseLevelProps[];
@@ -34,6 +35,10 @@ export class Course {
     return this._props.programId;
   }
 
+  get programName(): string | undefined {
+    return this._props.programName;
+  }
+
   get name(): string {
     return this._props.name;
   }
@@ -46,7 +51,7 @@ export class Course {
     return this._props.description;
   }
 
-  get durationMonths(): number {
+  get durationMonths(): number | undefined {
     return this._props.durationMonths;
   }
 
@@ -121,10 +126,11 @@ export class Course {
 
   static createNew(props: {
     programId: string;
+    programName?: string;
     name: string;
     code: string;
-    description: string;
-    durationMonths: number;
+    description?: string;
+    durationMonths?: number;
     levelName: string;
     levelCount: number;
   }): Course {
@@ -132,10 +138,11 @@ export class Course {
 
     return new Course({
       programId: props.programId,
+      programName: props.programName,
       name: props.name.trim(),
       code: props.code.trim().toUpperCase(),
-      description: props.description.trim(),
-      durationMonths: props.durationMonths,
+      description: props.description ? props.description.trim() : '',
+      durationMonths: props.durationMonths ?? 0,
       levelName: props.levelName.trim(),
       levelCount: props.levelCount,
       levels,
@@ -147,6 +154,7 @@ export class Course {
     return {
       id: this.id,
       programId: this.programId,
+      programName: this.programName,
       name: this.name,
       code: this.code,
       description: this.description,

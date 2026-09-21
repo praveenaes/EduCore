@@ -15,7 +15,8 @@ export const getSettingsRoutes = (container: Container): Router => {
     .route(API_ROUTES.SETTINGS.ORGANIZATION)
     .get(asyncHandler(settingsController.getOrganization.bind(settingsController)))
     .put(
-      authenticateAdmin,upload.single("logo"),
+      upload.single("logo"),
+      authenticateAdmin,
       asyncHandler(settingsController.updateOrganization.bind(settingsController))
     );
 
@@ -25,7 +26,8 @@ export const getSettingsRoutes = (container: Container): Router => {
       authenticateUser,asyncHandler(settingsController.getMySettings.bind(settingsController))
     )
     .patch(
-      authenticateUser,upload.single("photo"),
+      upload.single("photo"),
+      authenticateUser,
       asyncHandler(settingsController.updateMyProfilePhoto.bind(settingsController))
     );
 

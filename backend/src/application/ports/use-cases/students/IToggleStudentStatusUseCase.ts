@@ -1,6 +1,8 @@
-import { ToggleStatusRequest } from "../../../use-cases/students/ToggleStudentStatus";
-import { Student } from "../../../../domain/entities/Student";
+export interface ToggleStatusRequest {
+  id: string;
+  isActive: boolean;
+}
 
 export interface IToggleStudentStatus {
-  execute(req: ToggleStatusRequest): Promise<Student>;
+  execute(req: ToggleStatusRequest): Promise<{ id: string; isActive: boolean }>;
 }

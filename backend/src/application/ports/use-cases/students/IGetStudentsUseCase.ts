@@ -1,5 +1,6 @@
-import { GetStudentsRequest, GetStudentsResponse } from "../../../use-cases/students/GetStudents";
+import { StudentFilters, StudentPagination } from "@/domain/repositories/IStudentRepository";
+import { StudentListResultDTO } from "../../../dto/students/studentDtos";
 
 export interface IGetStudents {
-  execute(req: GetStudentsRequest): Promise<GetStudentsResponse>;
+  execute(filters: StudentFilters, pagination: StudentPagination): Promise<StudentListResultDTO>;
 }

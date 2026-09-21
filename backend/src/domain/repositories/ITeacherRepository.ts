@@ -18,6 +18,7 @@ export interface TeacherListResult {
 }
 
 export interface ITeacherRepository extends IBaseRepository<Teacher> {
+  findByUserId(userId: string): Promise<Teacher | null>;
   findByEmployeeId(employeeId: string): Promise<Teacher | null>;
   findByEmail(email: string): Promise<Teacher | null>;
   findByNationalId(nationalId: string): Promise<Teacher | null>;

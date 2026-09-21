@@ -1,4 +1,4 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 
 const validatePastDate = (val: string) => {
   const date = new Date(val);
@@ -8,6 +8,7 @@ const validatePastDate = (val: string) => {
 };
 
 const baseSchema = {
+  batchId: z.string().trim().min(1, 'Batch is required'),
   firstName: z
     .string()
     .trim()

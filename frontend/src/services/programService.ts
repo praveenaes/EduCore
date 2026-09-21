@@ -6,6 +6,8 @@ export const getProgramsApi = (params: {
   page?: number;
   limit?: number;
   search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }) =>
   axiosInstance.get<ProgramListResponse>(API_ROUTES.PROGRAMS.BASE, { params });
 export const createProgramApi = (payload: CreateProgramPayload) =>

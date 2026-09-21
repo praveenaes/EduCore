@@ -21,12 +21,7 @@ export class AcademicYear {
   private _props: AcademicYearProps;
 
   constructor(props: AcademicYearProps) {
-    this._props = {
-      ...props,
-      centers: props.centers || [],
-      current: props.current ?? false,
-      isDeleted: props.isDeleted ?? false,
-    };
+    this._props = { ...props };
   }
 
   // Getters

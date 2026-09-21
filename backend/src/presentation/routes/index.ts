@@ -12,6 +12,7 @@ import { getSubjectRoutes } from "./subject.routes";
 import { getCenterRoutes } from "./center.routes";
 import { getAcademicYearRoutes } from "./academicYear.routes";
 import { getSubjectAssignmentRoutes } from "./subjectAssignment.routes";
+import { getBatchRoutes } from "./batch.routes";
 
 const router = Router();
 
@@ -35,5 +36,6 @@ router.use(API_ROUTES.SUBJECTS.ROOT, getSubjectRoutes(container));
 router.use(API_ROUTES.CENTERS.ROOT, getCenterRoutes(container));
 router.use(API_ROUTES.ACADEMIC_YEARS.ROOT, getAcademicYearRoutes(container));
 router.use(API_ROUTES.SUBJECT_ASSIGNMENTS.ROOT, getSubjectAssignmentRoutes(container));
+router.use(API_ROUTES.BATCHES.ROOT, getBatchRoutes(container));
 
 export default router;

@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from "inversify";
+import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
 import {
   ICourseRepository,
@@ -24,6 +24,7 @@ export class GetCourses implements IGetCourses {
       courses: result.courses.map((course) => ({
         id: course.id!,
         programId: course.programId,
+        programName: course.programName,
         name: course.name,
         code: course.code,
         description: course.description,

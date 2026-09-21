@@ -1,4 +1,4 @@
-﻿export interface CourseLevel {
+export interface CourseLevel {
   levelNumber: number; 
   name: string;        
 }
@@ -10,7 +10,7 @@ export interface Course {
   name: string;
   code: string;
   description: string;
-  durationMonths: number;
+  durationMonths?: number;
   levelName: string;   
   levelCount: number;  
   levels: CourseLevel[];
@@ -33,7 +33,7 @@ export interface CreateCoursePayload {
   name: string;
   code: string;
   description: string;
-  durationMonths: number;
+  durationMonths?: number;
   levelName: string;
   levelCount: number;
 }

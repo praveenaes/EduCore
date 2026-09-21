@@ -12,7 +12,7 @@ import { UserRole } from "../../../domain/enums/UserRole";
 import { ValidationError } from "@/shared/errors/AppError";
 import { ICreateTeacher } from "../../ports/use-cases/teachers/ICreateTeacherUseCase";
 
-import { CreateTeacherDTO } from "@/application/dto/teachers/teacherDtos";
+import { CreateTeacherDTO, TeacherResponseDTO } from "@/application/dto/teachers/teacherDtos";
 
 @injectable()
 export class CreateTeacher implements ICreateTeacher {
@@ -24,7 +24,7 @@ export class CreateTeacher implements ICreateTeacher {
     @inject(TYPES.StorageService) private _storageSvc: IStorageService
   ) {}
 
-  async execute(dto: CreateTeacherDTO, photoFile?: Express.Multer.File): Promise<Teacher> {
+  async execute(dto: CreateTeacherDTO, photoFile?: Express.Multer.File): Promise<TeacherResponseDTO> {
     // 1. Uniqueness Validation
     
     // Employee ID uniqueness check
@@ -129,6 +129,34 @@ export class CreateTeacher implements ICreateTeacher {
       console.warn("Failed to send welcome email to teacher:", emailErr);
     });
 
-    return savedTeacher;
+    return {
+      id: savedTeacher.id!,
+      firstName: savedTeacher.firstName,
+      lastName: savedTeacher.lastName,
+      employeeId: savedTeacher.employeeId,
+      joiningDate: savedTeacher.joiningDate,
+      qualifications: savedTeacher.qualifications,
+      specializations: savedTeacher.specializations,
+      experience: savedTeacher.experience,
+      salary: savedTeacher.salary,
+      gender: savedTeacher.gender,
+      dateOfBirth: savedTeacher.dateOfBirth,
+      bloodGroup: savedTeacher.bloodGroup,
+      nationalId: savedTeacher.nationalId,
+      photo: savedTeacher.photo,
+      phone: savedTeacher.phone,
+      email: savedTeacher.email,
+      house: savedTeacher.house,
+      area: savedTeacher.area,
+      city: savedTeacher.city,
+      state: savedTeacher.state,
+      postalCode: savedTeacher.postalCode,
+      country: savedTeacher.country,
+      isDeleted: savedTeacher.isDeleted,
+      isActive: savedTeacher.isActive,
+      userId: savedTeacher.userId,
+      createdAt: savedTeacher.createdAt,
+      updatedAt: savedTeacher.updatedAt,
+    };
   }
 }

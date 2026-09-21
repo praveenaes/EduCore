@@ -1,4 +1,5 @@
-﻿import { CenterListQueryDTO, CenterResponseDTO } from '../../../dto/centers/centerDtos';
+import { CenterResponseDTO } from '../../../dto/centers/centerDtos';
+import { CenterFilters, CenterPagination } from '../../../../domain/repositories/ICenterRepository';
 
 export interface GetCentersResult {
   centers: CenterResponseDTO[];
@@ -6,5 +7,5 @@ export interface GetCentersResult {
 }
 
 export interface IGetCentersUseCase {
-  execute(query: CenterListQueryDTO): Promise<GetCentersResult>;
+  execute(filters: CenterFilters, pagination: CenterPagination): Promise<GetCentersResult>;
 }

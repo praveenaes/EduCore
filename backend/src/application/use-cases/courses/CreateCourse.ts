@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from "inversify";
+import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
 import { ICourseRepository } from "../../../domain/repositories/ICourseRepository";
 import { IProgramRepository } from "../../../domain/repositories/IProgramRepository";
@@ -32,6 +32,7 @@ export class CreateCourse implements ICreateCourse {
 
     const course = Course.createNew({
       programId: dto.programId,
+      programName: program.name,
       name: dto.name,
       code: dto.code,
       description: dto.description,
@@ -45,6 +46,7 @@ export class CreateCourse implements ICreateCourse {
     return {
       id: saved.id!,
       programId: saved.programId,
+      programName: program.name,
       name: saved.name,
       code: saved.code,
       description: saved.description,

@@ -1,5 +1,6 @@
-﻿import { GetTeachersRequest, GetTeachersResponse } from "../../../use-cases/teachers/GetTeachers";
+import { TeacherFilters, TeacherPagination } from "@/domain/repositories/ITeacherRepository";
+import { TeacherListResultDTO } from "../../../dto/teachers/teacherDtos";
 
 export interface IGetTeachers {
-  execute(req: GetTeachersRequest): Promise<GetTeachersResponse>;
+  execute(filters: TeacherFilters, pagination: TeacherPagination): Promise<TeacherListResultDTO>;
 }

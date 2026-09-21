@@ -33,6 +33,7 @@ const TYPES = {
   CreateStudentUseCase: Symbol.for("CreateStudentUseCase"),
   UpdateStudentUseCase: Symbol.for("UpdateStudentUseCase"),
   DeleteStudentUseCase: Symbol.for("DeleteStudentUseCase"),
+  GetStudentCurriculumUseCase: Symbol.for("GetStudentCurriculumUseCase"),
   TeacherRepository: Symbol.for("TeacherRepository"),
   CreateTeacherUseCase: Symbol.for("CreateTeacherUseCase"),
   GetTeachersUseCase: Symbol.for("GetTeachersUseCase"),
@@ -40,6 +41,7 @@ const TYPES = {
   ExportTeachersCsvUseCase: Symbol.for("ExportTeachersCsvUseCase"),
   UpdateTeacherUseCase: Symbol.for("UpdateTeacherUseCase"),
   DeleteTeacherUseCase: Symbol.for("DeleteTeacherUseCase"),
+  GetTeacherCurriculumUseCase: Symbol.for("GetTeacherCurriculumUseCase"),
 
   // Settings
   OrganizationRepository: Symbol.for("OrganizationRepository"),
@@ -95,6 +97,13 @@ const TYPES = {
   UpdateSubjectAssignmentUseCase: Symbol.for("UpdateSubjectAssignmentUseCase"),
   DeleteSubjectAssignmentUseCase: Symbol.for("DeleteSubjectAssignmentUseCase"),
   SubjectAssignmentController: Symbol.for("SubjectAssignmentController"),
+  // Batches
+  BatchRepository: Symbol.for("BatchRepository"),
+  CreateBatchUseCase: Symbol.for("CreateBatchUseCase"),
+  GetBatchesUseCase: Symbol.for("GetBatchesUseCase"),
+  UpdateBatchUseCase: Symbol.for("UpdateBatchUseCase"),
+  DeleteBatchUseCase: Symbol.for("DeleteBatchUseCase"),
+  BatchController: Symbol.for("BatchController"),
 };
 
 export { TYPES };

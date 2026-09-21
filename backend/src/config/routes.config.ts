@@ -61,4 +61,9 @@ export const API_ROUTES = {
     LIST: "/",
     DETAIL: "/:id",
   },
+  BATCHES: {
+    ROOT: "/batches",
+    LIST: "/",
+    DETAIL: "/:id",
+  },
 } as const;

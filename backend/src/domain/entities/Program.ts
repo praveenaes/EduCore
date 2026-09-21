@@ -2,7 +2,7 @@ export interface ProgramProps {
   id?: string;
   name: string;
   code: string;
-  description?: string;
+  description: string;
   isDeleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -28,7 +28,7 @@ export class Program {
     return this._props.code;
   }
 
-  get description(): string | undefined {
+  get description(): string {
     return this._props.description;
   }
 
@@ -60,12 +60,12 @@ export class Program {
   static createNew(props: {
     name: string;
     code: string;
-    description?: string;
+    description: string;
   }): Program {
     return new Program({
       name: props.name.trim(),
       code: props.code.trim().toUpperCase(),
-      description: props.description?.trim(),
+      description: props.description.trim(),
       isDeleted: false,
     });
   }

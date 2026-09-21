@@ -1,5 +1,5 @@
-import { forwardRef } from 'react';
-import { useForm } from 'react-hook-form';
+import { forwardRef, useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
@@ -29,16 +29,22 @@ const COMMON_TIMEZONES = [
   { value: 'UTC', label: 'UTC' },
 ];
 
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-];
+import {
+  lookupByPincode,
+  lookupByCity,
+  isIndianState,
+  fetchPincodeOnline,
+} from '../../../utils/addressLookup';
 
 const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
   ({ mode, defaultValues, isLoading, onSubmit, onCancel }, ref) => {
+    const [isFetchingPostal, setIsFetchingPostal] = useState(false);
+
     const {
       register,
       handleSubmit,
+      setValue,
+      control,
       setError,
       formState: { errors },
     } = useForm<CenterFormData>({
@@ -53,10 +59,65 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
         city: defaultValues?.address?.city ?? '',
         state: defaultValues?.address?.state ?? '',
         postalCode: defaultValues?.address?.postalCode ?? '',
-        country: defaultValues?.address?.country ?? '',
-        status: defaultValues?.status ?? 'active',
+        country: defaultValues?.address?.country || 'India',
       },
     });
+
+    const watchedPostalCode = useWatch({ control, name: 'postalCode' });
+    const watchedCity = useWatch({ control, name: 'city' });
+    const watchedState = useWatch({ control, name: 'state' });
+
+    // 1. Instant Postal Code Auto-fill (0ms local lookup + background refinement)
+    useEffect(() => {
+      const cleaned = (watchedPostalCode || '').replace(/\D/g, '');
+      if (cleaned.length === 6) {
+        // Immediate local fill
+        const local = lookupByPincode(cleaned);
+        if (local) {
+          if (local.city) setValue('city', local.city, { shouldValidate: true });
+          if (local.state) setValue('state', local.state, { shouldValidate: true });
+          setValue('country', local.country || 'India', { shouldValidate: true });
+        }
+
+        // Background refinement with timeout
+        let cancelled = false;
+        const ctrl = new AbortController();
+        setIsFetchingPostal(true);
+
+        fetchPincodeOnline(cleaned, ctrl.signal)
+          .then((online) => {
+            if (cancelled || !online) return;
+            if (online.city) setValue('city', online.city, { shouldValidate: true });
+            if (online.state) setValue('state', online.state, { shouldValidate: true });
+          })
+          .finally(() => {
+            if (!cancelled) setIsFetchingPostal(false);
+          });
+
+        return () => {
+          cancelled = true;
+          ctrl.abort();
+        };
+      }
+    }, [watchedPostalCode, setValue]);
+
+    // 2. City -> State & Country Auto-fill
+    useEffect(() => {
+      if (watchedCity) {
+        const result = lookupByCity(watchedCity);
+        if (result) {
+          if (result.state) setValue('state', result.state, { shouldValidate: true });
+          if (result.country) setValue('country', result.country, { shouldValidate: true });
+        }
+      }
+    }, [watchedCity, setValue]);
+
+    // 3. State -> Country Auto-fill
+    useEffect(() => {
+      if (watchedState && isIndianState(watchedState)) {
+        setValue('country', 'India', { shouldValidate: true });
+      }
+    }, [watchedState, setValue]);
 
     const handleFormSubmit = async (data: CenterFormData) => {
       try {
@@ -73,7 +134,6 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
             postalCode: data.postalCode,
             country: data.country,
           },
-          status: data.status,
         };
         await onSubmit(payload);
       } catch (err: unknown) {
@@ -154,6 +214,19 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
               {...register('addressLine1')}
             />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+              <div>
+                <Input
+                  label="Postal Code"
+                  placeholder="682030"
+                  error={errors.postalCode?.message}
+                  {...register('postalCode')}
+                />
+                {isFetchingPostal && (
+                  <span className="text-[11px] text-brand-600 font-medium animate-pulse mt-1 block">
+                    Auto-detecting location…
+                  </span>
+                )}
+              </div>
               <Input
                 label="City"
                 placeholder="Kochi"
@@ -167,29 +240,12 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
                 {...register('state')}
               />
               <Input
-                label="Postal Code"
-                placeholder="682030"
-                error={errors.postalCode?.message}
-                {...register('postalCode')}
-              />
-              <Input
                 label="Country"
                 placeholder="India"
                 error={errors.country?.message}
                 {...register('country')}
               />
             </div>
-          </div>
-        </section>
-
-        <section>
-          <div className="w-48">
-            <Select
-              label="Status"
-              options={STATUS_OPTIONS}
-              error={errors.status?.message}
-              {...register('status')}
-            />
           </div>
         </section>
 

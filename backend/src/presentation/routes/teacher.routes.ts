@@ -5,13 +5,20 @@ import { TYPES } from "@/config/di/types";
 import { upload } from "../middleware/uploadMiddleware";
 import { asyncHandler } from "@/presentation/helpers/asyncHandler";
 import { API_ROUTES } from "@/config/routes.config";
-import { authenticateAdmin } from "../middleware/authMiddleware";
+import { authenticateAdmin, authenticateUser } from "../middleware/authMiddleware";
 
 export const getTeacherRoutes = (container: Container): Router => {
   const router = Router();
   const teacherController = container.get<TeacherController>(TYPES.TeacherController);
 
-  router.use(authenticateAdmin)
+  // Teacher self-service route
+  router.get(
+    "/me/curriculum",
+    authenticateUser,
+    asyncHandler(teacherController.getCurriculum.bind(teacherController))
+  );
+
+  router.use(authenticateAdmin);
 
   router
     .route("/")

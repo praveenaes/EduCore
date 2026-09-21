@@ -12,6 +12,7 @@ import { SubjectController } from "@/presentation/controllers/subjects/Subject.c
 import { CenterController } from "@/presentation/controllers/centers/Center.controller";
 import { AcademicYearController } from "@/presentation/controllers/academic-years/AcademicYear.controller";
 import { SubjectAssignmentController } from "@/presentation/controllers/subject-assignments/SubjectAssignment.controller";
+import { BatchController } from "@/presentation/controllers/batches/Batch.controller";
 
 export const controllerModule = new ContainerModule((bind) => {
   bind<SettingsController>(TYPES.SettingsController)
@@ -46,5 +47,8 @@ export const controllerModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<SubjectAssignmentController>(TYPES.SubjectAssignmentController)
     .to(SubjectAssignmentController)
+    .inSingletonScope();
+  bind<BatchController>(TYPES.BatchController)
+    .to(BatchController)
     .inSingletonScope();
 });

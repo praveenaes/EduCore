@@ -18,12 +18,14 @@ export const API_ROUTES = {
   },
   STUDENTS: {
     BASE: "/students",
+    CURRICULUM: "/students/me/curriculum",
     STATUS: (id: string) => `/students/${id}/status`,
     DETAIL: (id: string) => `/students/${id}`,
     EXPORT: "/students/export/csv",
   },
   TEACHERS: {
     BASE: "/teachers",
+    CURRICULUM: "/teachers/me/curriculum",
     DETAIL: (id: string) => `/teachers/${id}`,
     STATUS: (id: string) => `/teachers/${id}/status`,
     EXPORT: "/teachers/export/csv",
@@ -51,5 +53,9 @@ export const API_ROUTES = {
   SUBJECT_ASSIGNMENTS: {
     BASE: "/academics/subject-assignments",
     DETAIL: (id: string) => `/academics/subject-assignments/${id}`,
+  },
+  BATCHES: {
+    BASE: "/batches",
+    DETAIL: (id: string) => `/batches/${id}`,
   },
 } as const;

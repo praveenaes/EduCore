@@ -169,24 +169,6 @@ const TeachersPage: React.FC = () => {
       accessor: (t) => <span className="text-neutral-600">{t.phone}</span>,
     },
     {
-      header: 'Status',
-     
-      accessor: (t) => (
-        <span
-          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
-            t.isActive !== false ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
-          }`}
-        >
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              t.isActive !== false ? 'bg-emerald-500' : 'bg-red-500'
-            }`}
-          />
-          {t.isActive !== false ? 'Active' : 'Inactive'}
-        </span>
-      ),
-    },
-    {
       header: 'Actions',
       accessor: (t) => (
         <button

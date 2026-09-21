@@ -1,7 +1,7 @@
 export interface CreateSubjectDTO {
   name: string;
   code: string;
-  description?: string;
+  description: string;
 }
 
 export interface UpdateSubjectDTO {

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Layers } from 'lucide-react';
 import { Modal } from '../../../components/Modal';
 import CourseForm from './CourseForm';
@@ -23,6 +23,19 @@ const CourseModal: React.FC<CourseModalProps> = ({
 
   const isEditMode = Boolean(course);
 
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (prevIsOpen !== isOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setError(null);
+    }
+  }
+
+  const handleClose = () => {
+    setError(null);
+    onClose();
+  };
+
   const handleSubmit = async (data: CreateCoursePayload | UpdateCoursePayload) => {
     setIsLoading(true);
     setError(null);
@@ -33,7 +46,7 @@ const CourseModal: React.FC<CourseModalProps> = ({
         await createCourseApi(data as CreateCoursePayload);
       }
       onSuccess();
-      onClose();
+      handleClose();
     } catch (err: any) {
       const msg = err.response?.data?.message ?? 'An error occurred. Please try again.';
       setError(msg);
@@ -48,7 +61,7 @@ const CourseModal: React.FC<CourseModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={isEditMode ? 'Edit Course' : 'Add New Course'}
       icon={<Layers className="h-5 w-5" />}
       size="xl"
@@ -63,7 +76,8 @@ const CourseModal: React.FC<CourseModalProps> = ({
         defaultValues={course ?? undefined}
         isLoading={isLoading}
         onSubmit={handleSubmit}
-        onCancel={onClose}
+        onCancel={handleClose}
+        onClearError={() => setError(null)}
       />
     </Modal>
   );

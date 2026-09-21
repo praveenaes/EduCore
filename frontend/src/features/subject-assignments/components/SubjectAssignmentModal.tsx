@@ -28,6 +28,19 @@ const SubjectAssignmentModal: React.FC<SubjectAssignmentModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (prevIsOpen !== isOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setError(null);
+    }
+  }
+
+  const handleClose = () => {
+    setError(null);
+    onClose();
+  };
+
   const isEditMode = Boolean(assignment);
 
   const handleSubmit = async (
@@ -42,7 +55,7 @@ const SubjectAssignmentModal: React.FC<SubjectAssignmentModalProps> = ({
         await createSubjectAssignmentApi(data as CreateSubjectAssignmentPayload);
       }
       onSuccess();
-      onClose();
+      handleClose();
     } catch (err: any) {
       const msg = err.response?.data?.message ?? 'An error occurred. Please try again.';
       setError(msg);
@@ -57,7 +70,7 @@ const SubjectAssignmentModal: React.FC<SubjectAssignmentModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={isEditMode ? 'Edit Subject Assignment' : 'Assign Subject to Course Level'}
       icon={<BookOpen className="h-5 w-5" />}
       size="lg"
@@ -73,7 +86,7 @@ const SubjectAssignmentModal: React.FC<SubjectAssignmentModalProps> = ({
         defaultValues={assignment ?? undefined}
         isLoading={isLoading}
         onSubmit={handleSubmit}
-        onCancel={onClose}
+        onCancel={handleClose}
       />
     </Modal>
   );

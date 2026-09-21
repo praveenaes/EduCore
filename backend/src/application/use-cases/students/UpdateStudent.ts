@@ -2,11 +2,12 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
 import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
 import { IUserRepository } from "@/domain/repositories/IUserRepository";
+import { IBatchRepository } from "@/domain/repositories/IBatchRepository";
 import { IStorageService } from "../../ports/services/IStorageService";
 import { ValidationError, NotFoundError } from "@/shared/errors/AppError";
 import { IUpdateStudent } from "../../ports/use-cases/students/IUpdateStudentUseCase";
 
-import { UpdateStudentDTO, CreateStudentResponseDTO } from "@/application/dto/students/studentDtos";
+import { UpdateStudentDTO, StudentResponseDTO } from "@/application/dto/students/studentDtos";
 import { StudentProps } from "@/domain/entities/Student";
 
 @injectable()
@@ -14,10 +15,11 @@ export class UpdateStudent implements IUpdateStudent {
   constructor(
     @inject(TYPES.StudentRepository) private _studentRepo: IStudentRepository,
     @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.BatchRepository) private _batchRepo: IBatchRepository,
     @inject(TYPES.StorageService) private _storageSvc: IStorageService
   ) {}
 
-  async execute(id: string, dto: UpdateStudentDTO, photoFile?: Express.Multer.File): Promise<CreateStudentResponseDTO> {
+  async execute(id: string, dto: UpdateStudentDTO, photoFile?: Express.Multer.File): Promise<StudentResponseDTO> {
     const existing = await this._studentRepo.findById(id);
     if (!existing) {
       throw new NotFoundError("Student not found");
@@ -67,6 +69,16 @@ export class UpdateStudent implements IUpdateStudent {
     if (dto.state !== undefined) updatePayload.state = dto.state;
     if (dto.postalCode !== undefined) updatePayload.postalCode = dto.postalCode;
     if (dto.country !== undefined) updatePayload.country = dto.country;
+
+    let batchName: string | undefined = existing.batchName;
+    if (dto.batchId !== undefined) {
+      const batch = await this._batchRepo.findById(dto.batchId);
+      if (!batch || batch.isDeleted) {
+        throw new ValidationError("Selected batch does not exist.");
+      }
+      updatePayload.batchId = dto.batchId;
+      batchName = batch.name;
+    }
 
     if (dto.removePhoto === "true") {
       updatePayload.photo = "";
@@ -123,6 +135,8 @@ export class UpdateStudent implements IUpdateStudent {
       state: updatedStudent.state,
       postalCode: updatedStudent.postalCode,
       country: updatedStudent.country,
+      batchId: updatedStudent.batchId,
+      batchName: batchName || updatedStudent.batchName,
       userId: updatedStudent.userId,
       createdAt: updatedStudent.createdAt,
       updatedAt: updatedStudent.updatedAt,

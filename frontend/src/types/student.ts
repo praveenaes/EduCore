@@ -17,6 +17,8 @@ export interface Student {
   state: string;
   postalCode: string;
   country: string;
+  batchId: string;
+  batchName?: string;
   isActive: boolean;
   userId: string;
 }
@@ -49,8 +51,55 @@ export interface CreateStudentPayload {
   state: string;
   postalCode: string;
   country: string;
+  batchId: string;
   photo?: File | null;
   removePhoto?: string;
 }
 
 export type UpdateStudentPayload = Partial<Omit<CreateStudentPayload, 'admissionNumber'>>;
+
+export interface StudentCurriculumResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    studentStatus: string;
+    program: {
+      id?: string;
+      name: string;
+      code?: string;
+    };
+    course: {
+      id?: string;
+      name: string;
+      code?: string;
+    };
+    level: {
+      levelNumber: number;
+      levelName: string;
+    };
+    batch: {
+      id?: string;
+      name: string;
+    };
+    center: {
+      id?: string;
+      name: string;
+    };
+    academicYear: {
+      id?: string;
+      name: string;
+    };
+    batchTeacher: {
+      id?: string;
+      name: string;
+      employeeId?: string;
+    };
+    subjects: Array<{
+      id: string;
+      name: string;
+      code: string;
+      teacherName?: string;
+      teacherEmployeeId?: string;
+    }>;
+  };
+}

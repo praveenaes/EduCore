@@ -87,6 +87,7 @@ export const createStudentSchema = z.object({
     .regex(/^\d{6}$/, "Postal code must be exactly 6 digits")
     .refine((val) => val !== "000000", "Invalid postal code"),
   country: z.string().trim().min(1, "Country is required").max(100),
+  batchId: z.string().trim().min(1, "Batch is required"),
 });
 
 export const updateStudentSchema = createStudentSchema.omit({ admissionNumber: true }).extend({

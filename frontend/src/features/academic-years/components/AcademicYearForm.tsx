@@ -32,6 +32,26 @@ export const AcademicYearForm: React.FC<AcademicYearFormProps> = ({
     return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
   };
 
+  const computeDefaultEndDate = (startStr?: string): string => {
+    if (!startStr) return '';
+    const parts = startStr.split('-');
+    if (parts.length !== 3) return '';
+
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return '';
+
+    const d = new Date(year + 1, month, day);
+    d.setDate(d.getDate() - 1);
+
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   const initialCenters: string[] = (defaultValues?.centers || []).map((c) =>
     typeof c === 'string' ? c : c.id
   );
@@ -40,6 +60,7 @@ export const AcademicYearForm: React.FC<AcademicYearFormProps> = ({
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<AcademicYearFormData>({
     resolver: zodResolver(academicYearSchema),
@@ -111,7 +132,15 @@ export const AcademicYearForm: React.FC<AcademicYearFormProps> = ({
           </label>
           <Input
             type="date"
-            {...register('startDate')}
+            {...register('startDate', {
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                const val = e.target.value;
+                const defaultEnd = computeDefaultEndDate(val);
+                if (defaultEnd) {
+                  setValue('endDate', defaultEnd, { shouldValidate: true });
+                }
+              },
+            })}
             error={errors.startDate?.message}
           />
         </div>

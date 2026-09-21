@@ -18,6 +18,7 @@ export interface StudentListResult {
 }
 
 export interface IStudentRepository extends IBaseRepository<Student> {
+  findByUserId(userId: string): Promise<Student | null>;
   findByAdmissionNumber(admissionNumber: string): Promise<Student | null>;
   findByEmail(email: string): Promise<Student | null>;
   findByNationalId(nationalId: string): Promise<Student | null>;

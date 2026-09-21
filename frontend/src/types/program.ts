@@ -2,7 +2,7 @@ export interface Program {
   id: string;
   name: string;
   code: string;
-  description?: string;
+  description: string;
   createdAt?: string;
 }
 
@@ -20,7 +20,7 @@ export interface ProgramListResponse {
 export interface CreateProgramPayload {
   name: string;
   code: string;
-  description?: string;
+  description: string;
 }
 
 export type UpdateProgramPayload = Partial<CreateProgramPayload>;

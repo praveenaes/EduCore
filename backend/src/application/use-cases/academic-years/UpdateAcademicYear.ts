@@ -9,7 +9,7 @@ import { NotFoundError, ConflictError, ValidationError } from '@/shared/errors/A
 export class UpdateAcademicYear implements IUpdateAcademicYearUseCase {
   constructor(
     @inject(TYPES.AcademicYearRepository)
-    private readonly _academicYearRepository: IAcademicYearRepository
+    private _academicYearRepository: IAcademicYearRepository
   ) {}
 
   async execute(id: string, dto: UpdateAcademicYearDTO): Promise<AcademicYearResponseDTO> {

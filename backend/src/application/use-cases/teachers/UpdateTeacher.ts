@@ -7,7 +7,7 @@ import { Teacher } from "../../../domain/entities/Teacher";
 import { ValidationError, NotFoundError } from "@/shared/errors/AppError";
 import { IUpdateTeacher } from "../../ports/use-cases/teachers/IUpdateTeacherUseCase";
 
-import { UpdateTeacherDTO } from "@/application/dto/teachers/teacherDtos";
+import { TeacherResponseDTO, UpdateTeacherDTO } from "@/application/dto/teachers/teacherDtos";
 import { TeacherProps } from "@/domain/entities/Teacher";
 
 @injectable()
@@ -18,7 +18,7 @@ export class UpdateTeacher implements IUpdateTeacher {
     @inject(TYPES.StorageService) private _storageSvc: IStorageService
   ) {}
 
-  async execute(id: string, dto: UpdateTeacherDTO, photoFile?: Express.Multer.File): Promise<Teacher> {
+  async execute(id: string, dto: UpdateTeacherDTO, photoFile?: Express.Multer.File): Promise<TeacherResponseDTO> {
     const existing = await this._teacherRepo.findById(id);
     if (!existing) {
       throw new NotFoundError("Teacher not found");
@@ -128,6 +128,34 @@ export class UpdateTeacher implements IUpdateTeacher {
       throw new ValidationError("Teacher update failed");
     }
 
-    return updatedTeacher;
+    return {
+      id: updatedTeacher.id!,
+      firstName: updatedTeacher.firstName,
+      lastName: updatedTeacher.lastName,
+      employeeId: updatedTeacher.employeeId,
+      joiningDate: updatedTeacher.joiningDate,
+      qualifications: updatedTeacher.qualifications,
+      specializations: updatedTeacher.specializations,
+      experience: updatedTeacher.experience,
+      salary: updatedTeacher.salary,
+      gender: updatedTeacher.gender,
+      dateOfBirth: updatedTeacher.dateOfBirth,
+      bloodGroup: updatedTeacher.bloodGroup,
+      nationalId: updatedTeacher.nationalId,
+      photo: updatedTeacher.photo,
+      phone: updatedTeacher.phone,
+      email: updatedTeacher.email,
+      house: updatedTeacher.house,
+      area: updatedTeacher.area,
+      city: updatedTeacher.city,
+      state: updatedTeacher.state,
+      postalCode: updatedTeacher.postalCode,
+      country: updatedTeacher.country,
+      isDeleted: updatedTeacher.isDeleted,
+      isActive: updatedTeacher.isActive,
+      userId: updatedTeacher.userId,
+      createdAt: updatedTeacher.createdAt,
+      updatedAt: updatedTeacher.updatedAt,
+    };
   }
 }

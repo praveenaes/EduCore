@@ -25,6 +25,10 @@ export const AcademicYearsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sorting states
+  const [sortBy, setSortBy] = useState<string>('startDate');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<AcademicYear | null>(null);
@@ -38,6 +42,16 @@ export const AcademicYearsPage: React.FC = () => {
 
   // Toast notification (bottom-right corner)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    resetPage();
+  };
 
   // Load all centers to build a quick ID -> Name lookup map
   useEffect(() => {
@@ -71,6 +85,8 @@ export const AcademicYearsPage: React.FC = () => {
         page,
         limit,
         search: debouncedSearch || undefined,
+        sortBy,
+        sortOrder,
       });
       setAcademicYears(res.data.data.academicYears);
       setPaginationData(res.data.data.total, Math.ceil(res.data.data.total / limit) || 1);
@@ -82,7 +98,7 @@ export const AcademicYearsPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, debouncedSearch, setPaginationData]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder, setPaginationData]);
 
   useEffect(() => {
     fetchAcademicYears();
@@ -168,6 +184,7 @@ export const AcademicYearsPage: React.FC = () => {
     },
     {
       header: 'Duration',
+      sortField: 'startDate',
       accessor: (ay) => (
         <span className="text-sm text-neutral-700 font-medium">
           {formatDate(ay.startDate)} - {formatDate(ay.endDate)}
@@ -175,7 +192,7 @@ export const AcademicYearsPage: React.FC = () => {
       ),
     },
     {
-      header: 'Campuses',
+      header: 'Centers / Campuses',
       accessor: (ay) => {
         const centers = ay.centers || [];
         if (centers.length === 0) {
@@ -287,6 +304,9 @@ export const AcademicYearsPage: React.FC = () => {
             data={academicYears}
             keyExtractor={(ay) => ay.id}
             isLoading={isLoading}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
         )}
       </div>

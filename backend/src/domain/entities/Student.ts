@@ -17,6 +17,8 @@ export interface StudentProps {
   state: string;
   postalCode: string;
   country: string;
+  batchId: string;
+  batchName?: string;
   isDeleted: boolean;
   isActive: boolean;
   userId: string;
@@ -104,6 +106,14 @@ export class Student {
     return this._props.country;
   }
 
+  get batchId(): string {
+    return this._props.batchId;
+  }
+
+  get batchName(): string | undefined {
+    return this._props.batchName;
+  }
+
   get isDeleted(): boolean {
     return this._props.isDeleted;
   }
@@ -178,6 +188,8 @@ export class Student {
       state: this.state,
       postalCode: this.postalCode,
       country: this.country,
+      batchId: this.batchId,
+      batchName: this.batchName,
       isDeleted: this.isDeleted,
       isActive: this.isActive,
       userId: this.userId,

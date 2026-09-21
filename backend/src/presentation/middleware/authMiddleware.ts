@@ -23,6 +23,7 @@ export const authenticateAdmin = async (
     : req.cookies?.accessToken;
 
   if (!token) {
+    req.resume();
     res.status(401).json({ success: false, message: "Authentication required. Please log in." });
     return;
   }
@@ -31,11 +32,13 @@ export const authenticateAdmin = async (
   const payload = authService.verifyToken(token);
 
   if (!payload) {
+    req.resume();
     res.status(401).json({ success: false, message: "Invalid or expired access token." });
     return;
   }
 
   if (payload.role?.toUpperCase() !== UserRole.ADMIN) {
+    req.resume();
     res.status(403).json({ success: false, message: "Access forbidden. Admins only." });
     return;
   }
@@ -59,6 +62,7 @@ export const authenticateUser = async (
     : req.cookies?.accessToken;
 
   if (!token) {
+    req.resume();
     res.status(401).json({ success: false, message: "Authentication required. Please log in." });
     return;
   }
@@ -67,6 +71,7 @@ export const authenticateUser = async (
   const payload = authService.verifyToken(token);
 
   if (!payload) {
+    req.resume();
     res.status(401).json({ success: false, message: "Invalid or expired access token." });
     return;
   }

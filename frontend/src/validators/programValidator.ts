@@ -1,4 +1,4 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 
 export const programSchema = z.object({
   name: z
@@ -15,8 +15,8 @@ export const programSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(500, 'Description must be at most 500 characters')
-    .optional(),
+    .min(1, 'Description is required')
+    .max(500, 'Description must be at most 500 characters'),
 });
 
 export type ProgramFormValues = z.infer<typeof programSchema>;

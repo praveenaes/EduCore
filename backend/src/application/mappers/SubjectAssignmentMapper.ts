@@ -54,10 +54,15 @@ export class SubjectAssignmentMapper {
     if (entity.levelNumber !== undefined) updateData.levelNumber = entity.levelNumber;
     if (entity.levelName !== undefined) updateData.levelName = entity.levelName;
     if (entity.subjectId !== undefined) updateData.subjectId = new Types.ObjectId(entity.subjectId);
-    if (entity.teacherId !== undefined) {
-      updateData.teacherId = entity.teacherId ? new Types.ObjectId(entity.teacherId) : null;
+    // Always write teacherId — undefined means cleared (write null), string means set
+    // We check updatedAt to know the entity was touched (not a stale partial)
+    if (entity.updatedAt !== undefined) {
+      updateData.teacherId = entity.teacherId
+        ? new Types.ObjectId(entity.teacherId)
+        : null;
     }
     if (entity.isDeleted !== undefined) updateData.isDeleted = entity.isDeleted;
+    if (entity.updatedAt !== undefined) updateData.updatedAt = entity.updatedAt;
 
     return updateData;
   }

@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 export const createCourseSchema = z.object({
   programId: z
@@ -20,13 +20,15 @@ export const createCourseSchema = z.object({
   description: z
     .string()
     .trim()
-    .min(5, "Description must be at least 5 characters")
-    .max(500, "Description must be at most 500 characters"),
+    .max(500, "Description must be at most 500 characters")
+    .optional()
+    .default(""),
   durationMonths: z.coerce
     .number()
     .int("Duration must be a whole number of months")
     .min(1, "Duration must be at least 1 month")
-    .max(60, "Duration cannot exceed 60 months"),
+    .max(60, "Duration cannot exceed 60 months")
+    .optional(),
   levelName: z
     .string()
     .trim()
@@ -62,7 +64,6 @@ export const updateCourseSchema = z.object({
   description: z
     .string()
     .trim()
-    .min(5, "Description must be at least 5 characters")
     .max(500, "Description must be at most 500 characters")
     .optional(),
   durationMonths: z.coerce

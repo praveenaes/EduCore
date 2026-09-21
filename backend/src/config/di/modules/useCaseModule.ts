@@ -34,6 +34,8 @@ import { IUpdateStudent } from "@/application/ports/use-cases/students/IUpdateSt
 import { UpdateStudent } from "@/application/use-cases/students/UpdateStudent";
 import { IDeleteStudent } from "@/application/ports/use-cases/students/IDeleteStudentUseCase";
 import { DeleteStudent } from "@/application/use-cases/students/DeleteStudent";
+import { IGetStudentCurriculum } from "@/application/ports/use-cases/students/IGetStudentCurriculumUseCase";
+import { GetStudentCurriculum } from "@/application/use-cases/students/GetStudentCurriculum";
 import { ICreateTeacher } from "@/application/ports/use-cases/teachers/ICreateTeacherUseCase";
 import { IGetTeachers } from "@/application/ports/use-cases/teachers/IGetTeachersUseCase";
 import { IToggleTeacherStatus } from "@/application/ports/use-cases/teachers/IToggleTeacherStatusUseCase";
@@ -46,6 +48,8 @@ import { IUpdateTeacher } from "@/application/ports/use-cases/teachers/IUpdateTe
 import { UpdateTeacher } from "@/application/use-cases/teachers/UpdateTeacher";
 import { IDeleteTeacher } from "@/application/ports/use-cases/teachers/IDeleteTeacherUseCase";
 import { DeleteTeacher } from "@/application/use-cases/teachers/DeleteTeacher";
+import { IGetTeacherCurriculum } from "@/application/ports/use-cases/teachers/IGetTeacherCurriculumUseCase";
+import { GetTeacherCurriculum } from "@/application/use-cases/teachers/GetTeacherCurriculum";
 
 // Settings Use Cases
 import { GetOrganizationSettings } from "@/application/use-cases/settings/GetOrganizationSettings";
@@ -115,6 +119,15 @@ import { CreateSubjectAssignment } from "@/application/use-cases/subject-assignm
 import { GetSubjectAssignments } from "@/application/use-cases/subject-assignments/GetSubjectAssignments";
 import { UpdateSubjectAssignment } from "@/application/use-cases/subject-assignments/UpdateSubjectAssignment";
 import { DeleteSubjectAssignment } from "@/application/use-cases/subject-assignments/DeleteSubjectAssignment";
+
+import { ICreateBatchUseCase } from "@/application/ports/use-cases/batches/ICreateBatchUseCase";
+import { IGetBatchesUseCase } from "@/application/ports/use-cases/batches/IGetBatchesUseCase";
+import { IUpdateBatchUseCase } from "@/application/ports/use-cases/batches/IUpdateBatchUseCase";
+import { IDeleteBatchUseCase } from "@/application/ports/use-cases/batches/IDeleteBatchUseCase";
+import { CreateBatch } from "@/application/use-cases/batches/CreateBatch";
+import { GetBatches } from "@/application/use-cases/batches/GetBatches";
+import { UpdateBatch } from "@/application/use-cases/batches/UpdateBatch";
+import { DeleteBatch } from "@/application/use-cases/batches/DeleteBatch";
 
 export const useCaseModule = new ContainerModule((bind) => {
   bind<IGetOrganizationSettings>(TYPES.GetOrganizationSettingsUseCase)
@@ -201,6 +214,10 @@ export const useCaseModule = new ContainerModule((bind) => {
     .to(DeleteStudent)
     .inSingletonScope();
 
+  bind<IGetStudentCurriculum>(TYPES.GetStudentCurriculumUseCase)
+    .to(GetStudentCurriculum)
+    .inSingletonScope();
+
   bind<ICreateTeacher>(TYPES.CreateTeacherUseCase)
     .to(CreateTeacher)
     .inSingletonScope();
@@ -223,6 +240,10 @@ export const useCaseModule = new ContainerModule((bind) => {
 
   bind<IDeleteTeacher>(TYPES.DeleteTeacherUseCase)
     .to(DeleteTeacher)
+    .inSingletonScope();
+
+  bind<IGetTeacherCurriculum>(TYPES.GetTeacherCurriculumUseCase)
+    .to(GetTeacherCurriculum)
     .inSingletonScope();
      bind<ICreateProgram>(TYPES.CreateProgramUseCase)
     .to(CreateProgram)
@@ -302,5 +323,19 @@ export const useCaseModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<IDeleteSubjectAssignmentUseCase>(TYPES.DeleteSubjectAssignmentUseCase)
     .to(DeleteSubjectAssignment)
+    .inSingletonScope();
+
+  // Batches
+  bind<ICreateBatchUseCase>(TYPES.CreateBatchUseCase)
+    .to(CreateBatch)
+    .inSingletonScope();
+  bind<IGetBatchesUseCase>(TYPES.GetBatchesUseCase)
+    .to(GetBatches)
+    .inSingletonScope();
+  bind<IUpdateBatchUseCase>(TYPES.UpdateBatchUseCase)
+    .to(UpdateBatch)
+    .inSingletonScope();
+  bind<IDeleteBatchUseCase>(TYPES.DeleteBatchUseCase)
+    .to(DeleteBatch)
     .inSingletonScope();
 });

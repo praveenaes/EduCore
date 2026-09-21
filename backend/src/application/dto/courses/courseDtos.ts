@@ -1,4 +1,4 @@
-﻿export interface CourseLevelDTO {
+export interface CourseLevelDTO {
   levelNumber: number;
   name: string;
 }
@@ -7,8 +7,8 @@ export interface CreateCourseDTO {
   programId: string;
   name: string;
   code: string;
-  description: string;
-  durationMonths: number;
+  description?: string;
+  durationMonths?: number;
   levelName: string;
   levelCount: number;
 }
@@ -26,10 +26,11 @@ export interface UpdateCourseDTO {
 export interface CourseResponseDTO {
   id: string;
   programId: string;
+  programName?: string;
   name: string;
   code: string;
   description: string;
-  durationMonths: number;
+  durationMonths?: number;
   levelName: string;
   levelCount: number;
   levels: CourseLevelDTO[];

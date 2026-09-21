@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
@@ -23,6 +23,10 @@ const CoursesPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sorting states
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -36,6 +40,16 @@ const CoursesPage: React.FC = () => {
 
   // Toast notification
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    resetPage();
+  };
 
   // Debounce search input
   useEffect(() => {
@@ -55,6 +69,8 @@ const CoursesPage: React.FC = () => {
         page,
         limit,
         search: debouncedSearch || undefined,
+        sortBy,
+        sortOrder,
       });
       setCourses(res.data.data.courses);
       setPaginationData(res.data.data.total, res.data.data.totalPages);
@@ -64,17 +80,17 @@ const CoursesPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, debouncedSearch, setPaginationData]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder, setPaginationData]);
 
   useEffect(() => {
-    // oxlint-disable-next-line react/set-state-in-effect
     fetchCourses();
   }, [fetchCourses]);
+
 
   // Auto-dismiss toast after 3 seconds
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 4000);
+    const t = setTimeout(() => setToast(null), 4500);
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -116,63 +132,63 @@ const CoursesPage: React.FC = () => {
     {
       header: 'Course Name',
       sortField: 'name',
+      className: 'min-w-[200px]',
       accessor: (c) => (
-        <div>
-          <span className="font-semibold text-neutral-800 block">
-            {c.name}
-          </span>
-          <span className="text-xs text-neutral-400">
-            {c.durationMonths} month{c.durationMonths !== 1 ? 's' : ''}
-          </span>
-        </div>
+        <span className="font-semibold text-neutral-800 whitespace-nowrap">
+          {c.name}
+        </span>
       ),
     },
     {
       header: 'Code',
       sortField: 'code',
+      className: 'min-w-[130px]',
       accessor: (c) => (
-        <span className="font-mono text-xs bg-neutral-100 text-neutral-700 px-2 py-1 rounded font-medium">
+        <span className="font-mono text-xs bg-neutral-100 text-neutral-700 px-2 py-1 rounded font-medium whitespace-nowrap">
           {c.code}
         </span>
       ),
     },
     {
       header: 'Program',
+      className: 'min-w-[200px]',
       accessor: (c) => (
-        <span className="text-xs px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 font-medium">
-          {c.programName || 'Academic Program'}
+        <span className="text-xs px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 font-medium whitespace-nowrap">
+          {c.programName || '—'}
         </span>
       ),
     },
     {
       header: 'Levels',
-      accessor: (c) => (
-        <div className="flex flex-wrap gap-1 max-w-xs">
-          {c.levels && c.levels.length > 0 ? (
-            c.levels.map((lvl, index) => (
-              <span
-                key={index}
-                className="text-[11px] px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600 font-medium"
-              >
-                {lvl.name}
-              </span>
-            ))
-          ) : (
-            <span className="text-xs text-neutral-400">—</span>
-          )}
-        </div>
-      ),
-    },
-    {
-      header: 'Description',
-      accessor: (c) => (
-        <span className="text-neutral-500 text-xs line-clamp-1 max-w-xs">
-          {c.description}
-        </span>
-      ),
+      className: 'min-w-[200px]',
+      accessor: (c) => {
+        const count = c.levelCount || c.levels?.length || 0;
+        const levelName =
+          c.levelName ||
+          (c.levels?.[0]?.name ? c.levels[0].name.replace(/\s*\d+$/, '').trim() : 'Level');
+
+        if (count === 0 && (!c.levels || c.levels.length === 0)) {
+          return <span className="text-xs text-neutral-400">—</span>;
+        }
+
+        const startName = c.levels?.[0]?.name || `${levelName} 1`;
+        const endName =
+          c.levels && c.levels.length > 1
+            ? c.levels[c.levels.length - 1].name
+            : `${levelName} ${count}`;
+
+        const label = count > 1 ? `${startName} - ${endName}` : startName;
+
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700 border border-neutral-200/80 whitespace-nowrap shadow-xs">
+            {label}
+          </span>
+        );
+      },
     },
     {
       header: 'Actions',
+      className: 'min-w-[100px]',
       accessor: (c) => (
         <div className="flex items-center gap-2">
           <button
@@ -258,6 +274,10 @@ const CoursesPage: React.FC = () => {
             data={courses}
             keyExtractor={(c) => c.id}
             isLoading={isLoading}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
+            minTableWidth="min-w-[1100px]"
           />
         )}
       </div>

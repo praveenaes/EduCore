@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import mongoose, { FilterQuery } from "mongoose";
+import { FilterQuery } from "mongoose";
 import {
   IProgramRepository,
   ProgramFilters,
@@ -69,20 +69,6 @@ export class MongoProgramRepository
     };
   }
 
-  async hasActiveCourses(programId: string): Promise<boolean> {
-    try {
-      // Safely checks courses collection; returns false if collection or documents don't exist yet
-      const coursesCollection = mongoose.connection.collection("courses");
-      const count = await coursesCollection.countDocuments({
-        programId: new mongoose.Types.ObjectId(programId),
-        isDeleted: false,
-      });
-      return count > 0;
-    } catch {
-      return false;
-    }
-  }
-
   async softDelete(id: string): Promise<boolean> {
     const result = await ProgramModel.updateOne(
       { _id: id },
@@ -90,4 +76,6 @@ export class MongoProgramRepository
     );
     return result.modifiedCount > 0;
   }
+
+  
 }

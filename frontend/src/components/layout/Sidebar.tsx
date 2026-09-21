@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { Settings, LogOut, ChevronDown } from 'lucide-react';
-import { useAppDispatch } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { clearUser } from '../../app/slices/authSlice';
 import { clearOrganization } from '../../app/slices/organizationSlice';
 import { logoutUserApi } from '../../api/authApi';
@@ -124,8 +124,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   items,
   settingsPath,
 }) => {
-  const displayName = 'EduCore';
-  const logoUrl = null;
+  const org = useAppSelector((state) => state.organization.organization);
+  const displayName = org?.name || 'EduCore';
+  const logoUrl = org?.logoPath || null;
   const dispatch = useAppDispatch();
 
   const handleLogoutClick = async () => {
@@ -154,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Drawer */}
       <aside
-        className={`fixed bottom-0 top-0 left-0 z-45 w-64 border-r border-neutral-200/65 bg-white transition-transform duration-300 md:sticky md:top-16 md:h-[calc(100vh-4rem)] md:translate-x-0 ${
+        className={`fixed bottom-0 top-0 left-0 z-45 w-64 shrink-0 border-r border-neutral-200/65 bg-white transition-transform duration-300 md:sticky md:top-16 md:h-[calc(100vh-4rem)] md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Select } from '../../../components/Select';
@@ -40,6 +40,7 @@ const SubjectAssignmentForm = forwardRef<HTMLFormElement, SubjectAssignmentFormP
       control,
       setValue,
       setError,
+      reset,
       formState: { errors },
     } = useForm<SubjectAssignmentFormValues>({
       resolver: zodResolver(subjectAssignmentSchema),
@@ -76,46 +77,68 @@ const SubjectAssignmentForm = forwardRef<HTMLFormElement, SubjectAssignmentFormP
       loadOptions();
     }, []);
 
+    useEffect(() => {
+      if (defaultValues) {
+        reset({
+          courseId: defaultValues.courseId ?? '',
+          levelNumber: defaultValues.levelNumber ? String(defaultValues.levelNumber) : '',
+          subjectId: defaultValues.subjectId ?? '',
+          teacherId: defaultValues.teacherId ?? '',
+        });
+      }
+    }, [defaultValues, courses, reset]);
+
     // Derive the levels available for the selected course
     const selectedCourse = courses.find((c) => c.id === watchedCourseId);
-    const availableLevels = selectedCourse?.levels || [];
+    const availableLevels = useMemo(() => selectedCourse?.levels || [], [selectedCourse?.levels]);
 
     // Reset level selection if the chosen course changes and doesn't have that level
     useEffect(() => {
-      if (mode === 'create' && watchedCourseId) {
-        if (!availableLevels.some((lvl) => String(lvl.levelNumber) === control._formValues.levelNumber)) {
+      if (watchedCourseId && availableLevels.length > 0) {
+        const currentLevel = control._formValues.levelNumber;
+        if (currentLevel && !availableLevels.some((lvl) => String(lvl.levelNumber) === currentLevel)) {
           setValue('levelNumber', availableLevels[0] ? String(availableLevels[0].levelNumber) : '');
         }
       }
-    }, [watchedCourseId, availableLevels, setValue, control, mode]);
+    }, [watchedCourseId, availableLevels, setValue, control]);
 
     const handleFormSubmit = async (data: SubjectAssignmentFormValues) => {
       const payload: CreateSubjectAssignmentPayload = {
         courseId: data.courseId,
         levelNumber: Number(data.levelNumber),
         subjectId: data.subjectId,
-        teacherId: data.teacherId || undefined,
+        teacherId: data.teacherId || null,
       };
 
       try {
         await onSubmit(payload);
       } catch (err: any) {
-        const errorMsg = err.response?.data?.message;
-        if (errorMsg) {
-          setError('subjectId', { type: 'manual', message: errorMsg });
+        const errorsList = err.response?.data?.errors;
+        if (errorsList && Array.isArray(errorsList)) {
+          errorsList.forEach((e: any) => {
+            const fieldName = e.field?.replace('body.', '');
+            if (fieldName) {
+              setError(fieldName as any, { type: 'manual', message: e.message });
+            }
+          });
         }
         throw err;
       }
     };
 
     return (
-      <form ref={ref} onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+      <form
+        ref={ref}
+        onSubmit={handleSubmit(handleFormSubmit, (valErrors) => {
+          console.error('SubjectAssignmentForm validation errors:', valErrors);
+        })}
+        className="space-y-5"
+      >
         {/* Course Selection */}
         <div>
           <Select
             label="Course"
             error={errors.courseId?.message}
-            disabled={mode === 'edit'}
             {...register('courseId')}
             options={[
               { value: '', label: isLoadingData ? 'Loading courses…' : 'Select a course' },
@@ -158,7 +181,6 @@ const SubjectAssignmentForm = forwardRef<HTMLFormElement, SubjectAssignmentFormP
           <Select
             label="Subject"
             error={errors.subjectId?.message}
-            disabled={mode === 'edit'}
             {...register('subjectId')}
             options={[
               { value: '', label: isLoadingData ? 'Loading subjects…' : 'Select a subject' },

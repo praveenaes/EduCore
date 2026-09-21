@@ -1,4 +1,4 @@
-﻿import { injectable } from "inversify";
+import { injectable } from "inversify";
 import mongoose, { FilterQuery } from "mongoose";
 import {
   ICourseRepository,
@@ -40,9 +40,9 @@ export class MongoCourseRepository
 
   async findByProgramId(programId: string): Promise<Course[]> {
     const docs = await CourseModel.find({
-      programId: new mongoose.Types.ObjectId(programId),
+      programId: programId,
       isDeleted: false,
-    }).sort({ createdAt: -1 });
+    });
     return docs.map((doc) => CourseMapper.toDomain(doc));
   }
 
@@ -71,7 +71,11 @@ export class MongoCourseRepository
     }
 
     const [docs, total] = await Promise.all([
-      CourseModel.find(query).sort(sortOptions).skip(skip).limit(limit),
+      CourseModel.find(query)
+        .populate({ path: 'programId', match: { isDeleted: false }, select: 'name code' })
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limit),
       CourseModel.countDocuments(query),
     ]);
 

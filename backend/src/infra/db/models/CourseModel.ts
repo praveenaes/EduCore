@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICourseLevelDocument {
   levelNumber: number;
@@ -31,9 +31,9 @@ const CourseSchema = new Schema<ICourseDocument>(
   {
     programId: { type: Schema.Types.ObjectId, ref: 'Program', required: true, index: true },
     name: { type: String, required: true, trim: true },
-    code: { type: String, required: true, unique: true, uppercase: true, trim: true },
-    description: { type: String, required: true, trim: true },
-    durationMonths: { type: Number, required: true, min: 1 },
+    code: { type: String, required: true, uppercase: true, trim: true },
+    description: { type: String, trim: true, default: '' },
+    durationMonths: { type: Number, default: 0 },
     levelName: { type: String, required: true, trim: true },
     levelCount: { type: Number, required: true, min: 1 },
     levels: { type: [CourseLevelSchema], default: [] },
@@ -42,6 +42,11 @@ const CourseSchema = new Schema<ICourseDocument>(
   {
     timestamps: true,
   }
+);
+
+CourseSchema.index(
+  { code: 1 },
+  { unique: true, partialFilterExpression: { isDeleted: false } }
 );
 
 export const CourseModel = mongoose.model<ICourseDocument>('Course', CourseSchema);

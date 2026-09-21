@@ -8,6 +8,8 @@ import { Button } from '../../../components/Button';
 import { SearchableSelect } from '../../../components/SearchableSelect';
 import { GetCountries, GetState } from 'react-country-state-city';
 import type { Student, CreateStudentPayload, UpdateStudentPayload } from '../../../types/student';
+import type { Batch } from '../../../types/batch';
+import { getBatchesApi } from '../../../services/batchService';
 import { getPhotoUrl } from '../../../utils/photo';
 import { ConfirmationModal } from '../../../components/ConfirmationModal';
 import {
@@ -53,6 +55,15 @@ const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
       { value: string; label: string; emoji?: string; id: number }[]
     >([]);
     const [states, setStates] = useState<{ value: string; label: string; id: number }[]>([]);
+    const [batches, setBatches] = useState<Batch[]>([]);
+
+    useEffect(() => {
+      getBatchesApi({ limit: 100, isActive: true })
+        .then((res) => {
+          setBatches(res.data.data?.batches || []);
+        })
+        .catch((err) => console.error('Failed to load batches:', err));
+    }, []);
 
     const schema = mode === 'create' ? createStudentSchema : updateStudentSchema;
 
@@ -66,6 +77,7 @@ const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
     } = useForm<CreateStudentFormValues | UpdateStudentFormValues>({
       resolver: zodResolver(schema),
       defaultValues: {
+        batchId: defaultValues?.batchId ?? '',
         ...(mode === 'create' ? { admissionNumber: '' } : {}),
         firstName: defaultValues?.firstName ?? '',
         lastName: defaultValues?.lastName ?? '',
@@ -221,6 +233,27 @@ const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
             )}
           </div>
         </div>
+
+        {/* Academic Information */}
+        <section>
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+            Academic Information
+          </h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Select
+              label="Batch *"
+              error={err.batchId?.message}
+              {...register('batchId')}
+              options={[
+                { value: '', label: 'Select Batch' },
+                ...batches.map((b) => ({
+                  value: b.id,
+                  label: `${b.courseName ? `${b.courseName} - ` : ''}${b.name}${b.academicYearName ? ` (${b.academicYearName})` : ''}`,
+                })),
+              ]}
+            />
+          </div>
+        </section>
 
         {/* Personal Information */}
         <section>

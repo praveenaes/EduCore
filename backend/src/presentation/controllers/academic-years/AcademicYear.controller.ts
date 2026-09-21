@@ -8,7 +8,6 @@ import { IDeleteAcademicYearUseCase } from '../../../application/ports/use-cases
 import {
   createAcademicYearSchema,
   updateAcademicYearSchema,
-  getAcademicYearsQuerySchema,
 } from '../../validators/academicYearValidators';
 import { ResponseHelper } from '../../helpers/ResponseHelper';
 import { HTTP_STATUS } from '@/presentation/constants/httpStatus';
@@ -28,40 +27,55 @@ export class AcademicYearController {
     private _deleteAcademicYearUseCase: IDeleteAcademicYearUseCase
   ) {}
 
-  async create(req: Request, res: Response): Promise<void> {
+  getAll = async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.search as string;
+    const centerId = req.query.centerId as string;
+    const current =
+      req.query.current === 'true'
+        ? true
+        : req.query.current === 'false'
+        ? false
+        : undefined;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as 'asc' | 'desc';
+
+    const result = await this._getAcademicYearsUseCase.execute({
+      page,
+      limit,
+      search,
+      centerId,
+      current,
+      sortBy,
+      sortOrder,
+    });
+
+    ResponseHelper.success(res, 'Academic years retrieved successfully', result, HTTP_STATUS.OK);
+  };
+
+  create = async (req: Request, res: Response): Promise<void> => {
     const parsed = createAcademicYearSchema.safeParse(req.body);
     if (!parsed.success) {
-      const errorMsg = parsed.error.issues.map((i) => i.message).join(', ') || ERROR_MESSAGES.VALIDATION_ERROR;
-      throw new ValidationError(errorMsg);
+      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
     }
     const result = await this._createAcademicYearUseCase.execute(parsed.data);
     ResponseHelper.created(res, 'Academic year created successfully.', result);
-  }
+  };
 
-  async getAll(req: Request, res: Response): Promise<void> {
-    const parsed = getAcademicYearsQuerySchema.safeParse(req.query);
-    if (!parsed.success) {
-      const errorMsg = parsed.error.issues.map((i) => i.message).join(', ') || ERROR_MESSAGES.VALIDATION_ERROR;
-      throw new ValidationError(errorMsg);
-    }
-    const result = await this._getAcademicYearsUseCase.execute(parsed.data);
-    ResponseHelper.success(res, 'Academic years retrieved successfully', result, HTTP_STATUS.OK);
-  }
-
-  async update(req: Request, res: Response): Promise<void> {
+  update = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const parsed = updateAcademicYearSchema.safeParse(req.body);
     if (!parsed.success) {
-      const errorMsg = parsed.error.issues.map((i) => i.message).join(', ') || ERROR_MESSAGES.VALIDATION_ERROR;
-      throw new ValidationError(errorMsg);
+      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
     }
     const result = await this._updateAcademicYearUseCase.execute(id, parsed.data);
     ResponseHelper.success(res, 'Academic year updated successfully.', result, HTTP_STATUS.OK);
-  }
+  };
 
-  async delete(req: Request, res: Response): Promise<void> {
+  delete = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await this._deleteAcademicYearUseCase.execute(id);
     ResponseHelper.success(res, 'Academic year deleted successfully.', null, HTTP_STATUS.OK);
-  }
+  };
 }

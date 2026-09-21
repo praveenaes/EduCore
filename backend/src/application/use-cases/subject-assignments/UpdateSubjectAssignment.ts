@@ -30,28 +30,44 @@ export class UpdateSubjectAssignment implements IUpdateSubjectAssignmentUseCase 
       throw new NotFoundError(`Subject assignment with id "${id}" not found`);
     }
 
-    let newLevelName: string | undefined;
+    const courseId = dto.courseId ?? assignment.courseId;
+    const levelNumber =
+      dto.levelNumber !== undefined ? Number(dto.levelNumber) : assignment.levelNumber;
+    const subjectId = dto.subjectId ?? assignment.subjectId;
+    let levelName = assignment.levelName;
 
-    if (dto.levelNumber !== undefined && dto.levelNumber !== assignment.levelNumber) {
-      const course = await this._courseRepo.findById(assignment.courseId);
+    const isCourseOrLevelChanged =
+      (dto.courseId !== undefined && dto.courseId !== assignment.courseId) ||
+      (dto.levelNumber !== undefined && Number(dto.levelNumber) !== assignment.levelNumber);
+
+    if (isCourseOrLevelChanged) {
+      const course = await this._courseRepo.findById(courseId);
       if (!course || course.isDeleted) {
         throw new NotFoundError('Associated course not found');
       }
 
-      const level = course.levels.find((l) => l.levelNumber === Number(dto.levelNumber));
+      const level = course.levels.find((l) => l.levelNumber === levelNumber);
       if (!level) {
-        throw new ValidationError(`Level ${dto.levelNumber} does not exist in course "${course.name}"`);
+        throw new ValidationError(
+          `Level ${levelNumber} does not exist in course "${course.name}"`
+        );
       }
-      newLevelName = level.name;
+      levelName = level.name;
+    }
 
+    const isScopeChanged =
+      isCourseOrLevelChanged ||
+      (dto.subjectId !== undefined && dto.subjectId !== assignment.subjectId);
+
+    if (isScopeChanged) {
       const existing = await this._assignmentRepo.findByCourseLevelAndSubject(
-        assignment.courseId,
-        Number(dto.levelNumber),
-        assignment.subjectId
+        courseId,
+        levelNumber,
+        subjectId
       );
       if (existing && existing.id !== id) {
         throw new ConflictError(
-          `This subject is already assigned to ${level.name} of "${course.name}"`
+          `This subject is already assigned to this course level`
         );
       }
     }
@@ -64,35 +80,36 @@ export class UpdateSubjectAssignment implements IUpdateSubjectAssignmentUseCase 
     }
 
     assignment.updateDetails({
+      courseId: dto.courseId,
       levelNumber: dto.levelNumber !== undefined ? Number(dto.levelNumber) : undefined,
-      levelName: newLevelName,
-      teacherId: dto.teacherId !== undefined ? dto.teacherId : assignment.teacherId,
+      levelName,
+      subjectId: dto.subjectId,
+      ...('teacherId' in dto && { teacherId: dto.teacherId }),
     });
 
-    const updated = await this._assignmentRepo.update(id, assignment);
+    await this._assignmentRepo.update(id, assignment);
+
+    const updated = await this._assignmentRepo.findById(id);
     if (!updated) {
       throw new NotFoundError('Failed to update subject assignment');
     }
 
-    const reloaded = await this._assignmentRepo.findById(id);
-    const finalItem = reloaded || updated;
-
     return {
-      id: finalItem.id!,
-      courseId: finalItem.courseId,
-      courseName: finalItem.courseName,
-      courseCode: finalItem.courseCode,
-      levelNumber: finalItem.levelNumber,
-      levelName: finalItem.levelName,
-      subjectId: finalItem.subjectId,
-      subjectName: finalItem.subjectName,
-      subjectCode: finalItem.subjectCode,
-      teacherId: finalItem.teacherId,
-      teacherName: finalItem.teacherName,
-      teacherEmployeeId: finalItem.teacherEmployeeId,
-      isDeleted: finalItem.isDeleted,
-      createdAt: finalItem.createdAt?.toISOString(),
-      updatedAt: finalItem.updatedAt?.toISOString(),
+      id: updated.id!,
+      courseId: updated.courseId,
+      courseName: updated.courseName,
+      courseCode: updated.courseCode,
+      levelNumber: updated.levelNumber,
+      levelName: updated.levelName,
+      subjectId: updated.subjectId,
+      subjectName: updated.subjectName,
+      subjectCode: updated.subjectCode,
+      teacherId: updated.teacherId,
+      teacherName: updated.teacherName,
+      teacherEmployeeId: updated.teacherEmployeeId,
+      isDeleted: updated.isDeleted,
+      createdAt: updated.createdAt?.toISOString(),
+      updatedAt: updated.updatedAt?.toISOString(),
     };
   }
 }

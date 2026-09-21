@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, BookOpen, User } from 'lucide-react';
+import { Plus, Edit2, Trash2, User } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
 import { Select } from '../../components/Select';
@@ -33,6 +33,10 @@ const SubjectAssignmentsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sorting states
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<SubjectAssignment | null>(null);
@@ -46,6 +50,16 @@ const SubjectAssignmentsPage: React.FC = () => {
 
   // Toast
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    resetPage();
+  };
 
   // Load courses for filter dropdown
   useEffect(() => {
@@ -73,6 +87,8 @@ const SubjectAssignmentsPage: React.FC = () => {
         limit,
         search: debouncedSearch || undefined,
         courseId: selectedCourseFilter || undefined,
+        sortBy,
+        sortOrder,
       });
       const data = res.data.data;
       setAssignments(data.assignments);
@@ -82,7 +98,7 @@ const SubjectAssignmentsPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, debouncedSearch, selectedCourseFilter, setPaginationData]);
+  }, [page, limit, debouncedSearch, selectedCourseFilter, sortBy, sortOrder, setPaginationData]);
 
   useEffect(() => {
     fetchAssignments();
@@ -109,15 +125,21 @@ const SubjectAssignmentsPage: React.FC = () => {
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
   };
+
+  // Auto-dismiss toast after 3 seconds
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   // Table Columns
   const columns: TableColumn<SubjectAssignment>[] = [
     {
-      key: 'courseName',
-      title: 'Course',
-      render: (item) => (
+      header: 'Course',
+      sortField: 'course',
+      accessor: (item) => (
         <div>
           <span className="font-medium text-neutral-800">{item.courseName || '—'}</span>
           {item.courseCode && (
@@ -127,18 +149,18 @@ const SubjectAssignmentsPage: React.FC = () => {
       ),
     },
     {
-      key: 'levelName',
-      title: 'Level / Semester',
-      render: (item) => (
+      header: 'Level / Semester',
+      sortField: 'levelNumber',
+      accessor: (item) => (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700 border border-brand-200">
           {item.levelName}
         </span>
       ),
     },
     {
-      key: 'subjectName',
-      title: 'Subject',
-      render: (item) => (
+      header: 'Subject',
+      sortField: 'subject',
+      accessor: (item) => (
         <div>
           <span className="font-medium text-neutral-800">{item.subjectName || '—'}</span>
           {item.subjectCode && (
@@ -148,9 +170,9 @@ const SubjectAssignmentsPage: React.FC = () => {
       ),
     },
     {
-      key: 'teacherName',
-      title: 'Assigned Faculty',
-      render: (item) =>
+      header: 'Assigned Faculty',
+      sortField: 'teacher',
+      accessor: (item) =>
         item.teacherName ? (
           <div className="flex items-center gap-1.5 text-neutral-700">
             <User className="h-3.5 w-3.5 text-neutral-400" />
@@ -164,10 +186,8 @@ const SubjectAssignmentsPage: React.FC = () => {
         ),
     },
     {
-      key: 'actions',
-      title: 'Actions',
-      align: 'right',
-      render: (item) => (
+      header: 'Actions',
+      accessor: (item) => (
         <div className="flex items-center justify-end gap-1.5">
           <Button
             size="sm"
@@ -198,13 +218,11 @@ const SubjectAssignmentsPage: React.FC = () => {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-sm shadow-md transition-all ${
-            toast.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
+          className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ${
+            toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
           }`}
         >
-          {toast.message}
+          {toast.type === 'success' ? '✓' : '✕'} {toast.message}
         </div>
       )}
 
@@ -266,18 +284,31 @@ const SubjectAssignmentsPage: React.FC = () => {
         <ErrorState message={error} onRetry={fetchAssignments} />
       ) : assignments.length === 0 ? (
         <EmptyState
-          icon={<BookOpen className="h-10 w-10 text-neutral-300" />}
           title="No subject assignments found"
           description="Get started by assigning a subject to a specific course level."
-          actionLabel="Assign First Subject"
-          onAction={() => {
-            setSelectedAssignment(null);
-            setShowModal(true);
-          }}
+          action={
+            <Button
+              size="sm"
+              onClick={() => {
+                setSelectedAssignment(null);
+                setShowModal(true);
+              }}
+            >
+              Assign First Subject
+            </Button>
+          }
         />
       ) : (
         <div className="bg-white rounded-xl border border-neutral-200/80 shadow-xs overflow-hidden">
-          <Table columns={columns} data={assignments} />
+          <Table
+            columns={columns}
+            data={assignments}
+            keyExtractor={(item) => item.id}
+            isLoading={isLoading}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
+          />
           {totalPages > 1 && (
             <div className="p-4 border-t border-neutral-100">
               <Pagination
@@ -314,9 +345,10 @@ const SubjectAssignmentsPage: React.FC = () => {
         isOpen={deleteConfirm.show}
         title="Remove Subject Assignment"
         message={`Are you sure you want to remove "${deleteConfirm.assignment?.subjectName}" from ${deleteConfirm.assignment?.levelName} of "${deleteConfirm.assignment?.courseName}"?`}
-        confirmLabel="Remove Assignment"
-        variant="danger"
-        isLoading={isDeleting}
+        confirmText="Remove Assignment"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteConfirm({ show: false, assignment: null })}
       />

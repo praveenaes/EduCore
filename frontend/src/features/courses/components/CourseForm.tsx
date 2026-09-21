@@ -15,10 +15,11 @@ interface CourseFormProps {
   isLoading?: boolean;
   onSubmit: (data: CreateCoursePayload | UpdateCoursePayload) => Promise<void>;
   onCancel: () => void;
+  onClearError?: () => void;
 }
 
 const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
-  ({ mode, defaultValues, isLoading, onSubmit, onCancel }, ref) => {
+  ({ mode, defaultValues, isLoading, onSubmit, onCancel, onClearError }, ref) => {
     const [programs, setPrograms] = useState<Program[]>([]);
     const [isLoadingPrograms, setIsLoadingPrograms] = useState(false);
 
@@ -32,7 +33,6 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
     { value: 'Module', label: 'Module (e.g. 1–4 Modules)', defaultCount: 4 },
     { value: 'Week', label: 'Week (e.g. 1–8 Weeks)', defaultCount: 8 },
     { value: 'Level', label: 'Level (Generic: Level 1–5)', defaultCount: 3 },
-    { value: 'custom', label: 'Custom... (Type your own name)', defaultCount: 2 },
   ];
 
   const LEVEL_COUNT_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
@@ -42,10 +42,10 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
 
   const initialLevelName = defaultValues?.levelName ?? 'Semester';
   const matchingPreset = LEVEL_PRESETS.find(
-    (p) => p.value !== 'custom' && p.value.toLowerCase() === initialLevelName.toLowerCase()
+    (p) => p.value.toLowerCase() === initialLevelName.toLowerCase()
   );
   const [selectedPreset, setSelectedPreset] = useState<string>(
-    matchingPreset ? matchingPreset.value : (initialLevelName ? 'custom' : 'Semester')
+    matchingPreset ? matchingPreset.value : 'Semester'
   );
 
   const {
@@ -54,6 +54,7 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
     control,
     setValue,
     setError,
+    watch,
     formState: { errors },
   } = useForm<CourseFormValues>({
     resolver: zodResolver(courseSchema),
@@ -61,12 +62,17 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
       programId: defaultValues?.programId ?? '',
       name: defaultValues?.name ?? '',
       code: defaultValues?.code ?? '',
-      durationMonths: String(defaultValues?.durationMonths ?? 6),
       levelName: defaultValues?.levelName ?? 'Semester',
       levelCount: String(defaultValues?.levelCount ?? 8),
-      description: defaultValues?.description ?? '',
     },
   });
+
+  useEffect(() => {
+    const subscription = watch(() => {
+      onClearError?.();
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onClearError]);
 
   const watchedLevelName = useWatch({ control, name: 'levelName' });
   const watchedLevelCount = useWatch({ control, name: 'levelCount' });
@@ -76,11 +82,9 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
     setSelectedPreset(chosen);
 
     const presetObj = LEVEL_PRESETS.find((p) => p.value === chosen);
-    if (chosen !== 'custom' && presetObj) {
+    if (presetObj) {
       setValue('levelName', presetObj.value, { shouldValidate: true });
       setValue('levelCount', String(presetObj.defaultCount), { shouldValidate: true });
-    } else if (chosen === 'custom') {
-      setValue('levelName', '', { shouldValidate: true });
     }
   };
 
@@ -90,19 +94,20 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
       try {
         const res = await getProgramsApi({ limit: 100 });
         setPrograms(res.data.data.programs);
-      } catch {
-        // Graceful fallback
+      } catch (err: any) {
+        const errorMsg = err.response?.data?.message || 'Failed to load programs list.';
+        console.error('Failed to load programs:', errorMsg);
+        setError('programId', { type: 'manual', message: errorMsg });
       } finally {
         setIsLoadingPrograms(false);
       }
     };
     fetchProgramsList();
-  }, []);
+  }, [setError]);
 
   const handleFormSubmit = async (data: CourseFormValues) => {
     const payload = {
       ...data,
-      durationMonths: Number(data.durationMonths),
       levelCount: Number(data.levelCount),
     };
     try {
@@ -127,7 +132,7 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
   );
 
   return (
-    <form ref={ref} onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+    <form ref={ref} onSubmit={handleSubmit(handleFormSubmit, () => onClearError?.())} className="space-y-5">
       {/* Program Selection */}
       <div>
         <Select
@@ -166,15 +171,6 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
               register('code').onChange(e);
             }}
           />
-          <Input
-            label="Duration (Months)"
-            type="number"
-            min={1}
-            max={60}
-            placeholder="e.g. 6"
-            error={errors.durationMonths?.message}
-            {...register('durationMonths')}
-          />
         </div>
       </section>
 
@@ -205,18 +201,6 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
             {...register('levelCount')}
             options={LEVEL_COUNT_OPTIONS}
           />
-
-          {/* If Custom is selected, reveal custom input */}
-          {selectedPreset === 'custom' && (
-            <div className="sm:col-span-2">
-              <Input
-                label="Custom Level Name"
-                placeholder="e.g. Stage, Phase, Sprint"
-                error={errors.levelName?.message}
-                {...register('levelName')}
-              />
-            </div>
-          )}
         </div>
 
         {/* Live Preview of Generated Levels */}
@@ -238,22 +222,6 @@ const CourseForm = forwardRef<HTMLFormElement, CourseFormProps>(
           </div>
         )}
       </section>
-
-        {/* Compulsory Description */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">
-            Description <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            {...register('description')}
-            rows={3}
-            placeholder="Detailed description of the course curriculum and objectives…"
-            className="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 resize-none"
-          />
-          {errors.description?.message && (
-            <p className="mt-1 text-xs text-red-500">{errors.description.message}</p>
-          )}
-        </div>
 
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-2 border-t border-neutral-100">

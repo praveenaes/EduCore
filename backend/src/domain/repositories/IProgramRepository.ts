@@ -21,6 +21,5 @@ export interface IProgramRepository extends IBaseRepository<Program> {
   findByCode(code: string): Promise<Program | null>;
   findByName(name: string): Promise<Program | null>;
   findAll(filters: ProgramFilters, pagination: ProgramPagination): Promise<ProgramListResult>;
-  hasActiveCourses(programId: string): Promise<boolean>;
   softDelete(id: string): Promise<boolean>;
 }

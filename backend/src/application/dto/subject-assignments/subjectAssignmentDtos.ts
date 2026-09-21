@@ -2,12 +2,14 @@ export interface CreateSubjectAssignmentDTO {
   courseId: string;
   levelNumber: number;
   subjectId: string;
-  teacherId?: string;
+  teacherId?: string | null;
 }
 
 export interface UpdateSubjectAssignmentDTO {
+  courseId?: string;
   levelNumber?: number;
-  teacherId?: string;
+  subjectId?: string;
+  teacherId?: string | null;
 }
 
 export interface SubjectAssignmentResponseDTO {

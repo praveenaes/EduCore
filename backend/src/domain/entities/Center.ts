@@ -23,17 +23,7 @@ export class Center {
   private _props: ICenterProps;
 
   constructor(props: ICenterProps) {
-    this._props = {
-      ...props,
-      name: props.name.trim(),
-      code: props.code.trim().toUpperCase(),
-      phone: props.phone.trim(),
-      email: props.email.trim().toLowerCase(),
-      timezone: props.timezone.trim(),
-      status: props.status || 'active',
-      createdAt: props.createdAt || new Date(),
-      updatedAt: props.updatedAt || new Date(),
-    };
+    this._props = { ...props };
   }
 
   get id(): string | undefined {

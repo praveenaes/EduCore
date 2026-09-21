@@ -8,7 +8,7 @@ import { AcademicYearQueryDTO, AcademicYearListResultDTO } from '../../dto/acade
 export class GetAcademicYears implements IGetAcademicYearsUseCase {
   constructor(
     @inject(TYPES.AcademicYearRepository)
-    private readonly _academicYearRepository: IAcademicYearRepository
+    private _academicYearRepository: IAcademicYearRepository
   ) {}
 
   async execute(query: AcademicYearQueryDTO): Promise<AcademicYearListResultDTO> {

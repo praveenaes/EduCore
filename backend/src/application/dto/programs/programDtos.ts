@@ -1,7 +1,7 @@
 export interface CreateProgramDTO {
   name: string;
   code: string;
-  description?: string;
+  description: string;
 }
 
 export interface UpdateProgramDTO {

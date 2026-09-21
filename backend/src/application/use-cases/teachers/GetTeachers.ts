@@ -1,26 +1,12 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
-import { ITeacherRepository, TeacherFilters } from "@/domain/repositories/ITeacherRepository";
-import { Teacher } from "../../../domain/entities/Teacher";
-
-import { PaginationHelper } from "@/shared/utils/pagination";
+import {
+  ITeacherRepository,
+  TeacherFilters,
+  TeacherPagination,
+} from "@/domain/repositories/ITeacherRepository";
 import { IGetTeachers } from "../../ports/use-cases/teachers/IGetTeachersUseCase";
-
-export interface GetTeachersRequest {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: string;
-}
-
-export interface GetTeachersResponse {
-  teachers: Teacher[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+import { TeacherListResultDTO } from "../../dto/teachers/teacherDtos";
 
 @injectable()
 export class GetTeachers implements IGetTeachers {
@@ -28,26 +14,46 @@ export class GetTeachers implements IGetTeachers {
     @inject(TYPES.TeacherRepository) private _teacherRepo: ITeacherRepository
   ) {}
 
-  async execute(req: GetTeachersRequest): Promise<GetTeachersResponse> {
-    const page = Math.max(1, req.page ?? 1);
-    const limit = Math.min(100, Math.max(1, req.limit ?? 10));
-    const filters: TeacherFilters = { search: req.search?.trim() || undefined };
-    const sortBy = req.sortBy;
-    const sortOrder = req.sortOrder as 'asc' | 'desc' | undefined;
+  async execute(
+    filters: TeacherFilters,
+    pagination: TeacherPagination
+  ): Promise<TeacherListResultDTO> {
+    const result = await this._teacherRepo.findAll(filters, pagination);
 
-    const result = await this._teacherRepo.findAll(filters, { 
-      page, 
-      limit, 
-      sortBy, 
-      sortOrder 
-    });
-
-    return PaginationHelper.toPaginatedResult(
-      "teachers",
-      result.teachers,
-      result.total,
-      page,
-      limit
-    ) as GetTeachersResponse
+    return {
+      teachers: result.teachers.map((teacher) => ({
+        id: teacher.id!,
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+        employeeId: teacher.employeeId,
+        joiningDate: teacher.joiningDate,
+        qualifications: teacher.qualifications,
+        specializations: teacher.specializations,
+        experience: teacher.experience,
+        salary: teacher.salary,
+        gender: teacher.gender,
+        dateOfBirth: teacher.dateOfBirth,
+        bloodGroup: teacher.bloodGroup,
+        nationalId: teacher.nationalId,
+        photo: teacher.photo,
+        phone: teacher.phone,
+        email: teacher.email,
+        house: teacher.house,
+        area: teacher.area,
+        city: teacher.city,
+        state: teacher.state,
+        postalCode: teacher.postalCode,
+        country: teacher.country,
+        isDeleted: teacher.isDeleted,
+        isActive: teacher.isActive,
+        userId: teacher.userId,
+        createdAt: teacher.createdAt,
+        updatedAt: teacher.updatedAt,
+      })),
+      total: result.total,
+      page: pagination.page,
+      limit: pagination.limit,
+      totalPages: Math.ceil(result.total / pagination.limit) || 1,
+    };
   }
 }

@@ -39,4 +39,14 @@ export class Organization {
     if (name !== undefined) this._props.name = name;
     if (logoPath !== undefined) this._props.logoPath = logoPath;
   }
+
+  toJSON(): OrganizationProps {
+    return {
+      id: this.id,
+      name: this.name,
+      logoPath: this.logoPath,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
 }

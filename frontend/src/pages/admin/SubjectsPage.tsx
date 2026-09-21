@@ -23,6 +23,10 @@ const SubjectsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sorting states
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
@@ -36,6 +40,16 @@ const SubjectsPage: React.FC = () => {
 
   // Toast notification (bottom-right corner)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    resetPage();
+  };
 
   // Debounce search input
   useEffect(() => {
@@ -55,6 +69,8 @@ const SubjectsPage: React.FC = () => {
         page,
         limit,
         search: debouncedSearch || undefined,
+        sortBy,
+        sortOrder,
       });
       setSubjects(res.data.data.subjects);
       setPaginationData(res.data.data.total, res.data.data.totalPages);
@@ -64,10 +80,9 @@ const SubjectsPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, debouncedSearch, setPaginationData]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder, setPaginationData]);
 
   useEffect(() => {
-    // oxlint-disable-next-line react/set-state-in-effect
     fetchSubjects();
   }, [fetchSubjects]);
 
@@ -136,14 +151,6 @@ const SubjectsPage: React.FC = () => {
       accessor: (s) => (
         <span className="text-neutral-500 line-clamp-1 max-w-xs">
           {s.description || '—'}
-        </span>
-      ),
-    },
-    {
-      header: 'Created At',
-      accessor: (s) => (
-        <span className="text-neutral-400 text-xs">
-          {s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '—'}
         </span>
       ),
     },
@@ -233,6 +240,9 @@ const SubjectsPage: React.FC = () => {
             data={subjects}
             keyExtractor={(s) => s.id}
             isLoading={isLoading}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
         )}
       </div>

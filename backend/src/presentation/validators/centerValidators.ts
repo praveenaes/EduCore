@@ -1,4 +1,4 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 
 const centerAddressSchema = z.object({
   addressLine1: z.string().trim().min(2, 'Address line 1 is required'),
@@ -113,12 +113,3 @@ export const updateCenterSchema = z
       status: data.status,
     };
   });
-
-export const getCentersQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().default(10),
-  search: z.string().trim().optional(),
-  status: z.enum(['active', 'inactive']).optional(),
-  sortBy: z.string().trim().optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
-});

@@ -7,10 +7,12 @@ import { IDeleteTeacher } from '../../../application/ports/use-cases/teachers/ID
 import { IGetTeachers } from '../../../application/ports/use-cases/teachers/IGetTeachersUseCase';
 import { IToggleTeacherStatus } from '../../../application/ports/use-cases/teachers/IToggleTeacherStatusUseCase';
 import { IExportTeachersCsv } from '../../../application/ports/use-cases/teachers/IExportTeachersCsvUseCase';
+import { IGetTeacherCurriculum } from '../../../application/ports/use-cases/teachers/IGetTeacherCurriculumUseCase';
 import { createTeacherSchema, updateTeacherSchema } from '../../validators/teacherValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
 import { ResponseHelper } from '../../helpers/ResponseHelper';
+import { AuthenticatedRequest } from '../../middleware/authMiddleware';
 
 @injectable()
 export class TeacherController {
@@ -20,7 +22,8 @@ export class TeacherController {
     @inject(TYPES.ExportTeachersCsvUseCase) private _exportTeachersCsvUseCase: IExportTeachersCsv,
     @inject(TYPES.CreateTeacherUseCase) private _createTeacherUseCase: ICreateTeacher,
     @inject(TYPES.UpdateTeacherUseCase) private _updateTeacherUseCase: IUpdateTeacher,
-    @inject(TYPES.DeleteTeacherUseCase) private _deleteTeacherUseCase: IDeleteTeacher
+    @inject(TYPES.DeleteTeacherUseCase) private _deleteTeacherUseCase: IDeleteTeacher,
+    @inject(TYPES.GetTeacherCurriculumUseCase) private _getCurriculumUseCase: IGetTeacherCurriculum
   ) {}
 
   getAll = async (req: Request, res: Response): Promise<void> => {
@@ -28,15 +31,12 @@ export class TeacherController {
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string;
     const sortBy = req.query.sortBy as string;
-    const sortOrder = req.query.sortOrder as string;
+    const sortOrder = req.query.sortOrder as 'asc' | 'desc';
 
-    const result = await this._getTeachersUseCase.execute({ 
-      page, 
-      limit, 
-      search, 
-      sortBy, 
-      sortOrder 
-    });
+    const result = await this._getTeachersUseCase.execute(
+      { search },
+      { page, limit, sortBy, sortOrder }
+    );
 
     ResponseHelper.success(res, "Teachers retrieved successfully", result, 200);
   };
@@ -98,5 +98,11 @@ export class TeacherController {
     await this._deleteTeacherUseCase.execute(id);
 
     ResponseHelper.success(res, 'Teacher deleted successfully.', null, 200);
+  };
+
+  getCurriculum = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const result = await this._getCurriculumUseCase.execute(userId);
+    ResponseHelper.success(res, 'Teacher curriculum retrieved successfully', result, 200);
   };
 }

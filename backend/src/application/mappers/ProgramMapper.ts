@@ -17,7 +17,7 @@ export class ProgramMapper {
       id: doc._id.toString(),
       name: doc.name,
       code: doc.code,
-      description: doc.description,
+      description: doc.description || '',
       isDeleted: doc.isDeleted,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
@@ -27,7 +27,7 @@ export class ProgramMapper {
   static toPersistence(program: Program): {
     name: string;
     code: string;
-    description?: string;
+    description: string;
     isDeleted: boolean;
   } {
     return {

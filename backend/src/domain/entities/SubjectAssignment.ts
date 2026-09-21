@@ -22,13 +22,7 @@ export class SubjectAssignment {
   private _props: SubjectAssignmentProps;
 
   constructor(props: SubjectAssignmentProps) {
-    this._props = {
-      ...props,
-      levelName: props.levelName.trim(),
-      isDeleted: props.isDeleted ?? false,
-      createdAt: props.createdAt || new Date(),
-      updatedAt: props.updatedAt || new Date(),
-    };
+    this._props = { ...props };
   }
 
   // Getters
@@ -99,13 +93,18 @@ export class SubjectAssignment {
   }
 
   updateDetails(details: {
+    courseId?: string;
     levelNumber?: number;
     levelName?: string;
-    teacherId?: string;
+    subjectId?: string;
+    teacherId?: string | null;
   }): void {
+    if (details.courseId !== undefined) this._props.courseId = details.courseId;
     if (details.levelNumber !== undefined) this._props.levelNumber = details.levelNumber;
     if (details.levelName !== undefined) this._props.levelName = details.levelName.trim();
-    if (details.teacherId !== undefined) this._props.teacherId = details.teacherId;
+    if (details.subjectId !== undefined) this._props.subjectId = details.subjectId;
+    // null = explicitly clear teacher; undefined = don't touch; string = set new teacher
+    if ('teacherId' in details) this._props.teacherId = details.teacherId ?? undefined;
     this._props.updatedAt = new Date();
   }
 

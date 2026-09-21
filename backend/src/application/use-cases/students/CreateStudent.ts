@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import { TYPES } from "../../../config/di/types";
 import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
 import { IUserRepository } from "@/domain/repositories/IUserRepository";
+import { IBatchRepository } from "@/domain/repositories/IBatchRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
 import { IEmailService } from "../../ports/services/IEmailService";
 import { IStorageService } from "../../ports/services/IStorageService";
@@ -11,19 +12,29 @@ import { User } from "../../../domain/entities/User";
 import { UserRole } from "../../../domain/enums/UserRole";
 import { ValidationError } from "@/shared/errors/AppError";
 import { ICreateStudent } from "../../ports/use-cases/students/ICreateStudentUseCase";
-import { CreateStudentDTO, CreateStudentResponseDTO } from "../../dto/students/studentDtos";
+import { CreateStudentDTO, StudentResponseDTO } from "../../dto/students/studentDtos";
 
 @injectable()
 export class CreateStudent implements ICreateStudent {
   constructor(
     @inject(TYPES.StudentRepository) private _studentRepo: IStudentRepository,
     @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.BatchRepository) private _batchRepo: IBatchRepository,
     @inject(TYPES.AuthService) private _authSvc: IAuthService,
     @inject(TYPES.EmailService) private _emailSvc: IEmailService,
     @inject(TYPES.StorageService) private _storageSvc: IStorageService
   ) {}
 
-  async execute(dto: CreateStudentDTO, photoFile?: Express.Multer.File): Promise<CreateStudentResponseDTO> {
+  async execute(dto: CreateStudentDTO, photoFile?: Express.Multer.File): Promise<StudentResponseDTO> {
+    if (!dto.batchId) {
+      throw new ValidationError("Batch is required.");
+    }
+
+    const batch = await this._batchRepo.findById(dto.batchId);
+    if (!batch || batch.isDeleted) {
+      throw new ValidationError("Selected batch does not exist.");
+    }
+
     const existingByName = await this._studentRepo.findByName(dto.firstName, dto.lastName);
     if (existingByName) {
       throw new ValidationError("Student with this name already exists.");
@@ -86,6 +97,7 @@ export class CreateStudent implements ICreateStudent {
       state: dto.state,
       postalCode: dto.postalCode,
       country: dto.country,
+      batchId: dto.batchId,
       userId: savedUser.id!
     });
 
@@ -113,6 +125,8 @@ export class CreateStudent implements ICreateStudent {
       state: savedStudent.state,
       postalCode: savedStudent.postalCode,
       country: savedStudent.country,
+      batchId: savedStudent.batchId,
+      batchName: batch.name,
       userId: savedStudent.userId,
       createdAt: savedStudent.createdAt,
       updatedAt: savedStudent.updatedAt,
