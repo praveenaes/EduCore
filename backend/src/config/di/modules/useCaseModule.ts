@@ -50,6 +50,11 @@ import { IDeleteTeacher } from "@/application/ports/use-cases/teachers/IDeleteTe
 import { DeleteTeacher } from "@/application/use-cases/teachers/DeleteTeacher";
 import { IGetTeacherCurriculum } from "@/application/ports/use-cases/teachers/IGetTeacherCurriculumUseCase";
 import { GetTeacherCurriculum } from "@/application/use-cases/teachers/GetTeacherCurriculum";
+import { IGetTeacherBatches } from "@/application/ports/use-cases/teachers/IGetTeacherBatchesUseCase";
+import { GetTeacherBatches } from "@/application/use-cases/teachers/GetTeacherBatches";
+import { IGetTeacherSubjects } from "@/application/ports/use-cases/teachers/IGetTeacherSubjectsUseCase";
+import { GetTeacherSubjects } from "@/application/use-cases/teachers/GetTeacherSubjects";
+
 
 // Settings Use Cases
 import { GetOrganizationSettings } from "@/application/use-cases/settings/GetOrganizationSettings";
@@ -128,6 +133,41 @@ import { CreateBatch } from "@/application/use-cases/batches/CreateBatch";
 import { GetBatches } from "@/application/use-cases/batches/GetBatches";
 import { UpdateBatch } from "@/application/use-cases/batches/UpdateBatch";
 import { DeleteBatch } from "@/application/use-cases/batches/DeleteBatch";
+
+import { IGetBatchAttendanceUseCase } from "@/application/ports/use-cases/attendance/IGetBatchAttendanceUseCase";
+import { GetBatchAttendance } from "@/application/use-cases/attendance/GetBatchAttendance";
+import { ICreateBatchAttendanceUseCase } from "@/application/ports/use-cases/attendance/ICreateBatchAttendanceUseCase";
+import { CreateBatchAttendance } from "@/application/use-cases/attendance/CreateBatchAttendance";
+import { IUpdateBatchAttendanceUseCase } from "@/application/ports/use-cases/attendance/IUpdateBatchAttendanceUseCase";
+import { UpdateBatchAttendance } from "@/application/use-cases/attendance/UpdateBatchAttendance";
+import { IGetStudentAttendanceUseCase } from "@/application/ports/use-cases/attendance/IGetStudentAttendanceUseCase";
+import { GetStudentAttendance } from "@/application/use-cases/attendance/GetStudentAttendance";
+
+import { ICreateHomeworkUseCase } from "@/application/ports/use-cases/homework/ICreateHomeworkUseCase";
+import { CreateHomework } from "@/application/use-cases/homework/CreateHomework";
+import { IUpdateHomeworkUseCase } from "@/application/ports/use-cases/homework/IUpdateHomeworkUseCase";
+import { UpdateHomework } from "@/application/use-cases/homework/UpdateHomework";
+import { IGetTeacherHomeworksUseCase } from "@/application/ports/use-cases/homework/IGetTeacherHomeworksUseCase";
+import { GetTeacherHomeworks } from "@/application/use-cases/homework/GetTeacherHomeworks";
+import { IGetHomeworkSubmissionsUseCase } from "@/application/ports/use-cases/homework/IGetHomeworkSubmissionsUseCase";
+import { GetHomeworkSubmissions } from "@/application/use-cases/homework/GetHomeworkSubmissions";
+import { IReviewHomeworkSubmissionUseCase } from "@/application/ports/use-cases/homework/IReviewHomeworkSubmissionUseCase";
+import { ReviewHomeworkSubmission } from "@/application/use-cases/homework/ReviewHomeworkSubmission";
+import { IDeleteHomeworkUseCase } from "@/application/ports/use-cases/homework/IDeleteHomeworkUseCase";
+import { DeleteHomework } from "@/application/use-cases/homework/DeleteHomework";
+import { IGetStudentHomeworksUseCase } from "@/application/ports/use-cases/homework/IGetStudentHomeworksUseCase";
+import { GetStudentHomeworks } from "@/application/use-cases/homework/GetStudentHomeworks";
+import { ISubmitHomeworkUseCase } from "@/application/ports/use-cases/homework/ISubmitHomeworkUseCase";
+import { SubmitHomework } from "@/application/use-cases/homework/SubmitHomework";
+
+import { IApplyLeaveUseCase } from "@/application/ports/use-cases/leave/IApplyLeaveUseCase";
+import { ApplyLeave } from "@/application/use-cases/leave/ApplyLeave";
+import { IGetStudentLeavesUseCase } from "@/application/ports/use-cases/leave/IGetStudentLeavesUseCase";
+import { GetStudentLeaves } from "@/application/use-cases/leave/GetStudentLeaves";
+import { IGetBatchLeavesUseCase } from "@/application/ports/use-cases/leave/IGetBatchLeavesUseCase";
+import { GetBatchLeaves } from "@/application/use-cases/leave/GetBatchLeaves";
+import { IReviewLeaveUseCase } from "@/application/ports/use-cases/leave/IReviewLeaveUseCase";
+import { ReviewLeave } from "@/application/use-cases/leave/ReviewLeave";
 
 export const useCaseModule = new ContainerModule((bind) => {
   bind<IGetOrganizationSettings>(TYPES.GetOrganizationSettingsUseCase)
@@ -245,6 +285,15 @@ export const useCaseModule = new ContainerModule((bind) => {
   bind<IGetTeacherCurriculum>(TYPES.GetTeacherCurriculumUseCase)
     .to(GetTeacherCurriculum)
     .inSingletonScope();
+
+  bind<IGetTeacherBatches>(TYPES.GetTeacherBatchesUseCase)
+    .to(GetTeacherBatches)
+    .inSingletonScope();
+
+  bind<IGetTeacherSubjects>(TYPES.GetTeacherSubjectsUseCase)
+    .to(GetTeacherSubjects)
+    .inSingletonScope();
+
      bind<ICreateProgram>(TYPES.CreateProgramUseCase)
     .to(CreateProgram)
     .inSingletonScope();
@@ -337,5 +386,59 @@ export const useCaseModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<IDeleteBatchUseCase>(TYPES.DeleteBatchUseCase)
     .to(DeleteBatch)
+    .inSingletonScope();
+
+  // Attendance
+  bind<IGetBatchAttendanceUseCase>(TYPES.GetBatchAttendanceUseCase)
+    .to(GetBatchAttendance)
+    .inSingletonScope();
+  bind<ICreateBatchAttendanceUseCase>(TYPES.CreateBatchAttendanceUseCase)
+    .to(CreateBatchAttendance)
+    .inSingletonScope();
+  bind<IUpdateBatchAttendanceUseCase>(TYPES.UpdateBatchAttendanceUseCase)
+    .to(UpdateBatchAttendance)
+    .inSingletonScope();
+  bind<IGetStudentAttendanceUseCase>(TYPES.GetStudentAttendanceUseCase)
+    .to(GetStudentAttendance)
+    .inSingletonScope();
+
+  // Homework
+  bind<ICreateHomeworkUseCase>(TYPES.CreateHomeworkUseCase)
+    .to(CreateHomework)
+    .inSingletonScope();
+  bind<IUpdateHomeworkUseCase>(TYPES.UpdateHomeworkUseCase)
+    .to(UpdateHomework)
+    .inSingletonScope();
+  bind<IGetTeacherHomeworksUseCase>(TYPES.GetTeacherHomeworksUseCase)
+    .to(GetTeacherHomeworks)
+    .inSingletonScope();
+  bind<IGetHomeworkSubmissionsUseCase>(TYPES.GetHomeworkSubmissionsUseCase)
+    .to(GetHomeworkSubmissions)
+    .inSingletonScope();
+  bind<IReviewHomeworkSubmissionUseCase>(TYPES.ReviewHomeworkSubmissionUseCase)
+    .to(ReviewHomeworkSubmission)
+    .inSingletonScope();
+  bind<IDeleteHomeworkUseCase>(TYPES.DeleteHomeworkUseCase)
+    .to(DeleteHomework)
+    .inSingletonScope();
+  bind<IGetStudentHomeworksUseCase>(TYPES.GetStudentHomeworksUseCase)
+    .to(GetStudentHomeworks)
+    .inSingletonScope();
+  bind<ISubmitHomeworkUseCase>(TYPES.SubmitHomeworkUseCase)
+    .to(SubmitHomework)
+    .inSingletonScope();
+
+  // Leaves
+  bind<IApplyLeaveUseCase>(TYPES.ApplyLeaveUseCase)
+    .to(ApplyLeave)
+    .inSingletonScope();
+  bind<IGetStudentLeavesUseCase>(TYPES.GetStudentLeavesUseCase)
+    .to(GetStudentLeaves)
+    .inSingletonScope();
+  bind<IGetBatchLeavesUseCase>(TYPES.GetBatchLeavesUseCase)
+    .to(GetBatchLeaves)
+    .inSingletonScope();
+  bind<IReviewLeaveUseCase>(TYPES.ReviewLeaveUseCase)
+    .to(ReviewLeave)
     .inSingletonScope();
 });

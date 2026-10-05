@@ -15,12 +15,16 @@ export const API_ROUTES = {
     LIST: "/",
     EXPORT: "/export/csv",
     STATUS: "/:id/status",
+    CURRICULUM:'/me/curriculum'
   },
   TEACHERS: {
     ROOT: "/teachers",
     LIST: "/",
     EXPORT: "/export/csv",
     STATUS: "/:id/status",
+    CURRICULUM:'/me/curriculum',
+    BATCHES:'/batches',
+    SUBJECTS:'/subjects'
   },
   SETTINGS: {
     ROOT: "/settings",
@@ -65,5 +69,25 @@ export const API_ROUTES = {
     ROOT: "/batches",
     LIST: "/",
     DETAIL: "/:id",
+  },
+  ATTENDANCE: {
+    ROOT: "/attendance",
+    STUDENTS: "/students",
+    STUDENT: "/student",
+  },
+  HOMEWORK: {
+    ROOT: "/homework",
+    LIST: "/",
+    DETAIL: "/:id",
+    SUBMISSIONS: "/:id/submissions",
+    REVIEW: "/:id/review",
+    STUDENT: "/student",
+    STUDENT_SUBMIT: "/student/:id/submit",
+  },
+  LEAVES: {
+    ROOT: "/leaves",
+    STUDENT: "/student",
+    BATCH: "/batch/:batchId",
+    REVIEW: "/:id/review",
   },
 } as const;

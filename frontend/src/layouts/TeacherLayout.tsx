@@ -1,14 +1,24 @@
 import React from 'react';
 import { AppShellLayout } from './AppShellLayout';
 import type { SidebarItem } from '../components/layout/Sidebar';
-import { LayoutDashboard, Building2, ClipboardCheck, Award, ClipboardList } from 'lucide-react';
+import {
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  GraduationCap,
+  FileSpreadsheet,
+  Bell,
+  MessageSquare,
+} from 'lucide-react';
 
 const teacherNavItems: SidebarItem[] = [
   { label: 'Dashboard', path: '/teacher/dashboard', icon: LayoutDashboard },
-  { label: 'Classes', path: '/teacher/classes', icon: Building2 },
-  { label: 'Attendance', path: '/teacher/attendance', icon: ClipboardCheck },
-  { label: 'Marks', path: '/teacher/marks', icon: Award },
-  { label: 'Homework', path: '/teacher/homework', icon: ClipboardList },
+  { label: 'Homeworks', path: '/teacher/homework', icon: BookOpen },
+  { label: 'Batches', path: '/teacher/batches', icon: Users },
+  { label: 'Subjects', path: '/teacher/subjects', icon: GraduationCap },
+  { label: 'Exam Mark Entry', path: '/teacher/mark-entry', icon: FileSpreadsheet },
+  { label: 'Notifications', path: '/teacher/notifications', icon: Bell },
+  { label: 'Chat', path: '/teacher/chat', icon: MessageSquare },
 ];
 
 export const TeacherLayout: React.FC = () => {

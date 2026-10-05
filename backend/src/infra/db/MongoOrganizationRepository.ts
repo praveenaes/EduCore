@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { IOrganizationRepository } from "../../domain/repositories/IOrganizationRepository";
 import { Organization } from "../../domain/entities/Organization";
 import { OrganizationModel } from "./models/OrganizationModel";
-import { OrganizationMapper } from "../../application/mappers/OrganizationMapper";
+import { OrganizationMapper } from "./mappers/OrganizationMapper";
 
 @injectable()
 export class MongoOrganizationRepository implements IOrganizationRepository {

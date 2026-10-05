@@ -13,7 +13,7 @@ export const getStudentRoutes = (container: Container): Router => {
 
   // Student self-service route
   router.get(
-    "/me/curriculum",
+    API_ROUTES.STUDENTS.CURRICULUM,
     authenticateUser,
     asyncHandler(studentController.getCurriculum.bind(studentController))
   );

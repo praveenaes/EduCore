@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { User } from "../../domain/entities/User";
 import { UserModel, IUserDocument } from "./models/UserModel";
-import { UserMapper } from "../../application/mappers/UserMapper";
+import { UserMapper } from "./mappers/UserMapper";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
 @injectable()
@@ -15,6 +15,7 @@ export class MongoUserRepository
 
   async findByEmail(email: string): Promise<User | null> {
     const document = await UserModel.findOne({ email });
+    console.log('!!!!!!!!!!!!!!!!!!!!',email)
     if (!document) return null;
 
     return UserMapper.toDomain(document);

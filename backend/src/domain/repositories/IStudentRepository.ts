@@ -21,6 +21,7 @@ export interface IStudentRepository extends IBaseRepository<Student> {
   findByUserId(userId: string): Promise<Student | null>;
   findByAdmissionNumber(admissionNumber: string): Promise<Student | null>;
   findByEmail(email: string): Promise<Student | null>;
+  findByBatchId(batchId: string): Promise<Student[]>;
   findByNationalId(nationalId: string): Promise<Student | null>;
   findByName(firstName: string, lastName: string): Promise<Student | null>;
   findAll(filters: StudentFilters, pagination: StudentPagination): Promise<StudentListResult>;

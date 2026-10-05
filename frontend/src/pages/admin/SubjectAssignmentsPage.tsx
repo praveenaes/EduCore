@@ -235,6 +235,7 @@ const SubjectAssignmentsPage: React.FC = () => {
           <p className="text-sm text-neutral-500">
             Map curriculum subjects to course levels and designate teaching faculty.
           </p>
+
         </div>
         <Button
           onClick={() => {
@@ -274,7 +275,6 @@ const SubjectAssignmentsPage: React.FC = () => {
           />
         </div>
       </div>
-
       {/* Content Area */}
       {isLoading ? (
         <div className="flex h-64 items-center justify-center rounded-xl bg-white border border-neutral-200/80">

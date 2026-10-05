@@ -88,11 +88,6 @@ export class AcademicYear {
     this._props.updatedAt = new Date();
   }
 
-  markDeleted(): void {
-    this._props.isDeleted = true;
-    this._props.updatedAt = new Date();
-  }
-
   static createNew(props: {
     name: string;
     code: string;

@@ -1,4 +1,4 @@
-import { Model,FilterQuery, UpdateQuery  } from "mongoose";
+﻿import { Model,FilterQuery, UpdateQuery  } from "mongoose";
 import { injectable } from "inversify";
 import { IBaseRepository } from "../../domain/repositories/IBaseRepository";
 

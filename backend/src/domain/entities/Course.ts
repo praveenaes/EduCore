@@ -107,11 +107,6 @@ export class Course {
     this._props.updatedAt = new Date();
   }
 
-  markDeleted(): void {
-    this._props.isDeleted = true;
-    this._props.updatedAt = new Date();
-  }
-
   static generateLevels(levelName: string, levelCount: number): CourseLevelProps[] {
     const trimmed = levelName.trim() || 'Level';
     const levels: CourseLevelProps[] = [];

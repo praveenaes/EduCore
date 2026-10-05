@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const logoUrl = org?.logoPath || null;
 
   useEffect(() => {
-    if (!org) {
+    if (!org || !org.logoPath) {
       getOrganizationSettingsApi()
         .then((response) => {
           const orgData = (response.data as any)?._props || response.data;

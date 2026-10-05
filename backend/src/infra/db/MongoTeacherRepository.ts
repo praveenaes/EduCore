@@ -3,7 +3,7 @@ import { FilterQuery } from "mongoose";
 import { ITeacherRepository, TeacherFilters, TeacherPagination, TeacherListResult } from "../../domain/repositories/ITeacherRepository";
 import { Teacher } from "../../domain/entities/Teacher";
 import { TeacherModel, ITeacherDocument } from "./models/TeacherModel";
-import { TeacherMapper } from "../../application/mappers/TeacherMapper";
+import { TeacherMapper } from "./mappers/TeacherMapper";
 import { PaginationHelper } from "@/shared/utils/pagination";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
@@ -87,14 +87,19 @@ export class MongoTeacherRepository
       }
     }
 
-    const [docs, total] = await Promise.all([
+    const [docs, total,activeCount,deactiveCount] = await Promise.all([
       TeacherModel.find(query).sort(sortOptions).skip(skip).limit(limit),
       TeacherModel.countDocuments(query),
+      TeacherModel.countDocuments({isActive:false}),
+      TeacherModel.countDocuments({isActive:true})
+
     ]);
 
     return {
       teachers: docs.map(doc => TeacherMapper.toDomain(doc)),
       total,
+      activeCount,
+      deactiveCount
     };
   }
 

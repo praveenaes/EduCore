@@ -3,7 +3,7 @@ import { FilterQuery, Types } from "mongoose";
 import { IStudentRepository, StudentFilters, StudentPagination, StudentListResult } from "../../domain/repositories/IStudentRepository";
 import { Student } from "../../domain/entities/Student";
 import { StudentModel, IStudentDocument } from "./models/StudentModel";
-import { StudentMapper } from "../../application/mappers/StudentMapper";
+import { StudentMapper } from "./mappers/StudentMapper";
 import { PaginationHelper } from "@/shared/utils/pagination";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
@@ -50,7 +50,13 @@ export class MongoStudentRepository
     return StudentMapper.toDomain(doc);
   }
 
-
+  async findByBatchId(batchId: string): Promise<Student[]> {
+    const docs = await StudentModel.find({
+      batchId: Types.ObjectId.isValid(batchId) ? new Types.ObjectId(batchId) : batchId,
+      isDeleted: false,
+    }).sort({ firstName: 1, lastName: 1 });
+    return docs.map(doc => StudentMapper.toDomain(doc));
+  }
 
   async findByNationalId(nationalId: string): Promise<Student | null> {
     const doc = await StudentModel.findOne({

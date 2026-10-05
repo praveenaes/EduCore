@@ -1,8 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { setOrganization } from "../app/slices/organizationSlice";
+import { getOrganizationSettingsApi } from "../api/settingsApi";
 
 export const PortalSelection: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const org = useAppSelector((state) => state.organization.organization);
+  const displayName = org?.name || "EduCore";
+  const logoUrl = org?.logoPath || null;
+
+  useEffect(() => {
+    if (!org || !org.logoPath) {
+      getOrganizationSettingsApi()
+        .then((response) => {
+          const orgData = (response.data as any)?._props || response.data;
+          dispatch(setOrganization(orgData));
+        })
+        .catch((err) => {
+          console.error("Failed to load organization in PortalSelection:", err);
+        });
+    }
+  }, [org, dispatch]);
 
   const portals = [
     {
@@ -29,11 +49,19 @@ export const PortalSelection: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-4xl space-y-12">
         <div className="text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-900 text-white font-extrabold text-3xl shadow-sm">
-            E
-          </div>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={`${displayName} logo`}
+              className="mx-auto h-16 w-16 rounded-2xl object-cover shadow-sm"
+            />
+          ) : (
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-900 text-white font-extrabold text-3xl shadow-sm">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+          )}
           <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-neutral-800 sm:text-5xl">
-            EduCore Portal
+            {displayName} Portal
           </h1>
           <p className="mt-3 text-lg text-neutral-500 max-w-md mx-auto">
             Choose your gateway to log in and access your personalized educational workspace.

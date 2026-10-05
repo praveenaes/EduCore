@@ -26,6 +26,8 @@ export const API_ROUTES = {
   TEACHERS: {
     BASE: "/teachers",
     CURRICULUM: "/teachers/me/curriculum",
+    BATCHES: "/teachers/batches",
+    SUBJECTS: "/teachers/subjects",
     DETAIL: (id: string) => `/teachers/${id}`,
     STATUS: (id: string) => `/teachers/${id}/status`,
     EXPORT: "/teachers/export/csv",
@@ -57,5 +59,22 @@ export const API_ROUTES = {
   BATCHES: {
     BASE: "/batches",
     DETAIL: (id: string) => `/batches/${id}`,
+  },
+  ATTENDANCE: {
+    STUDENTS: "/attendance/students",
+    STUDENT: "/attendance/student",
+  },
+  HOMEWORK: {
+    BASE: "/homework",
+    DETAIL: (id: string) => `/homework/${id}`,
+    SUBMISSIONS: (id: string) => `/homework/${id}/submissions`,
+    REVIEW: (id: string) => `/homework/${id}/review`,
+    STUDENT: "/homework/student",
+    STUDENT_SUBMIT: (id: string) => `/homework/student/${id}/submit`,
+  },
+  LEAVES: {
+    STUDENT: "/leaves/student",
+    BATCH: (batchId: string) => `/leaves/batch/${batchId}`,
+    REVIEW: (id: string) => `/leaves/${id}/review`,
   },
 } as const;

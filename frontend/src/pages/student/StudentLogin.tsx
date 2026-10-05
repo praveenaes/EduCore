@@ -5,7 +5,6 @@ import type { LoginPayload } from "../../types/auth";
 import { UserRoleEnum } from "../../types/auth";
 import { useAppDispatch } from "../../app/hooks";
 import { loginUser } from "../../app/authThunk";
-import { setOrganization } from "../../app/slices/organizationSlice";
 
 export const StudentLogin: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -23,11 +22,6 @@ export const StudentLogin: React.FC = () => {
       );
 
       if (loginUser.fulfilled.match(resultAction)) {
-        dispatch(
-          setOrganization({
-            name: "EduCore School",
-          })
-        );
         navigate("/student/dashboard");
       } else {
         setApiError((resultAction.payload as string) || "Login failed");

@@ -13,6 +13,9 @@ import { CenterController } from "@/presentation/controllers/centers/Center.cont
 import { AcademicYearController } from "@/presentation/controllers/academic-years/AcademicYear.controller";
 import { SubjectAssignmentController } from "@/presentation/controllers/subject-assignments/SubjectAssignment.controller";
 import { BatchController } from "@/presentation/controllers/batches/Batch.controller";
+import { AttendanceController } from "@/presentation/controllers/attendance/Attendance.controller";
+import { HomeworkController } from "@/presentation/controllers/homework/Homework.controller";
+import { LeaveController } from "@/presentation/controllers/leave/Leave.controller";
 
 export const controllerModule = new ContainerModule((bind) => {
   bind<SettingsController>(TYPES.SettingsController)
@@ -50,5 +53,16 @@ export const controllerModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<BatchController>(TYPES.BatchController)
     .to(BatchController)
+    .inSingletonScope();
+  bind<AttendanceController>(TYPES.AttendanceController)
+    .to(AttendanceController)
+    .inSingletonScope();
+
+  bind<HomeworkController>(TYPES.HomeworkController)
+    .to(HomeworkController)
+    .inSingletonScope();
+
+  bind<LeaveController>(TYPES.LeaveController)
+    .to(LeaveController)
     .inSingletonScope();
 });

@@ -3,6 +3,7 @@ import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IEmailService } from "@/application/ports/services/IEmailService";
 import { TYPES } from "@/config/di/types";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
+import { ValidationError } from "@/shared/errors/AppError";
 
 @injectable()
 export class ForgotPassword implements IForgotPassword {
@@ -13,7 +14,9 @@ export class ForgotPassword implements IForgotPassword {
 
   async execute(email: string): Promise<void> {
     const user = await this._userRepo.findByEmail(email);
-    if (!user) return
+    if (!user) {
+      throw new ValidationError('User not found')
+    }
 
     user.generatePasswordResetOtp();
     await this._userRepo.update(user.id!, user);

@@ -42,6 +42,9 @@ const TYPES = {
   UpdateTeacherUseCase: Symbol.for("UpdateTeacherUseCase"),
   DeleteTeacherUseCase: Symbol.for("DeleteTeacherUseCase"),
   GetTeacherCurriculumUseCase: Symbol.for("GetTeacherCurriculumUseCase"),
+  GetTeacherBatchesUseCase: Symbol.for("GetTeacherBatchesUseCase"),
+  GetTeacherSubjectsUseCase: Symbol.for("GetTeacherSubjectsUseCase"),
+
 
   // Settings
   OrganizationRepository: Symbol.for("OrganizationRepository"),
@@ -104,6 +107,31 @@ const TYPES = {
   UpdateBatchUseCase: Symbol.for("UpdateBatchUseCase"),
   DeleteBatchUseCase: Symbol.for("DeleteBatchUseCase"),
   BatchController: Symbol.for("BatchController"),
+  // Attendance
+  AttendanceRepository: Symbol.for("AttendanceRepository"),
+  GetBatchAttendanceUseCase: Symbol.for("GetBatchAttendanceUseCase"),
+  CreateBatchAttendanceUseCase: Symbol.for("CreateBatchAttendanceUseCase"),
+  UpdateBatchAttendanceUseCase: Symbol.for("UpdateBatchAttendanceUseCase"),
+  GetStudentAttendanceUseCase: Symbol.for("GetStudentAttendanceUseCase"),
+  AttendanceController: Symbol.for("AttendanceController"),
+  // Homework
+  HomeworkRepository: Symbol.for("HomeworkRepository"),
+  CreateHomeworkUseCase: Symbol.for("CreateHomeworkUseCase"),
+  UpdateHomeworkUseCase: Symbol.for("UpdateHomeworkUseCase"),
+  GetTeacherHomeworksUseCase: Symbol.for("GetTeacherHomeworksUseCase"),
+  GetHomeworkSubmissionsUseCase: Symbol.for("GetHomeworkSubmissionsUseCase"),
+  ReviewHomeworkSubmissionUseCase: Symbol.for("ReviewHomeworkSubmissionUseCase"),
+  DeleteHomeworkUseCase: Symbol.for("DeleteHomeworkUseCase"),
+  GetStudentHomeworksUseCase: Symbol.for("GetStudentHomeworksUseCase"),
+  SubmitHomeworkUseCase: Symbol.for("SubmitHomeworkUseCase"),
+  HomeworkController: Symbol.for("HomeworkController"),
+  // Leaves
+  LeaveRequestRepository: Symbol.for("LeaveRequestRepository"),
+  ApplyLeaveUseCase: Symbol.for("ApplyLeaveUseCase"),
+  GetStudentLeavesUseCase: Symbol.for("GetStudentLeavesUseCase"),
+  GetBatchLeavesUseCase: Symbol.for("GetBatchLeavesUseCase"),
+  ReviewLeaveUseCase: Symbol.for("ReviewLeaveUseCase"),
+  LeaveController: Symbol.for("LeaveController"),
 };
 
 export { TYPES };

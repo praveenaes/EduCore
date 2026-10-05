@@ -3,19 +3,24 @@ import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
 import { Table, type TableColumn } from '../../components/Table';
+import { Select } from '../../components/Select';
 import { Pagination } from '../../components/Pagination';
 import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
 import { ConfirmationModal } from '../../components/ConfirmationModal';
 import { usePagination } from '../../hooks/usePagination';
 import { getCoursesApi, deleteCourseApi } from '../../services/courseService';
+import { getProgramsApi } from '../../services/programService';
 import type { Course } from '../../types/course';
+import type { Program } from '../../types/program';
 import CourseModal from '../../features/courses/components/CourseModal';
 
 const PAGE_LIMIT = 5;
 
 const CoursesPage: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [selectedProgramFilter, setSelectedProgramFilter] = useState<string>('');
   const pagination = usePagination({ initialLimit: PAGE_LIMIT });
   const { page, limit, resetPage, setPaginationData, totalPages, setPage } = pagination;
   const [search, setSearch] = useState('');
@@ -60,6 +65,19 @@ const CoursesPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [search, resetPage]);
 
+  // Load filter options (Programs)
+  useEffect(() => {
+    const loadPrograms = async () => {
+      try {
+        const res = await getProgramsApi({ limit: 100 });
+        setPrograms(res.data.data.programs || []);
+      } catch (err) {
+        console.error('Failed to load programs for filter', err);
+      }
+    };
+    loadPrograms();
+  }, []);
+
   // Fetch courses
   const fetchCourses = useCallback(async () => {
     setIsLoading(true);
@@ -69,6 +87,7 @@ const CoursesPage: React.FC = () => {
         page,
         limit,
         search: debouncedSearch || undefined,
+        programId: selectedProgramFilter || undefined,
         sortBy,
         sortOrder,
       });
@@ -80,7 +99,7 @@ const CoursesPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, debouncedSearch, sortBy, sortOrder, setPaginationData]);
+  }, [page, limit, debouncedSearch, selectedProgramFilter, sortBy, sortOrder, setPaginationData]);
 
   useEffect(() => {
     fetchCourses();
@@ -242,26 +261,46 @@ const CoursesPage: React.FC = () => {
           </div>
         </div>
 
-{/* Search */}
-        <SearchBox
-          value={search}
-          onChange={(v) => setSearch(v)}
-          placeholder="Search by course name or code…"
-        />
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-xl border border-neutral-200/80 shadow-xs">
+          <div className="w-full sm:w-72">
+            <SearchBox
+              value={search}
+              onChange={(v) => setSearch(v)}
+              placeholder="Search by course name or code…"
+            />
+          </div>
+          <div className="w-full sm:w-64">
+            <Select
+              value={selectedProgramFilter}
+              onChange={(e) => {
+                setSelectedProgramFilter(e.target.value);
+                resetPage();
+              }}
+              options={[
+                { value: '', label: 'All Programs' },
+                ...programs.map((p) => ({
+                  value: p.id,
+                  label: p.name,
+                })),
+              ]}
+            />
+          </div>
+        </div>
 
-{/* Content */}
+        {/* Content */}
         {error ? (
           <ErrorState message={error} onRetry={fetchCourses} />
         ) : courses.length === 0 && !isLoading ? (
           <EmptyState
             title="No Courses Found"
             description={
-              debouncedSearch
-                ? 'No results for "' + debouncedSearch + '". Try another search term.'
+              debouncedSearch || selectedProgramFilter
+                ? 'No courses found matching your criteria. Try adjusting your search or program filter.'
                 : 'Get started by creating your first academic course under a program.'
             }
             action={
-              !debouncedSearch && (
+              !debouncedSearch && !selectedProgramFilter && (
                 <Button size="sm" onClick={handleAddNew}>
                   Add Your First Course
                 </Button>

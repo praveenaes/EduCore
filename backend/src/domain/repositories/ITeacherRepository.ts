@@ -5,6 +5,12 @@ export interface TeacherFilters {
   search?: string;
 }
 
+export interface TeacherBatchFilters {
+  userId: string;
+  search?: string;
+}
+
+
 export interface TeacherPagination {
   page: number;
   limit: number;
@@ -15,6 +21,8 @@ export interface TeacherPagination {
 export interface TeacherListResult {
   teachers: Teacher[];
   total: number;
+  activeCount:number;
+  deactiveCount:number
 }
 
 export interface ITeacherRepository extends IBaseRepository<Teacher> {

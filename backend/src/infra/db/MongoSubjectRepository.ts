@@ -8,7 +8,7 @@ import {
 } from "../../domain/repositories/ISubjectRepository";
 import { Subject } from "../../domain/entities/Subject";
 import { SubjectModel, ISubjectDocument } from "./models/SubjectModel";
-import { SubjectMapper } from "../../application/mappers/SubjectMapper";
+import { SubjectMapper } from "./mappers/SubjectMapper";
 import { PaginationHelper } from "@/shared/utils/pagination";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 

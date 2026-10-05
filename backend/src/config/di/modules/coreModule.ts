@@ -34,6 +34,12 @@ import { ISubjectAssignmentRepository } from "@/domain/repositories/ISubjectAssi
 import { MongoSubjectAssignmentRepository } from "@/infra/db/MongoSubjectAssignmentRepository";
 import { IBatchRepository } from "@/domain/repositories/IBatchRepository";
 import { MongoBatchRepository } from "@/infra/db/MongoBatchRepository";
+import { IAttendanceRepository } from "@/domain/repositories/IAttendanceRepository";
+import { MongoAttendanceRepository } from "@/infra/db/MongoAttendanceRepository";
+import { IHomeworkRepository } from "@/domain/repositories/IHomeworkRepository";
+import { MongoHomeworkRepository } from "@/infra/db/MongoHomeworkRepository";
+import { ILeaveRequestRepository } from "@/domain/repositories/ILeaveRequestRepository";
+import { MongoLeaveRequestRepository } from "@/infra/db/MongoLeaveRequestRepository";
 
 export const coreModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
@@ -71,6 +77,15 @@ export const coreModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<IBatchRepository>(TYPES.BatchRepository)
     .to(MongoBatchRepository)
+    .inSingletonScope();
+  bind<IAttendanceRepository>(TYPES.AttendanceRepository)
+    .to(MongoAttendanceRepository)
+    .inSingletonScope();
+  bind<IHomeworkRepository>(TYPES.HomeworkRepository)
+    .to(MongoHomeworkRepository)
+    .inSingletonScope();
+  bind<ILeaveRequestRepository>(TYPES.LeaveRequestRepository)
+    .to(MongoLeaveRequestRepository)
     .inSingletonScope();
 
   bind<IAuthService>(TYPES.AuthService)

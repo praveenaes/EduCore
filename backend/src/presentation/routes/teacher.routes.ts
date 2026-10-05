@@ -13,9 +13,21 @@ export const getTeacherRoutes = (container: Container): Router => {
 
   // Teacher self-service route
   router.get(
-    "/me/curriculum",
+    API_ROUTES.TEACHERS.CURRICULUM,
     authenticateUser,
     asyncHandler(teacherController.getCurriculum.bind(teacherController))
+  );
+
+  router.get(
+    API_ROUTES.TEACHERS.BATCHES,
+    authenticateUser,
+    asyncHandler(teacherController.getBatches.bind(teacherController))
+  );
+
+  router.get(
+    API_ROUTES.TEACHERS.SUBJECTS,
+    authenticateUser,
+    asyncHandler(teacherController.getSubjects.bind(teacherController))
   );
 
   router.use(authenticateAdmin);

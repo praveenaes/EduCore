@@ -10,6 +10,11 @@ export interface BatchFilters {
   isActive?: boolean;
 }
 
+export interface TeacherBatchFilters {
+  teacherId: string;
+  search?: string;
+}
+
 export interface BatchPagination {
   page: number;
   limit: number;
@@ -33,6 +38,11 @@ export interface IBatchRepository extends IBaseRepository<Batch> {
   findByCourseId(courseId: string): Promise<Batch[]>;
   findByCenterId(centerId: string): Promise<Batch[]>;
   findByTeacherId(teacherId: string): Promise<Batch[]>;
+  findTeacherBatches(
+    filters: TeacherBatchFilters,
+    pagination: BatchPagination
+  ): Promise<BatchListResult>;
   findAll(filters: BatchFilters, pagination: BatchPagination): Promise<BatchListResult>;
   softDelete(id: string): Promise<boolean>;
 }
+

@@ -37,7 +37,8 @@ const TeachersPage: React.FC = () => {
   }>({ show: false, teacher: null });
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
+  const [active,setActive]=useState<number>(0)
+  const [deactivate,setdeactivate]=useState<number>(0)
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -61,6 +62,8 @@ const TeachersPage: React.FC = () => {
       });
       setTeachers(data.teachers);
       setPaginationData(data.total, data.totalPages);
+      setActive(data.activeCount)
+      setdeactivate(data.deactiveCount)
     } catch {
       setError('Failed to load teachers. Please try again.');
     } finally {
@@ -210,6 +213,10 @@ const TeachersPage: React.FC = () => {
             <p className="text-sm text-neutral-450 mt-0.5">
               {pagination.total} teacher{pagination.total !== 1 ? 's' : ''} registered
             </p>
+            <p>
+              {active} teachers active and {deactivate} teachers deactivated
+            </p>
+            
           </div>
           <div className="flex gap-2">
             <Button

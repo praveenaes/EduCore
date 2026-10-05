@@ -1,4 +1,4 @@
-import { injectable } from "inversify";
+﻿import { injectable } from "inversify";
 import mongoose, { FilterQuery } from "mongoose";
 import {
   ICourseRepository,
@@ -8,7 +8,7 @@ import {
 } from "../../domain/repositories/ICourseRepository";
 import { Course } from "../../domain/entities/Course";
 import { CourseModel, ICourseDocument } from "./models/CourseModel";
-import { CourseMapper } from "../../application/mappers/CourseMapper";
+import { CourseMapper } from "./mappers/CourseMapper";
 import { PaginationHelper } from "@/shared/utils/pagination";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
@@ -60,6 +60,15 @@ export class MongoCourseRepository
         { code: searchRegex },
       ];
     }
+
+//   {
+//   isDeleted: false, 
+//   programId: ObjectId("68c123abc456..."),
+//   $or: [
+//     { name: /math/i },
+//     { code: /math/i }
+//   ]
+// }
 
     const { page, limit, sortBy, sortOrder } = pagination;
     const { skip } = PaginationHelper.getSkipAndLimit(page, limit);

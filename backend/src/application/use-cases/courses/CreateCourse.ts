@@ -32,7 +32,6 @@ export class CreateCourse implements ICreateCourse {
 
     const course = Course.createNew({
       programId: dto.programId,
-      programName: program.name,
       name: dto.name,
       code: dto.code,
       description: dto.description,

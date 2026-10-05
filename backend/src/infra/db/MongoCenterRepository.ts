@@ -8,7 +8,7 @@ import {
 } from '../../domain/repositories/ICenterRepository';
 import { Center } from '../../domain/entities/Center';
 import { CenterModel, ICenterDocument } from './models/CenterModel';
-import { CenterMapper } from '../../application/mappers/CenterMapper';
+import { CenterMapper } from './mappers/CenterMapper';
 import { PaginationHelper } from '@/shared/utils/pagination';
 import { BaseMongoRepository } from './BaseMongoRepository';
 

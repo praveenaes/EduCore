@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import type { UserRole, LoginPayload } from "../../types/auth";
 import { loginValidationSchema } from "../../validators/authValidator";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { setOrganization } from "../../app/slices/organizationSlice";
+import { getOrganizationSettingsApi } from "../../api/settingsApi";
 
 interface LoginFormProps {
   title: string;
@@ -19,6 +22,24 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   submitHandler,
   error,
 }) => {
+  const dispatch = useAppDispatch();
+  const org = useAppSelector((state) => state.organization.organization);
+  const displayName = org?.name || title;
+  const logoUrl = org?.logoPath || null;
+
+  useEffect(() => {
+    if (!org || !org.logoPath) {
+      getOrganizationSettingsApi()
+        .then((response) => {
+          const orgData = (response.data as any)?._props || response.data;
+          dispatch(setOrganization(orgData));
+        })
+        .catch((err) => {
+          console.error("Failed to load organization settings in login form:", err);
+        });
+    }
+  }, [org, dispatch]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -54,16 +75,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-sm border border-neutral-200/50 transition-all duration-300 hover:shadow-md">
       {/* Header inside Form for complete encapsulation */}
       <div className="text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-2xl shadow-sm">
-          {title.charAt(0).toUpperCase()}
-        </div>
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={`${displayName} logo`}
+            className="mx-auto h-14 w-14 rounded-xl object-cover shadow-sm"
+          />
+        ) : (
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-2xl shadow-sm">
+            {displayName.charAt(0).toUpperCase()}
+          </div>
+        )}
         <h2 className="mt-5 text-2xl font-extrabold text-neutral-800 tracking-tight animate-fade-in">
-          {title}
+          {displayName}
         </h2>
         <p className="mt-1 text-sm font-semibold text-brand-600 uppercase tracking-wider">
           {role} Portal
         </p>
-        
       </div>
 
       <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>

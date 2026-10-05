@@ -19,7 +19,7 @@ export class GetPrograms implements IGetPrograms {
     pagination: ProgramPagination
   ): Promise<ProgramListResultDTO> {
     const result = await this._programRepo.findAll(filters, pagination);
-
+    
     return {
       programs: result.programs.map((program) => ({
         id: program.id!,

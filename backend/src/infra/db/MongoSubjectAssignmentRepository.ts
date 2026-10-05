@@ -11,7 +11,7 @@ import { SubjectAssignmentModel, ISubjectAssignmentDocument } from './models/Sub
 import { CourseModel } from './models/CourseModel';
 import { SubjectModel } from './models/SubjectModel';
 import { TeacherModel } from './models/TeacherModel';
-import { SubjectAssignmentMapper } from '../../application/mappers/SubjectAssignmentMapper';
+import { SubjectAssignmentMapper } from './mappers/SubjectAssignmentMapper';
 import { PaginationHelper } from '@/shared/utils/pagination';
 import { BaseMongoRepository } from './BaseMongoRepository';
 

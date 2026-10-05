@@ -8,6 +8,8 @@ import { IGetTeachers } from '../../../application/ports/use-cases/teachers/IGet
 import { IToggleTeacherStatus } from '../../../application/ports/use-cases/teachers/IToggleTeacherStatusUseCase';
 import { IExportTeachersCsv } from '../../../application/ports/use-cases/teachers/IExportTeachersCsvUseCase';
 import { IGetTeacherCurriculum } from '../../../application/ports/use-cases/teachers/IGetTeacherCurriculumUseCase';
+import { IGetTeacherBatches } from '../../../application/ports/use-cases/teachers/IGetTeacherBatchesUseCase';
+import { IGetTeacherSubjects } from '../../../application/ports/use-cases/teachers/IGetTeacherSubjectsUseCase';
 import { createTeacherSchema, updateTeacherSchema } from '../../validators/teacherValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
@@ -23,7 +25,9 @@ export class TeacherController {
     @inject(TYPES.CreateTeacherUseCase) private _createTeacherUseCase: ICreateTeacher,
     @inject(TYPES.UpdateTeacherUseCase) private _updateTeacherUseCase: IUpdateTeacher,
     @inject(TYPES.DeleteTeacherUseCase) private _deleteTeacherUseCase: IDeleteTeacher,
-    @inject(TYPES.GetTeacherCurriculumUseCase) private _getCurriculumUseCase: IGetTeacherCurriculum
+    @inject(TYPES.GetTeacherCurriculumUseCase) private _getCurriculumUseCase: IGetTeacherCurriculum,
+    @inject(TYPES.GetTeacherBatchesUseCase) private _getTeacherBatchesUseCase: IGetTeacherBatches,
+    @inject(TYPES.GetTeacherSubjectsUseCase) private _getTeacherSubjectsUseCase: IGetTeacherSubjects
   ) {}
 
   getAll = async (req: Request, res: Response): Promise<void> => {
@@ -104,5 +108,37 @@ export class TeacherController {
     const userId = req.user!.id;
     const result = await this._getCurriculumUseCase.execute(userId);
     ResponseHelper.success(res, 'Teacher curriculum retrieved successfully', result, 200);
+  };
+
+  getBatches = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.search as string;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as 'asc' | 'desc';
+
+    const result = await this._getTeacherBatchesUseCase.execute(
+      { userId, search },
+      { page, limit, sortBy, sortOrder }
+    );
+
+    ResponseHelper.success(res, 'Teacher batches retrieved successfully', result, 200);
+  };
+
+  getSubjects = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const userId = req.user!.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.search as string;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as 'asc' | 'desc';
+
+    const result = await this._getTeacherSubjectsUseCase.execute(
+      { userId, search },
+      { page, limit, sortBy, sortOrder }
+    );
+
+    ResponseHelper.success(res, 'Teacher subjects retrieved successfully', result, 200);
   };
 }

@@ -59,6 +59,8 @@ export interface TeacherListResponse {
   page: number;
   limit: number;
   totalPages: number;
+  activeCount:number;
+  deactiveCount:number
 }
 
 export interface TeacherAssignedSubject {
@@ -114,3 +116,26 @@ export interface TeacherCurriculumResponse {
     inChargeBatches: TeacherInChargeBatch[];
   };
 }
+
+export interface TeacherBatchListResponse {
+  success: boolean;
+  data: {
+    batches: TeacherInChargeBatch[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface TeacherSubjectListResponse {
+  success: boolean;
+  data: {
+    subjects: TeacherAssignedSubject[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+

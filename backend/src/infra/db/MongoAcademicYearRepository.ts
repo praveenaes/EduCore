@@ -8,7 +8,7 @@ import {
 } from '../../domain/repositories/IAcademicYearRepository';
 import { AcademicYear } from '../../domain/entities/AcademicYear';
 import { AcademicYearModel, IAcademicYearDocument } from './models/AcademicYearModel';
-import { AcademicYearMapper } from '../../application/mappers/AcademicYearMapper';
+import { AcademicYearMapper } from './mappers/AcademicYearMapper';
 import { PaginationHelper } from '@/shared/utils/pagination';
 import { BaseMongoRepository } from './BaseMongoRepository';
 

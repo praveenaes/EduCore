@@ -1,9 +1,27 @@
 import axiosInstance from '../api/axiosInstance';
 import { API_ROUTES } from '../api/apiRoutes';
-import type { TeacherListResponse, TeacherCurriculumResponse } from '../types/teacher';
+import type { TeacherListResponse, TeacherCurriculumResponse, TeacherBatchListResponse, TeacherSubjectListResponse } from '../types/teacher';
 
 export const getTeacherCurriculumApi = () =>
   axiosInstance.get<TeacherCurriculumResponse>(API_ROUTES.TEACHERS.CURRICULUM);
+
+export const getTeacherBatchesApi = (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}) =>
+  axiosInstance.get<TeacherBatchListResponse>(API_ROUTES.TEACHERS.BATCHES, { params });
+
+export const getTeacherSubjectsApi = (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}) =>
+  axiosInstance.get<TeacherSubjectListResponse>(API_ROUTES.TEACHERS.SUBJECTS, { params });
 
 interface ApiResponse<T> {
   success: boolean;

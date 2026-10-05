@@ -33,6 +33,10 @@ const BatchesPage: React.FC = () => {
   const [selectedCourseFilter, setSelectedCourseFilter] = useState('');
   const limit = 10;
 
+  // Sorting states
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Modals
   const [showModal, setShowModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null);
@@ -44,6 +48,16 @@ const BatchesPage: React.FC = () => {
 
   // Toast
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    setPage(1);
+  };
 
   // Debounce search input
   useEffect(() => {
@@ -82,6 +96,8 @@ const BatchesPage: React.FC = () => {
         search: debouncedSearch || undefined,
         centerId: selectedCenterFilter || undefined,
         courseId: selectedCourseFilter || undefined,
+        sortBy,
+        sortOrder,
       });
 
       const { batches: list, total } = response.data.data;
@@ -93,7 +109,7 @@ const BatchesPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch, selectedCenterFilter, selectedCourseFilter]);
+  }, [page, debouncedSearch, selectedCenterFilter, selectedCourseFilter, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchBatches();
@@ -132,6 +148,7 @@ const BatchesPage: React.FC = () => {
   const columns: TableColumn<Batch>[] = [
     {
       header: 'Batch / Division',
+      sortField: 'name',
       accessor: (b) => (
         <div>
           <span className="font-medium text-neutral-800">{b.name}</span>
@@ -143,6 +160,7 @@ const BatchesPage: React.FC = () => {
     },
     {
       header: 'Course & Level',
+      sortField: 'course',
       accessor: (b) => (
         <div>
           <span className="font-medium text-neutral-800">{b.courseName || '—'}</span>
@@ -152,12 +170,14 @@ const BatchesPage: React.FC = () => {
     },
     {
       header: 'Center',
+      sortField: 'center',
       accessor: (b) => (
         <span className="text-neutral-700">{b.centerName || '—'}</span>
       ),
     },
     {
       header: 'Teacher / Incharge',
+      sortField: 'teacher',
       accessor: (b) =>
         b.teacherName ? (
           <div className="flex items-center gap-1.5 text-neutral-700">
@@ -310,6 +330,9 @@ const BatchesPage: React.FC = () => {
             data={batches}
             keyExtractor={(b) => b.id}
             isLoading={isLoading}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
           {totalPages > 1 && (
             <div className="p-4 border-t border-neutral-100">

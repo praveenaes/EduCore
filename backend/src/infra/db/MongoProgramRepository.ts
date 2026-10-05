@@ -8,7 +8,7 @@ import {
 } from "../../domain/repositories/IProgramRepository";
 import { Program } from "../../domain/entities/Program";
 import { ProgramModel, IProgramDocument } from "./models/ProgramModel";
-import { ProgramMapper } from "../../application/mappers/ProgramMapper";
+import { ProgramMapper } from "./mappers/ProgramMapper";
 import { PaginationHelper } from "@/shared/utils/pagination";
 import { BaseMongoRepository } from "./BaseMongoRepository";
 
@@ -49,6 +49,8 @@ export class MongoProgramRepository
       ];
     }
 
+ 
+
     const { page, limit, sortBy, sortOrder } = pagination;
     const { skip } = PaginationHelper.getSkipAndLimit(page, limit);
 
@@ -62,7 +64,6 @@ export class MongoProgramRepository
       ProgramModel.find(query).sort(sortOptions).skip(skip).limit(limit),
       ProgramModel.countDocuments(query),
     ]);
-
     return {
       programs: docs.map((doc) => ProgramMapper.toDomain(doc)),
       total,

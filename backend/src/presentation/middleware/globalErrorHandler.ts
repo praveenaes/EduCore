@@ -57,6 +57,15 @@ export const globalErrorHandler: ErrorRequestHandler = (
     });
   }
 
+  // Handle payload too large (e.g. large PDF/document uploads)
+  if (err.type === 'entity.too.large' || err.status === 413) {
+    return res.status(413).json({
+      success: false,
+      error: 'Uploaded file is too large. Please upload files under 50MB.',
+      message: 'Uploaded file is too large. Please upload files under 50MB.',
+    });
+  }
+
   console.error("UNHANDLED ERROR:", err);
 
   res.status(500).json({
