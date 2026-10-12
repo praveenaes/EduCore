@@ -59,8 +59,7 @@ export interface TeacherListResponse {
   page: number;
   limit: number;
   totalPages: number;
-  activeCount:number;
-  deactiveCount:number
+
 }
 
 export interface TeacherAssignedSubject {

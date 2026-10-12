@@ -48,10 +48,12 @@ export class SubmitHomework implements ISubmitHomeworkUseCase {
       throw new BadRequestError('This homework is not assigned to you.');
     }
 
-    const isLate = new Date() > homework.dueDate;
+    if (new Date() > homework.dueDate) {
+      throw new BadRequestError('Deadline is over');
+    }
 
     await this._homeworkRepo.updateSubmission(homework.id!, student.id!, {
-      status: isLate ? 'late' : 'submitted',
+      status: 'submitted',
       submittedAt: new Date(),
       attachments: dto.attachments.map((a) => ({
         fileName: a.fileName,

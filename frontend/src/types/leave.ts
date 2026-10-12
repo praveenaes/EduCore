@@ -6,6 +6,8 @@ export type LeaveStatus = 'pending' | 'approved' | 'rejected';
 
 export type LeaveType = 'medical' | 'casual' | 'family' | 'other';
 
+export type HalfDaySession = 'firstHalf' | 'secondHalf';
+
 // ==========================================
 // Core Leave Request Interface
 // ==========================================
@@ -23,6 +25,8 @@ export interface LeaveRequest {
   reason: string;
   status: LeaveStatus;
   appliedAt: string; // ISO date string
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
   reviewedBy?: string;
   reviewerName?: string;
   reviewedAt?: string; // ISO date string
@@ -40,6 +44,8 @@ export interface ApplyLeavePayload {
   endDate: string;   // YYYY-MM-DD
   type: LeaveType;
   reason: string;
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
 }
 
 export interface StudentLeaveListResponse {

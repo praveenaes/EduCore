@@ -1,4 +1,4 @@
-﻿export interface CreateCenterDTO {
+export interface CreateCenterDTO {
   name: string;
   code: string;
   phone: string;
@@ -12,6 +12,7 @@
     country: string;
   };
   status?: 'active' | 'inactive';
+  programs?: string[];
 }
 
 export interface UpdateCenterDTO {
@@ -28,6 +29,7 @@ export interface UpdateCenterDTO {
     country?: string;
   };
   status?: 'active' | 'inactive';
+  programs?: string[];
 }
 
 export interface CenterResponseDTO {
@@ -45,6 +47,7 @@ export interface CenterResponseDTO {
     country: string;
   };
   status: 'active' | 'inactive';
+  programs?: (string | { id: string; name?: string; code?: string })[];
   createdAt?: string;
   updatedAt?: string;
 }

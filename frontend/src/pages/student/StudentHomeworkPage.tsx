@@ -105,6 +105,12 @@ export const StudentHomeworkPage: React.FC = () => {
   const handleSubmitSolution = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedHomeworkForSubmit) return;
+
+    if (new Date(selectedHomeworkForSubmit.dueDate) < new Date()) {
+      setSubmitError('Deadline is over');
+      return;
+    }
+
     if (solutionAttachments.length === 0) {
       setSubmitError('Please attach at least one solution file.');
       return;
@@ -463,18 +469,24 @@ export const StudentHomeworkPage: React.FC = () => {
                   </div>
 
                   {canSubmit ? (
-                    <Button
-                      size="sm"
-                      variant={hw.status === 'redo' ? 'primary' : 'primary'}
-                      onClick={() => {
-                        setSelectedHomeworkForSubmit(hw);
-                        setSolutionAttachments([]);
-                        setSubmitError(null);
-                      }}
-                      className="text-xs"
-                    >
-                      {hw.status === 'redo' ? 'Resubmit Solution' : 'Submit Solution'}
-                    </Button>
+                    isPast ? (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-rose-700 font-bold bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-200">
+                        <AlertCircle className="h-3.5 w-3.5 text-rose-500" /> Deadline is over
+                      </span>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => {
+                          setSelectedHomeworkForSubmit(hw);
+                          setSolutionAttachments([]);
+                          setSubmitError(null);
+                        }}
+                        className="text-xs"
+                      >
+                        {hw.status === 'redo' ? 'Resubmit Solution' : 'Submit Solution'}
+                      </Button>
+                    )
                   ) : hw.status === 'verified' ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
                       <CheckCircle2 className="h-3 w-3" /> Graded & Verified

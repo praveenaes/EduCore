@@ -55,6 +55,8 @@ export class ReviewLeave implements IReviewLeaveUseCase {
       reason: updated.reason,
       status: updated.status,
       appliedAt: updated.appliedAt instanceof Date ? updated.appliedAt.toISOString() : String(updated.appliedAt),
+      isHalfDay: updated.isHalfDay,
+      halfDaySession: updated.halfDaySession,
       reviewedBy: updated.reviewedBy,
       reviewerName: updated.reviewerName || `${teacher.firstName} ${teacher.lastName}`.trim(),
       reviewedAt: updated.reviewedAt ? new Date(updated.reviewedAt).toISOString() : undefined,

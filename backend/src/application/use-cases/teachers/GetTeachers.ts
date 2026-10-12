@@ -54,8 +54,7 @@ export class GetTeachers implements IGetTeachers {
       page: pagination.page,
       limit: pagination.limit,
       totalPages: Math.ceil(result.total / pagination.limit) || 1,
-      activeCount:result.activeCount,
-      deactiveCount:result.deactiveCount
+  
     };
   }
 }

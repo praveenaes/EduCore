@@ -19,6 +19,10 @@ interface UserPersistence {
   email?: string;
   password?: string;
   role?: string;
+  passwordResetOtp?: string;
+  passwordResetOtpExpiresAt?: Date;
+  emailChangeOtp?: string;
+  emailChangeOtpExpiresAt?: Date;
 }
 
 export class UserMapper {
@@ -42,6 +46,10 @@ export class UserMapper {
       email: user.email,
       password: user.password,
       role: user.role,
+      passwordResetOtp: user.passwordResetOtp,
+      passwordResetOtpExpiresAt: user.passwordResetOtpExpiresAt,
+      emailChangeOtp: user.emailChangeOtp,
+      emailChangeOtpExpiresAt: user.emailChangeOtpExpiresAt,
     };
   }
 
@@ -51,6 +59,10 @@ export class UserMapper {
     if (user.email !== undefined) updateData.email = user.email;
     if (user.password !== undefined) updateData.password = user.password;
     if (user.role !== undefined) updateData.role = user.role;
+    if (user.passwordResetOtp !== undefined) updateData.passwordResetOtp = user.passwordResetOtp;
+    if (user.passwordResetOtpExpiresAt !== undefined) updateData.passwordResetOtpExpiresAt = user.passwordResetOtpExpiresAt;
+    if (user.emailChangeOtp !== undefined) updateData.emailChangeOtp = user.emailChangeOtp;
+    if (user.emailChangeOtpExpiresAt !== undefined) updateData.emailChangeOtpExpiresAt = user.emailChangeOtpExpiresAt;
     return updateData;
   }
 }

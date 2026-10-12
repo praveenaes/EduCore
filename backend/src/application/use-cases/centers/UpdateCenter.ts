@@ -64,6 +64,7 @@ export class UpdateCenter implements IUpdateCenterUseCase {
       timezone: dto.timezone,
       address: updatedAddress,
       status: dto.status,
+      programs: dto.programs,
     });
 
     const updated = await this._centerRepository.update(id, center);
@@ -80,6 +81,7 @@ export class UpdateCenter implements IUpdateCenterUseCase {
       timezone: updated.timezone,
       address: updated.address,
       status: updated.status,
+      programs: updated.programs,
       createdAt: updated.createdAt?.toISOString(),
       updatedAt: updated.updatedAt?.toISOString(),
     };

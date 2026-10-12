@@ -29,6 +29,7 @@ export const createCenterSchema = z
     country: z.string().trim().optional(),
     country_id: z.string().trim().optional(),
     status: z.enum(['active', 'inactive']).default('active'),
+    programs: z.array(z.string().trim()).optional().default([]),
   })
   .transform((data) => {
     const address = data.address || {
@@ -47,6 +48,7 @@ export const createCenterSchema = z
       timezone: data.timezone,
       address,
       status: data.status,
+      programs: data.programs || [],
     };
   })
   .refine(
@@ -80,6 +82,7 @@ export const updateCenterSchema = z
     country: z.string().trim().optional(),
     country_id: z.string().trim().optional(),
     status: z.enum(['active', 'inactive']).optional(),
+    programs: z.array(z.string().trim()).optional(),
   })
   .transform((data) => {
     let address = data.address;
@@ -111,5 +114,6 @@ export const updateCenterSchema = z
       timezone: data.timezone,
       address,
       status: data.status,
+      programs: data.programs,
     };
   });

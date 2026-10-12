@@ -29,7 +29,6 @@ const BatchSchema = new Schema<IBatchDocument>(
   { timestamps: true }
 );
 
-// Unique batch name per course-level-center-academicYear combination (only among non-deleted records)
 BatchSchema.index(
   { name: 1, courseId: 1, levelNumber: 1, centerId: 1, academicYearId: 1 },
   { unique: true, partialFilterExpression: { isDeleted: false } }

@@ -1,13 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { forgotPasswordValidationSchema } from "../../validators/authValidator";
 import { forgotPasswordApi } from "../../api/authApi";
 import { UserRoleEnum } from "../../types/auth";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { setOrganization } from "../../app/slices/organizationSlice";
+import { getOrganizationSettingsApi } from "../../api/settingsApi";
 
 export const ForgotPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const role = searchParams.get("role") || UserRoleEnum.ADMIN;
   const navigate = useNavigate();
+
+  const dispatch = useAppDispatch();
+  const org = useAppSelector((state) => state.organization.organization);
+  const displayName = org?.name || "EduCore";
+  const logoUrl = org?.logoPath || null;
+
+  useEffect(() => {
+    if (!org || !org.logoPath) {
+      getOrganizationSettingsApi()
+        .then((response) => {
+          const orgData = (response.data as any)?._props || response.data;
+          dispatch(setOrganization(orgData));
+        })
+        .catch((err) => {
+          console.error("Failed to load organization settings in forgot password:", err);
+        });
+    }
+  }, [org, dispatch]);
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,10 +56,9 @@ export const ForgotPasswordPage: React.FC = () => {
     setError(null);
 
     try {
-      const response = await forgotPasswordApi(email);
+      const response = await forgotPasswordApi(email, role);
       if (response.success) {
         navigate(`/auth/verify-otp?email=${encodeURIComponent(email)}&role=${role}`);
-        //URL-safe format.
       } else {
         setError(response.message || "Failed to initiate password reset");
       }
@@ -57,12 +77,23 @@ export const ForgotPasswordPage: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8 animate-fade-in">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-sm border border-neutral-200/50 hover:shadow-md transition-all duration-300">
         <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-2xl shadow-sm">
-            E
-          </div>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={`${displayName} logo`}
+              className="mx-auto h-14 w-14 rounded-xl object-cover shadow-sm"
+            />
+          ) : (
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-2xl shadow-sm">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+          )}
           <h2 className="mt-5 text-2xl font-extrabold text-neutral-800 tracking-tight">
             Forgot Password
           </h2>
+          <p className="mt-1 text-xs font-semibold text-brand-600 uppercase tracking-wider">
+            {role} Portal
+          </p>
           <p className="mt-1 text-sm text-neutral-500">
             Enter your email to receive a password reset OTP
           </p>

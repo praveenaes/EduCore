@@ -1,11 +1,13 @@
 import { forwardRef, useEffect, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
 import { Select } from '../../../components/Select';
+import { MultiSelect, type MultiSelectOption } from '../../../components/MultiSelect';
 import { centerSchema, type CenterFormData } from '../../../validators/centerValidator';
 import type { Center, CreateCenterPayload, UpdateCenterPayload } from '../../../types/center';
+import { getProgramsApi } from '../../../services/programService';
 
 interface CenterFormProps {
   mode: 'create' | 'edit';
@@ -39,6 +41,11 @@ import {
 const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
   ({ mode, defaultValues, isLoading, onSubmit, onCancel }, ref) => {
     const [isFetchingPostal, setIsFetchingPostal] = useState(false);
+    const [programOptions, setProgramOptions] = useState<MultiSelectOption[]>([]);
+
+    const initialPrograms: string[] = (defaultValues?.programs || []).map((p) =>
+      typeof p === 'string' ? p : p.id
+    );
 
     const {
       register,
@@ -60,12 +67,28 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
         state: defaultValues?.address?.state ?? '',
         postalCode: defaultValues?.address?.postalCode ?? '',
         country: defaultValues?.address?.country || 'India',
+        programs: initialPrograms,
       },
     });
 
     const watchedPostalCode = useWatch({ control, name: 'postalCode' });
     const watchedCity = useWatch({ control, name: 'city' });
     const watchedState = useWatch({ control, name: 'state' });
+
+    // Load available programs for selection
+    useEffect(() => {
+      getProgramsApi({ limit: 100 })
+        .then((res) => {
+          const list = res.data.data.programs || [];
+          setProgramOptions(
+            list.map((p) => ({
+              value: p.id,
+              label: `${p.name} (${p.code})`,
+            }))
+          );
+        })
+        .catch((err) => console.error('Failed to load programs for center form:', err));
+    }, []);
 
     // 1. Instant Postal Code Auto-fill (0ms local lookup + background refinement)
     useEffect(() => {
@@ -134,6 +157,7 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
             postalCode: data.postalCode,
             country: data.country,
           },
+          programs: data.programs || [],
         };
         await onSubmit(payload);
       } catch (err: unknown) {
@@ -200,6 +224,26 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
               {...register('timezone')}
             />
           </div>
+        </section>
+
+        <section>
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+            Programs Offered
+          </h3>
+          <Controller
+            name="programs"
+            control={control}
+            render={({ field }) => (
+              <MultiSelect
+                label="Assigned Programs"
+                placeholder="Select programs offered at this center..."
+                options={programOptions}
+                value={field.value || []}
+                onChange={field.onChange}
+                error={errors.programs?.message}
+              />
+            )}
+          />
         </section>
 
         <section>

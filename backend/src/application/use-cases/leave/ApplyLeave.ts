@@ -35,6 +35,8 @@ export class ApplyLeave implements IApplyLeaveUseCase {
       endDate: end,
       type: dto.type,
       reason: dto.reason,
+      isHalfDay: dto.isHalfDay ?? false,
+      halfDaySession: dto.isHalfDay ? dto.halfDaySession : undefined,
     });
 
     const saved = await this._leaveRepo.create(entity);
@@ -51,6 +53,8 @@ export class ApplyLeave implements IApplyLeaveUseCase {
       reason: saved.reason,
       status: saved.status,
       appliedAt: saved.appliedAt.toISOString(),
+      isHalfDay: saved.isHalfDay,
+      halfDaySession: saved.halfDaySession,
       remarks: saved.remarks,
     };
   }

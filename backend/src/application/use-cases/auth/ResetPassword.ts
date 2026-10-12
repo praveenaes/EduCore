@@ -5,6 +5,7 @@ import { TYPES } from "@/config/di/types";
 import { BadRequestError, NotFoundError } from "@/shared/errors/AppError";
 import { IResetPassword } from "@/application/ports/use-cases/auth/IResetPasswordUseCase";
 import { User } from "@/domain/entities/User";
+import { UserRole } from "@/domain/enums/UserRole";
 
 @injectable()
 export class ResetPassword implements IResetPassword {
@@ -13,7 +14,7 @@ export class ResetPassword implements IResetPassword {
     @inject(TYPES.AuthService) private _authSvc: IAuthService
   ) {}
 
-  async execute(email: string, passwordHex: string, resetToken: string): Promise<{ accessToken: string; refreshToken: string; user: User }> {
+  async execute(email: string, passwordHex: string, resetToken: string, role?: UserRole): Promise<{ accessToken: string; refreshToken: string; user: User }> {
    
     const payload = this._authSvc.verifyToken(resetToken);
     if (!payload ) {
@@ -22,8 +23,17 @@ export class ResetPassword implements IResetPassword {
 
     const user = await this._userRepo.findByEmail(email);
     if (!user) {
-    throw new NotFoundError("User not found");
+      throw new NotFoundError("User not found");
     }
+
+    if (role && user.role !== role) {
+      throw new NotFoundError("User not found");
+    }
+    
+    const isSamePassword= await this._authSvc.comparePassword(passwordHex,user.password!)
+   if(isSamePassword){
+    throw new BadRequestError(' New password cannot be the previous password')
+   }
 
     const hashedPassword = await this._authSvc.hashPassword(passwordHex);
 

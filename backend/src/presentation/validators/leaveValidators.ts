@@ -12,6 +12,8 @@ export const applyLeaveSchema = z
       .trim()
       .min(1, 'Reason is required')
       .max(500, 'Reason must not exceed 500 characters'),
+    isHalfDay: z.boolean().optional(),
+    halfDaySession: z.enum(['firstHalf', 'secondHalf']).optional(),
   })
   .refine(
     (data) => {
@@ -30,6 +32,20 @@ export const applyLeaveSchema = z
     (data) => new Date(data.startDate) <= new Date(data.endDate),
     {
       message: 'Start date cannot be after end date',
+      path: ['endDate'],
+    }
+  )
+  .refine(
+    (data) => !data.isHalfDay || (data.isHalfDay && Boolean(data.halfDaySession)),
+    {
+      message: 'Please select a session (first half or second half) for half-day leave',
+      path: ['halfDaySession'],
+    }
+  )
+  .refine(
+    (data) => !data.isHalfDay || data.startDate === data.endDate,
+    {
+      message: 'Half-day leave can only be applied for a single day',
       path: ['endDate'],
     }
   );

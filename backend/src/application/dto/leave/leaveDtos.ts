@@ -1,4 +1,4 @@
-import { LeaveStatus, LeaveType } from '@/domain/entities/LeaveRequest';
+import { LeaveStatus, LeaveType, HalfDaySession } from '@/domain/entities/LeaveRequest';
 
 export interface LeaveRequestDTO {
   id: string;
@@ -13,6 +13,8 @@ export interface LeaveRequestDTO {
   reason: string;
   status: LeaveStatus;
   appliedAt: string; // ISO date string
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
   reviewedBy?: string;
   reviewerName?: string;
   reviewedAt?: string;
@@ -27,6 +29,8 @@ export interface ApplyLeaveDTO {
   endDate: string;   
   type: LeaveType;
   reason: string;
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
 }
 
 export interface StudentLeavesResponseDTO {

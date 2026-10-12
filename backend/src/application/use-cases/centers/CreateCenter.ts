@@ -42,6 +42,7 @@ export class CreateCenter implements ICreateCenterUseCase {
       timezone: dto.timezone,
       address: dto.address,
       status: dto.status || 'active',
+      programs: dto.programs || [],
     });
 
     const saved = await this._centerRepository.create(center);
@@ -55,6 +56,7 @@ export class CreateCenter implements ICreateCenterUseCase {
       timezone: saved.timezone,
       address: saved.address,
       status: saved.status,
+      programs: saved.programs,
       createdAt: saved.createdAt?.toISOString(),
       updatedAt: saved.updatedAt?.toISOString(),
     };

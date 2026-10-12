@@ -11,6 +11,37 @@ import {
 } from '../../dto/attendance/attendanceDtos';
 import { NotFoundError, ForbiddenError, BadRequestError } from '@/shared/errors/AppError';
 
+const FIRST_HALF_START_MINUTES = 11 * 60 + 30; //  (11:30 AM)
+const FIRST_HALF_END_MINUTES = 13 * 60 + 30;   //  (01:30 PM)
+const SECOND_HALF_START_MINUTES = 15 * 60;      //  (03:00 PM)
+const SECOND_HALF_END_MINUTES = 16 * 60 + 30;  //  (04:30 PM)
+
+function getIstDateAndMinutes(): { todayDateString: string; currentMinutes: number } {
+  const now = new Date();
+
+  // Format today's date as YYYY-MM-DD 
+  const todayDateString = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+
+  // Get current hour and minute (18:50)
+  const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  const parts = timeFormatter.formatToParts(now);
+  const hour = parseInt(parts.find((p) => p.type === 'hour')?.value || '0', 10);
+  const minute = parseInt(parts.find((p) => p.type === 'minute')?.value || '0', 10);
+  const currentMinutes = hour * 60 + minute;
+
+  return { todayDateString, currentMinutes };
+}
+
 @injectable()
 export class UpdateBatchAttendance implements IUpdateBatchAttendanceUseCase {
   constructor(
@@ -39,22 +70,52 @@ export class UpdateBatchAttendance implements IUpdateBatchAttendanceUseCase {
       throw new BadRequestError('Invalid date format.');
     }
 
+    const { todayDateString, currentMinutes } = getIstDateAndMinutes();
+    if (dto.date !== todayDateString) {
+      throw new BadRequestError('Attendance can only be marked for today. Past or future dates are not allowed.');
+    }
+
+    const isFirstHalfWindow =
+      currentMinutes >= FIRST_HALF_START_MINUTES && currentMinutes <= FIRST_HALF_END_MINUTES;
+    const isSecondHalfWindow =
+      currentMinutes >= SECOND_HALF_START_MINUTES && currentMinutes <= SECOND_HALF_END_MINUTES;
+
+    if (!isFirstHalfWindow && !isSecondHalfWindow) {
+      throw new BadRequestError(
+        'Attendance marking is currently closed. Allowed windows are: First Half (11:30 AM – 01:30 PM) and Second Half (03:00 PM – 04:30 PM).'
+      );
+    }
+
     const existingRecords = await this._attendanceRepo.findByBatchAndDate(
       dto.batchId,
       attendanceDate
     );
-
+  
+    // each student existing record==record(some may not have attndnce)
     const existingMap = new Map<string, Attendance>();
     for (const record of existingRecords) {
       existingMap.set(record.studentId, record);
     }
 
     const attendanceEntities: Attendance[] = dto.attendances.map((item) => {
+      // new student cant have existing
       const existing = existingMap.get(item.studentId);
+
+      let targetFirstHalf = item.firstHalf;
+      let targetSecondHalf = item.secondHalf;
+
+      if (isFirstHalfWindow) {
+        targetFirstHalf = item.firstHalf;
+        targetSecondHalf = existing ? existing.secondHalf : 'absent';
+      } else if (isSecondHalfWindow) {
+        targetFirstHalf = existing ? existing.firstHalf : 'absent';
+        targetSecondHalf = item.secondHalf;
+      }
+
       if (existing) {
         existing.updateStatus(
-          item.firstHalf,
-          item.secondHalf,
+          targetFirstHalf,
+          targetSecondHalf,
           item.remarks,
           dto.userId
         );
@@ -65,8 +126,8 @@ export class UpdateBatchAttendance implements IUpdateBatchAttendanceUseCase {
         studentId: item.studentId,
         batchId: dto.batchId,
         date: attendanceDate,
-        firstHalf: item.firstHalf,
-        secondHalf: item.secondHalf,
+        firstHalf: targetFirstHalf,
+        secondHalf: targetSecondHalf,
         remarks: item.remarks,
         markedBy: dto.userId,
       });

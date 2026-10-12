@@ -61,6 +61,5 @@ export interface TeacherListResultDTO {
   page?: number;
   limit?: number;
   totalPages?: number;
-activeCount:number;
-deactiveCount:number
+
 }

@@ -19,17 +19,29 @@ export const logoutUserApi = async (): Promise<LogoutResponse> => {
   return response.data;
 };
 
-export const forgotPasswordApi = async (email: string): Promise<{ success: boolean; message: string; data: null }> => {
-  const response = await axiosInstance.post<{ success: boolean; message: string; data: null }>(API_ROUTES.AUTH.FORGOT_PASSWORD, { email });
+export const forgotPasswordApi = async (email: string, role?: string): Promise<{ success: boolean; message: string; data: null }> => {
+  const response = await axiosInstance.post<{ success: boolean; message: string; data: null }>(API_ROUTES.AUTH.FORGOT_PASSWORD, {
+    email,
+    role: role ? role.toUpperCase() : undefined,
+  });
   return response.data;
 };
 
-export const verifyOtpApi = async (email: string, otp: string): Promise<{ success: boolean; message: string; data: { resetToken: string } }> => {
-  const response = await axiosInstance.post<{ success: boolean; message: string; data: { resetToken: string } }>(API_ROUTES.AUTH.VERIFY_OTP, { email, otp });
+export const verifyOtpApi = async (email: string, otp: string, role?: string): Promise<{ success: boolean; message: string; data: { resetToken: string } }> => {
+  const response = await axiosInstance.post<{ success: boolean; message: string; data: { resetToken: string } }>(API_ROUTES.AUTH.VERIFY_OTP, {
+    email,
+    otp,
+    role: role ? role.toUpperCase() : undefined,
+  });
   return response.data;
 };
 
-export const resetPasswordApi = async (email: string, passwordHex: string, resetToken: string): Promise<LoginResponse> => {
-  const response = await axiosInstance.post<LoginResponse>(API_ROUTES.AUTH.RESET_PASSWORD, { email, password: passwordHex, resetToken });
+export const resetPasswordApi = async (email: string, passwordHex: string, resetToken: string, role?: string): Promise<LoginResponse> => {
+  const response = await axiosInstance.post<LoginResponse>(API_ROUTES.AUTH.RESET_PASSWORD, {
+    email,
+    password: passwordHex,
+    resetToken,
+    role: role ? role.toUpperCase() : undefined,
+  });
   return response.data;
 };

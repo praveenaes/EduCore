@@ -95,8 +95,8 @@ export class AuthController {
        throw new ValidationError(ERROR_MESSAGES.INVALID_EMAIL);
     }
 
-    const { email } = result.data;
-    await this._forgotUseCase.execute(email);
+    const { email, role } = result.data;
+    await this._forgotUseCase.execute(email, role);
 
     ResponseHelper.success(res, AUTH_MESSAGES.OTP_CREATION_SUCCESS, null);
   };
@@ -108,8 +108,8 @@ export class AuthController {
       throw new ValidationError('Invalid otp');
     }
 
-    const { email, otp } = result.data;
-    const resetToken = await this._verifyOtpUseCase.execute(email, otp);
+    const { email, otp, role } = result.data;
+    const resetToken = await this._verifyOtpUseCase.execute(email, otp, role);
 
     ResponseHelper.success(res,AUTH_MESSAGES.OTP_VERIFICATION_SUCCESS, { resetToken });
   };
@@ -121,8 +121,8 @@ export class AuthController {
       throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
     }
 
-    const { email, password, resetToken } = result.data;
-    const { accessToken, refreshToken, user } = await this._resetPasswordUseCase.execute(email, password, resetToken);
+    const { email, password, resetToken, role } = result.data;
+    const { accessToken, refreshToken, user } = await this._resetPasswordUseCase.execute(email, password, resetToken, role);
 
     setRefreshTokenCookie(res, refreshToken);
 

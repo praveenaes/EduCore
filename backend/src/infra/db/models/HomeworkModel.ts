@@ -76,7 +76,6 @@ const HomeworkSchema = new Schema<IHomeworkDocument>(
   { timestamps: true }
 );
 
-// High performance indexes
 HomeworkSchema.index({ batchId: 1, dueDate: -1, isDeleted: 1 });
 HomeworkSchema.index({ assignedBy: 1, isDeleted: 1 });
 HomeworkSchema.index({ 'submissions.studentId': 1, isDeleted: 1 });

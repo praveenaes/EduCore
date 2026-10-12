@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
-import { LeaveStatus, LeaveType } from '../../../domain/entities/LeaveRequest';
+import { LeaveStatus, LeaveType, HalfDaySession } from '../../../domain/entities/LeaveRequest';
 
 export interface ILeaveRequestDocument extends Document {
   studentId: Types.ObjectId;
@@ -10,6 +10,8 @@ export interface ILeaveRequestDocument extends Document {
   reason: string;
   status: LeaveStatus;
   appliedAt: Date;
+  isHalfDay: boolean;
+  halfDaySession?: HalfDaySession;
   reviewedBy?: Types.ObjectId;
   reviewedAt?: Date;
   remarks?: string;
@@ -63,6 +65,15 @@ const LeaveRequestSchema = new Schema<ILeaveRequestDocument>(
       default: Date.now,
       required: true,
     },
+    isHalfDay: {
+      type: Boolean,
+      default: false,
+    },
+    halfDaySession: {
+      type: String,
+      enum: ['firstHalf', 'secondHalf'],
+      default: null,
+    },
     reviewedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -83,7 +94,6 @@ const LeaveRequestSchema = new Schema<ILeaveRequestDocument>(
   { timestamps: true }
 );
 
-// Indexes for fast querying
 LeaveRequestSchema.index({ studentId: 1, appliedAt: -1 });
 LeaveRequestSchema.index({ batchId: 1, status: 1, appliedAt: -1 });
 

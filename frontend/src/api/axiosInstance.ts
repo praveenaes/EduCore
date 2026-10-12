@@ -40,6 +40,14 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config as any;
 
+    // Immediately log out deactivated users smoothly via React state (0 blink)
+    if (error.response?.data?.code === "ACCOUNT_DEACTIVATED") {
+      tokenService.clearToken();
+      store.dispatch(clearOrganization());
+      store.dispatch(clearUser());
+      return Promise.reject(error);
+    }
+
     // If backend returns 401 Unauthorized, try to refresh the token
     if (
       error.response?.status === 401 &&

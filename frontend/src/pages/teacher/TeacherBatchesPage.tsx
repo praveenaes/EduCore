@@ -39,7 +39,7 @@ export const TeacherBatchesPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [search, resetPage]);
 
-  // Fetch batches with server-driven search, sort, and pagination
+  
   const fetchBatches = useCallback(async () => {
     setIsLoading(true);
     setError(null);

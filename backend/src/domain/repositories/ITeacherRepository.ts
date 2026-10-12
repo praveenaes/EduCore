@@ -21,8 +21,7 @@ export interface TeacherPagination {
 export interface TeacherListResult {
   teachers: Teacher[];
   total: number;
-  activeCount:number;
-  deactiveCount:number
+
 }
 
 export interface ITeacherRepository extends IBaseRepository<Teacher> {

@@ -204,7 +204,7 @@ export const TeacherHomeworkPage: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col justify-between">
       <div className="space-y-6">
-        {/* Toast */}
+  {/* Toast */}
         {toast && (
           <div
             className={`fixed bottom-5 right-5 z-[100] flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ${
@@ -215,7 +215,7 @@ export const TeacherHomeworkPage: React.FC = () => {
           </div>
         )}
 
-        {/* Header */}
+{/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-neutral-800">Homework Assignments</h1>
@@ -239,7 +239,7 @@ export const TeacherHomeworkPage: React.FC = () => {
           placeholder="Search by assignment title, batch, or subject…"
         />
 
-        {/* Content */}
+ {/* Content */}
         {error ? (
           <ErrorState message={error} onRetry={fetchHomeworks} />
         ) : homeworks.length === 0 && !isLoading ? (
@@ -272,7 +272,7 @@ export const TeacherHomeworkPage: React.FC = () => {
         </div>
       )}
 
-      {/* Modals */}
+  {/* Modals */}
       <CreateHomeworkModal
         isOpen={isCreateModalOpen || Boolean(editingHomework)}
         onClose={() => {
@@ -297,7 +297,7 @@ export const TeacherHomeworkPage: React.FC = () => {
         homework={selectedHomeworkForSubmissions}
       />
 
-      {/* Delete Confirmation Modal */}
+ {/* Delete Confirmation Modal */}
       <ConfirmationModal
         isOpen={Boolean(deletingHomework)}
         title="Delete Homework Assignment"

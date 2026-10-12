@@ -20,6 +20,14 @@ export class MongoCenterRepository
   protected readonly _model = CenterModel;
   protected readonly _mapper = CenterMapper;
 
+  override async findById(id: string): Promise<Center | null> {
+    const doc = await CenterModel.findOne({ _id: id, isDeleted: false })
+      .populate('programs', 'name code')
+      .lean();
+    if (!doc) return null;
+    return CenterMapper.toDomain(doc as any);
+  }
+
   async findByCode(code: string): Promise<Center | null> {
     const doc = await CenterModel.findOne({
       code: { $regex: new RegExp(`^${code.trim()}$`, 'i') },
@@ -88,7 +96,12 @@ export class MongoCenterRepository
     }
 
     const [docs, total] = await Promise.all([
-      CenterModel.find(query).sort(sortOptions).skip(skip).limit(limit).lean(),
+      CenterModel.find(query)
+        .populate('programs', 'name code')
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
       CenterModel.countDocuments(query),
     ]);
 

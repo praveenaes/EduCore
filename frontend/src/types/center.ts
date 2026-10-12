@@ -6,6 +6,12 @@ export interface CenterAddress {
   country: string;
 }
 
+export interface CenterProgramInfo {
+  id: string;
+  name?: string;
+  code?: string;
+}
+
 export interface Center {
   id: string;
   name: string;
@@ -15,6 +21,7 @@ export interface Center {
   timezone: string;
   address: CenterAddress;
   status: 'active' | 'inactive';
+  programs?: (CenterProgramInfo | string)[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -27,6 +34,7 @@ export interface CreateCenterPayload {
   timezone: string;
   address: CenterAddress;
   status?: 'active' | 'inactive';
+  programs?: string[];
 }
 
 export interface UpdateCenterPayload {
@@ -37,6 +45,7 @@ export interface UpdateCenterPayload {
   timezone?: string;
   address?: Partial<CenterAddress>;
   status?: 'active' | 'inactive';
+  programs?: string[];
 }
 
 export interface CenterListResponse {

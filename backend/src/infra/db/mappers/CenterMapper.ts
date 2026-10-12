@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { Center, ICenterAddress } from '../../../domain/entities/Center';
+import { Center, ICenterAddress, ICenterProgramInfo } from '../../../domain/entities/Center';
 
 export interface ICenterPersistenceInput {
   _id: Types.ObjectId | string;
@@ -10,13 +10,29 @@ export interface ICenterPersistenceInput {
   timezone: string;
   address: ICenterAddress;
   status: 'active' | 'inactive';
+  programs?: any[];
   isDeleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export class CenterMapper {
-  static toDomain(doc: ICenterPersistenceInput): Center {
+  static toDomain(doc: ICenterPersistenceInput | any): Center {
+    const rawPrograms = doc.programs || [];
+    const programs: (ICenterProgramInfo | string)[] = rawPrograms.map((p: any) => {
+      if (typeof p === 'string') return p;
+      if (p && p._id && p.name) {
+        return {
+          id: p._id.toString(),
+          name: p.name,
+          code: p.code,
+        };
+      }
+      if (p && p._id) return p._id.toString();
+      if (p && typeof p.toString === 'function') return p.toString();
+      return String(p);
+    });
+
     return new Center({
       id: doc._id.toString(),
       name: doc.name,
@@ -32,6 +48,7 @@ export class CenterMapper {
         country: doc.address.country,
       },
       status: doc.status,
+      programs,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });
@@ -45,6 +62,7 @@ export class CenterMapper {
     timezone: string;
     address: ICenterAddress;
     status: 'active' | 'inactive';
+    programs: Types.ObjectId[];
   } {
     return {
       name: center.name,
@@ -60,6 +78,10 @@ export class CenterMapper {
         country: center.address.country,
       },
       status: center.status,
+      programs: (center.programs || []).map((p) => {
+        const id = typeof p === 'string' ? p : p.id;
+        return new Types.ObjectId(id);
+      }),
     };
   }
 
@@ -73,6 +95,12 @@ export class CenterMapper {
     if (center.timezone !== undefined) updateData.timezone = center.timezone;
     if (center.address !== undefined) updateData.address = center.address;
     if (center.status !== undefined) updateData.status = center.status;
+    if (center.programs !== undefined) {
+      updateData.programs = center.programs.map((p) => {
+        const id = typeof p === 'string' ? p : p.id;
+        return new Types.ObjectId(id);
+      });
+    }
 
     return updateData;
   }

@@ -52,7 +52,6 @@ const SubjectAssignmentSchema = new Schema<ISubjectAssignmentDocument>(
   }
 );
 
-// Compound partial unique index: ensures the same subject cannot be added twice to the same course level among active records
 SubjectAssignmentSchema.index(
   { courseId: 1, levelNumber: 1, subjectId: 1 },
   { unique: true, partialFilterExpression: { isDeleted: false } }

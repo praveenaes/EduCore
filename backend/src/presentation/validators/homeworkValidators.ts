@@ -4,7 +4,7 @@ export const createHomeworkSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(100),
   description: z.string().trim().max(1000).optional(),
   batchId: z.string().trim().min(1, 'Batch ID is required'),
-  subjectId: z.string().trim().optional(),
+  subjectId: z.string().trim().min(1, 'Subject ID is required'),
   dueDate: z
     .string()
     .min(1, 'Due date is required')

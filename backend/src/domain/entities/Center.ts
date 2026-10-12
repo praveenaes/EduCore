@@ -6,6 +6,12 @@ export interface ICenterAddress {
   country: string;
 }
 
+export interface ICenterProgramInfo {
+  id: string;
+  name?: string;
+  code?: string;
+}
+
 export interface ICenterProps {
   id?: string;
   name: string;
@@ -15,6 +21,7 @@ export interface ICenterProps {
   timezone: string;
   address: ICenterAddress;
   status: 'active' | 'inactive';
+  programs?: (ICenterProgramInfo | string)[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -58,6 +65,10 @@ export class Center {
     return this._props.status;
   }
 
+  get programs(): (ICenterProgramInfo | string)[] {
+    return this._props.programs || [];
+  }
+
   get createdAt(): Date | undefined {
     return this._props.createdAt;
   }
@@ -74,6 +85,7 @@ export class Center {
     timezone?: string;
     address?: ICenterAddress;
     status?: 'active' | 'inactive';
+    programs?: (ICenterProgramInfo | string)[];
   }): void {
     if (props.name) this._props.name = props.name.trim();
     if (props.code) this._props.code = props.code.trim().toUpperCase();
@@ -82,6 +94,7 @@ export class Center {
     if (props.timezone) this._props.timezone = props.timezone.trim();
     if (props.address) this._props.address = props.address;
     if (props.status) this._props.status = props.status;
+    if (props.programs !== undefined) this._props.programs = props.programs;
     this._props.updatedAt = new Date();
   }
 }

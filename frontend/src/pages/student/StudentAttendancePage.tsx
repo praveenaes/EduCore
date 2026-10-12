@@ -170,6 +170,7 @@ export const StudentAttendancePage: React.FC = () => {
     return leaves.filter((l) => l.status === leaveFilter);
   }, [leaves, leaveFilter]);
 
+  //Safely formats an ISO date string into human-readable format ( "Oct 6, 2026")
   const formatDateDisplay = (dateStr?: string | Date | null) => {
     if (!dateStr) return '—';
     try {
@@ -185,6 +186,7 @@ export const StudentAttendancePage: React.FC = () => {
     }
   };
 
+  //Calculates the total number of calendar days between a start date and an end date
   const calculateDays = (startStr: string, endStr: string) => {
     try {
       const s = new Date(startStr);
@@ -231,7 +233,7 @@ export const StudentAttendancePage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
+ {/* Header Banner */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-200/80 pb-5">
         <div>
           <div className="flex items-center gap-2">
@@ -325,6 +327,7 @@ export const StudentAttendancePage: React.FC = () => {
               <p className="mt-0.5 text-xs text-neutral-400">All student submissions</p>
             </div>
 
+
             <div className="group rounded-2xl border border-amber-300/90 bg-linear-to-b from-amber-100/80 via-amber-50/50 to-white p-4.5 shadow-2xs hover:border-amber-400 hover:shadow-xs transition-all">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
@@ -340,6 +343,7 @@ export const StudentAttendancePage: React.FC = () => {
               <p className="mt-0.5 text-xs text-amber-700/80 font-medium">Awaiting faculty action</p>
             </div>
 
+
             <div className="group rounded-2xl border border-emerald-300/90 bg-linear-to-b from-emerald-100/80 via-emerald-50/50 to-white p-4.5 shadow-2xs hover:border-emerald-400 hover:shadow-xs transition-all">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
@@ -354,6 +358,7 @@ export const StudentAttendancePage: React.FC = () => {
               </p>
               <p className="mt-0.5 text-xs text-emerald-700/80 font-medium">Granted requests</p>
             </div>
+
 
             <div className="group rounded-2xl border border-rose-300/90 bg-linear-to-b from-rose-100/80 via-rose-50/50 to-white p-4.5 shadow-2xs hover:border-rose-400 hover:shadow-xs transition-all">
               <div className="flex items-center justify-between">
@@ -371,7 +376,7 @@ export const StudentAttendancePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Filter Bar & View Toggle */}
+ {/* Filter Bar & View Toggle */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-1">
             <div className="flex items-center gap-1 rounded-xl bg-neutral-100 p-1 border border-neutral-200/80 w-fit">
               {(
@@ -460,7 +465,7 @@ export const StudentAttendancePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Leaves List */}
+  {/* Leaves List */}
           {leaveError ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
               <p className="font-semibold">{leaveError}</p>
@@ -495,7 +500,7 @@ export const StudentAttendancePage: React.FC = () => {
               }
             />
           ) : leaveViewMode === 'cards' ? (
-            /* Cards View */
+   /* Cards View */
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredLeaves.map((leave) => {
                 const days = calculateDays(leave.startDate, leave.endDate);
@@ -526,7 +531,7 @@ export const StudentAttendancePage: React.FC = () => {
                     className={`flex flex-col justify-between rounded-2xl border p-5 shadow-2xs hover:shadow-xs transition space-y-4 ${cardColorStyle}`}
                   >
                     <div className="space-y-3.5">
-                      {/* Top: Leave Category & Status Badge */}
+   {/* Top: Leave Category & Status Badge */}
                       <div className="flex items-center justify-between gap-2">
                         {getLeaveTypeBadge(leave.type)}
                         <div>
@@ -542,20 +547,29 @@ export const StudentAttendancePage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Date Highlight Box */}
+          {/* Date Highlight Box */}
                       <div className={`flex items-center justify-between rounded-xl border px-3.5 py-2.5 text-xs ${dateBannerStyle}`}>
                         <div className="flex items-center gap-2 font-semibold">
                           <CalendarIcon className="h-4 w-4 shrink-0 opacity-80" />
                           <span>{formatDateDisplay(leave.startDate)}</span>
-                          <ArrowRight className="h-3 w-3 opacity-60 shrink-0" />
-                          <span>{formatDateDisplay(leave.endDate)}</span>
+                          {!leave.isHalfDay && (
+                            <>
+                              <ArrowRight className="h-3 w-3 opacity-60 shrink-0" />
+                              <span>{formatDateDisplay(leave.endDate)}</span>
+                            </>
+                          )}
                         </div>
                         <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${daysBadgeStyle}`}>
-                          {days} {days === 1 ? 'Day' : 'Days'}
+                          {leave.isHalfDay
+                            ? leave.halfDaySession === 'firstHalf'
+                              ? 'Half Day (Morning)'
+                              : 'Half Day (Afternoon)'
+                            : `${days} ${days === 1 ? 'Day' : 'Days'}`}
                         </span>
                       </div>
 
-                      {/* Reason Description */}
+                    
+  {/* Reason Description */}
                       <div className="space-y-1">
                         <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                           Reason
@@ -565,7 +579,7 @@ export const StudentAttendancePage: React.FC = () => {
                         </p>
                       </div>
 
-                      {/* Teacher Feedback / Remarks */}
+ {/* Teacher Feedback / Remarks */}
                       {leave.remarks && (
                         <div className="rounded-xl border border-amber-200/80 bg-amber-50/50 p-3 text-xs space-y-1">
                           <div className="flex items-center gap-1.5 font-semibold text-amber-800">
@@ -577,19 +591,17 @@ export const StudentAttendancePage: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Card Footer */}
+  {/* Card Footer */}
                     <div className="flex items-center justify-between pt-3 border-t border-neutral-100 text-xs text-neutral-400">
-                      <span>Applied on {formatDateDisplay(leave.appliedAt)}</span>
-                      <span className="font-mono text-[11px] text-neutral-400">
-                        #{leave.id.slice(-6).toUpperCase()}
-                      </span>
+                      <span style={{color:'black'}} >Applied on {formatDateDisplay(leave.appliedAt)}</span>
+                     
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            /* Table View */
+ /* Table View */
             <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-2xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
@@ -611,10 +623,16 @@ export const StudentAttendancePage: React.FC = () => {
                         <tr key={leave.id} className="hover:bg-neutral-50/50 transition-colors">
                           <td className="px-5 py-4 whitespace-nowrap">
                             <div className="font-semibold text-neutral-800">
-                              {formatDateDisplay(leave.startDate)} → {formatDateDisplay(leave.endDate)}
+                              {leave.isHalfDay
+                                ? formatDateDisplay(leave.startDate)
+                                : `${formatDateDisplay(leave.startDate)} → ${formatDateDisplay(leave.endDate)}`}
                             </div>
                             <span className="text-xs text-neutral-400 font-medium">
-                              {days} day{days !== 1 ? 's' : ''}
+                              {leave.isHalfDay
+                                ? leave.halfDaySession === 'firstHalf'
+                                  ? 'Half Day (Morning)'
+                                  : 'Half Day (Afternoon)'
+                                : `${days} day${days !== 1 ? 's' : ''}`}
                             </span>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">

@@ -3,6 +3,8 @@ import { container } from "@/config/di/container";
 import { TYPES } from "@/config/di/types";
 import { IAuthService } from "@/application/ports/services/IAuthService";
 import { UserRole } from "@/domain/enums/UserRole";
+import { TeacherModel } from "@/infra/db/models/TeacherModel";
+import { StudentModel } from "@/infra/db/models/StudentModel";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -74,6 +76,46 @@ export const authenticateUser = async (
     req.resume();
     res.status(401).json({ success: false, message: "Invalid or expired access token." });
     return;
+  }
+
+  // Real-time active status verification for teachers and students
+  const roleUpper = payload.role?.toUpperCase();
+  if (roleUpper === UserRole.TEACHER) {
+    const teacher = await TeacherModel.findOne({
+      userId: payload.userId,
+      isDeleted: false,
+    })
+      .select("isActive")
+      .lean();
+
+    if (!teacher || !teacher.isActive) {
+      res.clearCookie("refreshToken");
+      req.resume();
+      res.status(401).json({
+        success: false,
+        code: "ACCOUNT_DEACTIVATED",
+        message: "Your account has been deactivated. Please contact the administrator.",
+      });
+      return;
+    }
+  } else if (roleUpper === UserRole.STUDENT) {
+    const student = await StudentModel.findOne({
+      userId: payload.userId,
+      isDeleted: false,
+    })
+      .select("isActive")
+      .lean();
+
+    if (!student || !student.isActive) {
+      res.clearCookie("refreshToken");
+      req.resume();
+      res.status(401).json({
+        success: false,
+        code: "ACCOUNT_DEACTIVATED",
+        message: "Your account has been deactivated. Please contact the administrator.",
+      });
+      return;
+    }
   }
 
   req.user = {

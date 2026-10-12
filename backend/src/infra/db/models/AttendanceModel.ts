@@ -69,7 +69,6 @@ AttendanceSchema.index(
   { unique: true, partialFilterExpression: { isDeleted: false } }
 );
 
-// Batch index for fast daily roll-call queries
 AttendanceSchema.index({ batchId: 1, date: 1 });
 
 export const AttendanceModel = mongoose.model<IAttendanceDocument>(

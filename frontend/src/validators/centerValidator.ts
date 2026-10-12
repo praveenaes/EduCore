@@ -40,6 +40,7 @@ export const centerSchema = z.object({
   country: z
     .string()
     .min(1, 'Country is required'),
+  programs: z.array(z.string()).optional(),
 });
 
 export type CenterFormData = z.infer<typeof centerSchema>;

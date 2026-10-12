@@ -36,6 +36,7 @@ export class GetCenters implements IGetCentersUseCase {
         timezone: c.timezone,
         address: c.address,
         status: c.status,
+        programs: c.programs,
         createdAt: c.createdAt?.toISOString(),
         updatedAt: c.updatedAt?.toISOString(),
       })),

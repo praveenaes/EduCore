@@ -1,5 +1,6 @@
 export type LeaveStatus = 'pending' | 'approved' | 'rejected';
 export type LeaveType = 'medical' | 'casual' | 'family' | 'other';
+export type HalfDaySession = 'firstHalf' | 'secondHalf';
 
 export interface LeaveRequestProps {
   id?: string;
@@ -11,6 +12,8 @@ export interface LeaveRequestProps {
   reason: string;
   status: LeaveStatus;
   appliedAt: Date;
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
   reviewedBy?: string; // userId of teacher / reviewer
   reviewedAt?: Date;
   remarks?: string;
@@ -31,6 +34,7 @@ export class LeaveRequest {
   constructor(props: LeaveRequestProps) {
     this._props = {
       ...props,
+      isHalfDay: props.isHalfDay ?? false,
       isDeleted: props.isDeleted ?? false,
       status: props.status ?? 'pending',
     };
@@ -46,6 +50,8 @@ export class LeaveRequest {
   get reason(): string { return this._props.reason; }
   get status(): LeaveStatus { return this._props.status; }
   get appliedAt(): Date { return this._props.appliedAt; }
+  get isHalfDay(): boolean { return this._props.isHalfDay ?? false; }
+  get halfDaySession(): HalfDaySession | undefined { return this._props.halfDaySession; }
   get reviewedBy(): string | undefined { return this._props.reviewedBy; }
   get reviewedAt(): Date | undefined { return this._props.reviewedAt; }
   get remarks(): string | undefined { return this._props.remarks; }
@@ -77,11 +83,15 @@ export class LeaveRequest {
     endDate: Date;
     type: LeaveType;
     reason: string;
+    isHalfDay?: boolean;
+    halfDaySession?: HalfDaySession;
   }): LeaveRequest {
     const now = new Date();
     return new LeaveRequest({
       ...props,
       reason: props.reason.trim(),
+      isHalfDay: props.isHalfDay ?? false,
+      halfDaySession: props.isHalfDay ? props.halfDaySession : undefined,
       status: 'pending',
       appliedAt: now,
       isDeleted: false,
@@ -99,6 +109,8 @@ export class LeaveRequest {
       reason: this.reason,
       status: this.status,
       appliedAt: this.appliedAt,
+      isHalfDay: this.isHalfDay,
+      halfDaySession: this.halfDaySession,
       reviewedBy: this.reviewedBy,
       reviewedAt: this.reviewedAt,
       remarks: this.remarks,

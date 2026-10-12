@@ -191,7 +191,7 @@ export const BatchLeavesModal: React.FC<BatchLeavesModalProps> = ({
       size="xl"
     >
       <div className="space-y-4">
-        {/* Batch Sub-header */}
+   {/* Batch Sub-header */}
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 pb-3 text-sm text-neutral-500">
           <div>
             Course: <span className="font-semibold text-neutral-800">{batch.courseName}</span> • Center:{' '}
@@ -203,7 +203,7 @@ export const BatchLeavesModal: React.FC<BatchLeavesModalProps> = ({
           </span>
         </div>
 
-        {/* Filter Tabs & Search Bar */}
+   {/* Filter Tabs & Search Bar */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-1.5 rounded-xl bg-neutral-100/80 p-1.5 border border-neutral-200/60">
             <button
@@ -272,7 +272,7 @@ export const BatchLeavesModal: React.FC<BatchLeavesModalProps> = ({
           </div>
         </div>
 
-        {/* Content Area */}
+    {/* Content Area */}
         {isLoading ? (
           <div className="flex h-52 items-center justify-center">
             <div className="flex flex-col items-center gap-2">
@@ -321,13 +321,20 @@ export const BatchLeavesModal: React.FC<BatchLeavesModalProps> = ({
                           </span>
                         )}
                         {getTypeBadge(leave.type)}
+                        {leave.isHalfDay && (
+                          <span className="rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 border border-amber-200">
+                            {leave.halfDaySession === 'firstHalf' ? 'Half Day (Morning)' : 'Half Day (Afternoon)'}
+                          </span>
+                        )}
                         {getStatusBadge(leave.status)}
                       </div>
 
-                      {/* Dates & Duration */}
+     {/* Dates & Duration */}
                       <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-600">
                         <span className="font-semibold text-neutral-800">
-                          {leave.startDate} → {leave.endDate}
+                          {leave.isHalfDay
+                            ? `${leave.startDate} (${leave.halfDaySession === 'firstHalf' ? 'Morning Session' : 'Afternoon Session'})`
+                            : `${leave.startDate} → ${leave.endDate}`}
                         </span>
                         <span className="text-neutral-300">•</span>
                         <span className="text-neutral-500">
@@ -335,12 +342,12 @@ export const BatchLeavesModal: React.FC<BatchLeavesModalProps> = ({
                         </span>
                       </div>
 
-                      {/* Reason */}
+    {/* Reason */}
                       <p className="text-sm text-neutral-700 bg-neutral-50/80 rounded-xl p-3.5 border border-neutral-200/60 mt-1.5 leading-relaxed">
                         <span className="font-semibold text-neutral-800">Reason:</span> {leave.reason}
                       </p>
 
-                      {/* Teacher Remarks if already reviewed */}
+   {/* Teacher Remarks if already reviewed */}
                       {leave.status !== 'pending' && leave.remarks && (
                         <p className="text-sm text-brand-800 bg-brand-50/60 rounded-xl p-3 border border-brand-100/80 mt-1 leading-relaxed">
                           <span className="font-semibold">Review Remark:</span> {leave.remarks}
@@ -351,7 +358,7 @@ export const BatchLeavesModal: React.FC<BatchLeavesModalProps> = ({
                       )}
                     </div>
 
-                    {/* Action buttons (only for pending) */}
+   {/* Action buttons (only for pending) */}
                     {leave.status === 'pending' && !isReviewingThis && (
                       <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center mt-2 sm:mt-0">
                         <Button
@@ -376,7 +383,7 @@ export const BatchLeavesModal: React.FC<BatchLeavesModalProps> = ({
                     )}
                   </div>
 
-                  {/* Inline Review Drawer */}
+    {/* Inline Review Drawer */}
                   {isReviewingThis && (
                     <div className="mt-3.5 border-t border-neutral-200/80 pt-3.5 space-y-3">
                       <div className="flex items-center justify-between">

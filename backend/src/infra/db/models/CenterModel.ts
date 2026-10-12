@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ICenterAddressDocument {
   addressLine1: string;
@@ -16,6 +16,7 @@ export interface ICenterDocument extends Document {
   timezone: string;
   address: ICenterAddressDocument;
   status: 'active' | 'inactive';
+  programs: Types.ObjectId[];
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -72,6 +73,12 @@ const CenterSchema = new Schema<ICenterDocument>(
       enum: ['active', 'inactive'],
       default: 'active',
     },
+    programs: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Program',
+      },
+    ],
     isDeleted: {
       type: Boolean,
       default: false,
@@ -83,8 +90,8 @@ const CenterSchema = new Schema<ICenterDocument>(
   }
 );
 
-// Compound indexes with isDeleted
 CenterSchema.index({ code: 1, isDeleted: 1 });
 CenterSchema.index({ name: 1, isDeleted: 1 });
+CenterSchema.index({ programs: 1, isDeleted: 1 });
 
 export const CenterModel = mongoose.model<ICenterDocument>('Center', CenterSchema);

@@ -46,6 +46,8 @@ export class LoginUser implements ILoginUser {
     let photo: string | undefined = undefined;
     if (role.toUpperCase() === UserRole.STUDENT) {
       const student = await this._studentRepo.findByEmail(email);
+      
+
       if (student) {
         try {
           student.verifyIsActive();

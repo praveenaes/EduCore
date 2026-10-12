@@ -55,7 +55,6 @@ const AcademicYearSchema = new Schema<IAcademicYearDocument>(
   }
 );
 
-// Partial unique index for active records (prevents soft-deleted conflicts)
 AcademicYearSchema.index(
   { code: 1 },
   { unique: true, partialFilterExpression: { isDeleted: false } }

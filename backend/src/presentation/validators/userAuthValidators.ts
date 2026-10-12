@@ -12,11 +12,15 @@ export const loginSchema = z.object({
 
 export const forgotPasswordSchema = z.object({
   email: emailSchema,
+  role: z.nativeEnum(UserRole, {
+    errorMap: () => ({ message: "Invalid user role" }),
+  }).optional(),
 });
 
 export const verifyOtpSchema = z.object({
   email: emailSchema,
   otp: z.string().length(6, "OTP must be exactly 6 digits").regex(/^\d+$/, "OTP must contain only numbers"),
+  role: z.nativeEnum(UserRole).optional(),
 });
 
 export const resetPasswordSchema = z.object({
@@ -29,4 +33,5 @@ export const resetPasswordSchema = z.object({
     .regex(/[0-9]/, "Password must contain at least one number")
     .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
   resetToken: z.string(),
+  role: z.nativeEnum(UserRole).optional(),
 });

@@ -4,12 +4,33 @@ import { verifyOtpValidationSchema } from "../../validators/authValidator";
 import { verifyOtpApi, forgotPasswordApi } from "../../api/authApi";
 import { ArrowLeft } from "lucide-react";
 import { UserRoleEnum } from "../../types/auth";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { setOrganization } from "../../app/slices/organizationSlice";
+import { getOrganizationSettingsApi } from "../../api/settingsApi";
 
 export const VerifyOtpPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email") || "";
   const role = searchParams.get("role") || UserRoleEnum.ADMIN;
   const navigate = useNavigate();
+
+  const dispatch = useAppDispatch();
+  const org = useAppSelector((state) => state.organization.organization);
+  const displayName = org?.name || "EduCore";
+  const logoUrl = org?.logoPath || null;
+
+  useEffect(() => {
+    if (!org || !org.logoPath) {
+      getOrganizationSettingsApi()
+        .then((response) => {
+          const orgData = (response.data as any)?._props || response.data;
+          dispatch(setOrganization(orgData));
+        })
+        .catch((err) => {
+          console.error("Failed to load organization settings in verify otp:", err);
+        });
+    }
+  }, [org, dispatch]);
 
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -60,7 +81,7 @@ export const VerifyOtpPage: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      const response = await verifyOtpApi(email, otp);
+      const response = await verifyOtpApi(email, otp, role);
       if (response.success && response.data?.resetToken) {
         navigate(`/auth/reset-password?email=${encodeURIComponent(email)}&token=${response.data.resetToken}&role=${role}`);
       } else {
@@ -83,7 +104,7 @@ export const VerifyOtpPage: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      const response = await forgotPasswordApi(email);
+      const response = await forgotPasswordApi(email, role);
       if (response.success) {
         setSuccessMessage("A new OTP has been generated and sent.");
         setTimeLeft(60);
@@ -107,9 +128,17 @@ export const VerifyOtpPage: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8 animate-fade-in">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-sm border border-neutral-200/50 hover:shadow-md transition-all duration-300">
         <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-2xl shadow-sm">
-            E
-          </div>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={`${displayName} logo`}
+              className="mx-auto h-14 w-14 rounded-xl object-cover shadow-sm"
+            />
+          ) : (
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-2xl shadow-sm">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+          )}
           <h2 className="mt-5 text-2xl font-extrabold text-neutral-800 tracking-tight">
             Verify OTP
           </h2>

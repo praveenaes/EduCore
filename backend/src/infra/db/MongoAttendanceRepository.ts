@@ -13,7 +13,7 @@ export class MongoAttendanceRepository
   protected readonly _model = AttendanceModel;
   protected readonly _mapper = AttendanceMapper;
  
-  //fro teacher
+  //for teacher
   async findByBatchAndDate(batchId: string, date: Date): Promise<Attendance[]> {
     const startOfDay = new Date(date);
     startOfDay.setUTCHours(0, 0, 0, 0);

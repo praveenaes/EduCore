@@ -30,6 +30,8 @@ export class LeaveRequestMapper {
       reason: doc.reason,
       status: doc.status,
       appliedAt: doc.appliedAt,
+      isHalfDay: Boolean(doc.isHalfDay),
+      halfDaySession: doc.halfDaySession ?? undefined,
       reviewedBy,
       reviewedAt: doc.reviewedAt,
       remarks: doc.remarks,
@@ -52,6 +54,8 @@ export class LeaveRequestMapper {
     reason: string;
     status: string;
     appliedAt: Date;
+    isHalfDay: boolean;
+    halfDaySession?: string;
     reviewedBy?: Types.ObjectId;
     reviewedAt?: Date;
     remarks?: string;
@@ -66,6 +70,8 @@ export class LeaveRequestMapper {
       reason: entity.reason,
       status: entity.status,
       appliedAt: entity.appliedAt,
+      isHalfDay: entity.isHalfDay,
+      halfDaySession: entity.halfDaySession,
       reviewedBy: entity.reviewedBy ? new Types.ObjectId(entity.reviewedBy) : undefined,
       reviewedAt: entity.reviewedAt,
       remarks: entity.remarks ?? '',
@@ -84,6 +90,8 @@ export class LeaveRequestMapper {
     if (entity.reason !== undefined) data.reason = entity.reason.trim();
     if (entity.status !== undefined) data.status = entity.status;
     if (entity.appliedAt !== undefined) data.appliedAt = entity.appliedAt;
+    if (entity.isHalfDay !== undefined) data.isHalfDay = entity.isHalfDay;
+    if (entity.halfDaySession !== undefined) data.halfDaySession = entity.halfDaySession;
     if (entity.reviewedBy !== undefined) data.reviewedBy = entity.reviewedBy ? new Types.ObjectId(entity.reviewedBy) : undefined;
     if (entity.reviewedAt !== undefined) data.reviewedAt = entity.reviewedAt;
     if (entity.remarks !== undefined) data.remarks = entity.remarks.trim();

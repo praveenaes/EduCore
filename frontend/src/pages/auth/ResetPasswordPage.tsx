@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAppDispatch } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { setOrganization } from "../../app/slices/organizationSlice";
+import { getOrganizationSettingsApi } from "../../api/settingsApi";
 import { resetPasswordValidationSchema } from "../../validators/authValidator";
 import { resetPasswordApi } from "../../api/authApi";
 import { tokenService } from "../../utils/tokenService";
 import { loadUser } from "../../app/authThunk";
-import { setOrganization } from "../../app/slices/organizationSlice";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { UserRoleEnum } from "../../types/auth";
 
@@ -17,6 +18,22 @@ export const ResetPasswordPage: React.FC = () => {
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const org = useAppSelector((state) => state.organization.organization);
+  const displayName = org?.name || "EduCore";
+  const logoUrl = org?.logoPath || null;
+
+  useEffect(() => {
+    if (!org || !org.logoPath) {
+      getOrganizationSettingsApi()
+        .then((response) => {
+          const orgData = (response.data as any)?._props || response.data;
+          dispatch(setOrganization(orgData));
+        })
+        .catch((err) => {
+          console.error("Failed to load organization settings in reset password:", err);
+        });
+    }
+  }, [org, dispatch]);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -57,7 +74,7 @@ export const ResetPasswordPage: React.FC = () => {
     setError(null);
 
     try {
-      const response = await resetPasswordApi(email, password, token);
+      const response = await resetPasswordApi(email, password, token, role);
 
       if (response.success && response.data?.accessToken) {
         tokenService.setToken(response.data.accessToken);
@@ -65,11 +82,6 @@ export const ResetPasswordPage: React.FC = () => {
         const resultAction = await dispatch(loadUser());
 
         if (loadUser.fulfilled.match(resultAction)) {
-          dispatch(
-            setOrganization({
-              name: "EduCore School",
-            })
-          );
           navigate(`/${role}/dashboard`);
         } else {
           navigate(`/${role}/login`);
@@ -92,9 +104,17 @@ export const ResetPasswordPage: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8 animate-fade-in">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-sm border border-neutral-200/50 hover:shadow-md transition-all duration-300">
         <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-2xl shadow-sm">
-            E
-          </div>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={`${displayName} logo`}
+              className="mx-auto h-14 w-14 rounded-xl object-cover shadow-sm"
+            />
+          ) : (
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-2xl shadow-sm">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+          )}
           <h2 className="mt-5 text-2xl font-extrabold text-neutral-800 tracking-tight">
             Reset Password
           </h2>

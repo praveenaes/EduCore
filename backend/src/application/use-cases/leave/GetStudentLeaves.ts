@@ -43,6 +43,8 @@ export class GetStudentLeaves implements IGetStudentLeavesUseCase {
         reason: l.reason,
         status: l.status,
         appliedAt: l.appliedAt instanceof Date ? l.appliedAt.toISOString() : String(l.appliedAt),
+        isHalfDay: l.isHalfDay,
+        halfDaySession: l.halfDaySession,
         reviewedBy: l.reviewedBy,
         reviewerName: l.reviewerName,
         reviewedAt: l.reviewedAt instanceof Date ? l.reviewedAt.toISOString() : l.reviewedAt ? String(l.reviewedAt) : undefined,

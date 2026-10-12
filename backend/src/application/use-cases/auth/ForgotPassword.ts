@@ -4,6 +4,7 @@ import { IEmailService } from "@/application/ports/services/IEmailService";
 import { TYPES } from "@/config/di/types";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
 import { ValidationError } from "@/shared/errors/AppError";
+import { UserRole } from "@/domain/enums/UserRole";
 
 @injectable()
 export class ForgotPassword implements IForgotPassword {
@@ -12,10 +13,14 @@ export class ForgotPassword implements IForgotPassword {
     @inject(TYPES.EmailService) private _emailSvc: IEmailService
   ) {}
 
-  async execute(email: string): Promise<void> {
+  async execute(email: string, role?: UserRole): Promise<void> {
     const user = await this._userRepo.findByEmail(email);
     if (!user) {
-      throw new ValidationError('User not found')
+      throw new ValidationError('User not found');
+    }
+
+    if (role && user.role !== role) {
+      throw new ValidationError('User not found');
     }
 
     user.generatePasswordResetOtp();

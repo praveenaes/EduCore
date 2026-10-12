@@ -4,6 +4,9 @@ import { ITokenBlacklistService } from "@/application/ports/services/ITokenBlack
 import { TYPES } from "@/config/di/types";
 import { UnauthorizedError } from "@/shared/errors/AppError";
 import { IRefreshToken } from "@/application/ports/use-cases/auth/IRefreshTokenUseCase";
+import { UserRole } from "@/domain/enums/UserRole";
+import { TeacherModel } from "@/infra/db/models/TeacherModel";
+import { StudentModel } from "@/infra/db/models/StudentModel";
 
 @injectable()
 export class RefreshToken implements IRefreshToken {
@@ -21,6 +24,24 @@ export class RefreshToken implements IRefreshToken {
     const isRevoked = await this._blacklistSvc.isBlacklisted(refreshToken);
     if (isRevoked) {
       throw new UnauthorizedError("Token has been revoked. Please login again.");
+    }
+
+    // Verify active status before renewing session
+    const roleUpper = decoded.role?.toUpperCase();
+    if (roleUpper === UserRole.TEACHER) {
+      const teacher = await TeacherModel.findOne({ userId: decoded.userId, isDeleted: false })
+        .select("isActive")
+        .lean();
+      if (!teacher || !teacher.isActive) {
+        throw new UnauthorizedError("Your account has been deactivated. Please contact the administrator.");
+      }
+    } else if (roleUpper === UserRole.STUDENT) {
+      const student = await StudentModel.findOne({ userId: decoded.userId, isDeleted: false })
+        .select("isActive")
+        .lean();
+      if (!student || !student.isActive) {
+        throw new UnauthorizedError("Your account has been deactivated. Please contact the administrator.");
+      }
     }
 
     return this._authSvc.generateAccessToken(

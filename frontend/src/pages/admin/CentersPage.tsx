@@ -126,7 +126,7 @@ const CentersPage: React.FC = () => {
     }
   };
 
-  // Columns definition: Center Name, Code, Phone Number, Email ID, Actions
+  // Columns definition: Center Name, Code, City, Programs, Phone Number, Email ID, Actions
   const columns: TableColumn<Center>[] = [
     {
       header: 'Center Name',
@@ -153,6 +153,45 @@ const CentersPage: React.FC = () => {
           {c.address?.city || '—'}
         </span>
       ),
+    },
+    {
+      header: 'Programs',
+      accessor: (c) => {
+        const progs = c.programs || [];
+        if (progs.length === 0) {
+          return <span className="text-xs text-neutral-400 italic">None assigned</span>;
+        }
+
+        const displayed = progs.slice(0, 2);
+        const remainingCount = progs.length - 2;
+
+        return (
+          <div className="flex flex-wrap items-center gap-1">
+            {displayed.map((p, idx) => {
+              const label = typeof p === 'string' ? p : p.code || p.name || p.id;
+              return (
+                <span
+                  key={idx}
+                  className="inline-flex items-center rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 border border-brand-200"
+                >
+                  {label}
+                </span>
+              );
+            })}
+            {remainingCount > 0 && (
+              <span
+                className="inline-flex items-center rounded-md bg-neutral-100 px-1.5 py-0.5 text-xs font-medium text-neutral-600 border border-neutral-200"
+                title={progs
+                  .slice(2)
+                  .map((p) => (typeof p === 'string' ? p : p.name || p.code || p.id))
+                  .join(', ')}
+              >
+                +{remainingCount}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       header: 'Phone Number',
@@ -243,11 +282,11 @@ const CentersPage: React.FC = () => {
                 : 'Get started by creating your first center / campus branch.'
             }
             action={
-              !debouncedSearch && (
+              !debouncedSearch ? (
                 <Button size="sm" onClick={handleAddNew}>
                   Add Your First Center
                 </Button>
-              )
+              ) : undefined
             }
           />
         ) : (
