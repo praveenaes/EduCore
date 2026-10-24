@@ -8,6 +8,18 @@ export interface HomeworkAttachmentDTO {
   fileSize?: number;
 }
 
+export interface HomeworkExtensionRequestDTO {
+  status: 'pending' | 'approved' | 'rejected';
+  reason: string;
+  explanation?: string;
+  attachment?: HomeworkAttachmentDTO;
+  requestedAt: string;
+  reviewedAt?: string | null;
+  reviewedBy?: string | null;
+  teacherRemarks?: string;
+  extendedDueDate?: string | null;
+}
+
 export interface HomeworkSubmissionItemDTO {
   id?: string;
   studentId: string;
@@ -18,6 +30,7 @@ export interface HomeworkSubmissionItemDTO {
   verifiedAt?: string | null;
   remarks?: string;
   submissionAttachments: HomeworkAttachmentDTO[];
+  extensionRequest?: HomeworkExtensionRequestDTO | null;
 }
 
 // Teacher Create
@@ -65,6 +78,7 @@ export interface TeacherHomeworkItemDTO {
   totalStudents: number;
   submittedCount: number;
   verifiedCount: number;
+  pendingExtensionCount?: number;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -114,6 +128,7 @@ export interface StudentHomeworkItemDTO {
   remarks?: string;
   teacherAttachments: HomeworkAttachmentDTO[];
   submissionAttachments: HomeworkAttachmentDTO[];
+  extensionRequest?: HomeworkExtensionRequestDTO | null;
 }
 
 export interface StudentHomeworkListResponseDTO {
@@ -128,4 +143,23 @@ export interface SubmitHomeworkDTO {
   participantId: string;
   userId: string;
   attachments: HomeworkAttachmentDTO[];
+}
+
+// Student Request Extension
+export interface RequestHomeworkExtensionDTO {
+  homeworkId: string;
+  userId: string; // Student user ID
+  reason: string;
+  explanation?: string;
+  attachment?: HomeworkAttachmentDTO;
+}
+
+// Teacher Review Extension
+export interface ReviewHomeworkExtensionDTO {
+  homeworkId: string;
+  studentId: string;
+  userId: string; // Teacher user ID
+  status: 'approved' | 'rejected';
+  extendedDueDate?: string;
+  teacherRemarks?: string;
 }

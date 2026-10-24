@@ -9,6 +9,24 @@ export type LeaveType = 'medical' | 'casual' | 'family' | 'other';
 export type HalfDaySession = 'firstHalf' | 'secondHalf';
 
 // ==========================================
+// Reschedule Request Interface
+// ==========================================
+
+export interface LeaveRescheduleRequest {
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string; // ISO date string
+  reviewedBy?: string;
+  reviewerName?: string;
+  reviewedAt?: string; // ISO date string
+  remarks?: string;
+}
+
+// ==========================================
 // Core Leave Request Interface
 // ==========================================
 
@@ -31,6 +49,7 @@ export interface LeaveRequest {
   reviewerName?: string;
   reviewedAt?: string; // ISO date string
   remarks?: string;
+  rescheduleRequest?: LeaveRescheduleRequest;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -47,6 +66,24 @@ export interface ApplyLeavePayload {
   isHalfDay?: boolean;
   halfDaySession?: HalfDaySession;
 }
+
+export interface UpdateLeavePayload {
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string;   // YYYY-MM-DD
+  type?: LeaveType;
+  reason?: string;
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
+}
+
+export interface RescheduleLeavePayload {
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
+  reason: string;
+}
+
 
 export interface StudentLeaveListResponse {
   success: boolean;

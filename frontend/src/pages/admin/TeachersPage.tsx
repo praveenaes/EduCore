@@ -38,6 +38,7 @@ const TeachersPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
+
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -124,6 +125,8 @@ const TeachersPage: React.FC = () => {
     }
   };
 
+
+   
   const columns: TableColumn<Teacher>[] = [
     {
       header: 'Teacher',

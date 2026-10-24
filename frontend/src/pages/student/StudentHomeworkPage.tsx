@@ -20,6 +20,7 @@ import {
   getStudentHomeworksApi,
   submitHomeworkApi,
 } from '../../services/homeworkService';
+import { RequestExtensionModal } from '../../features/homework/components/RequestExtensionModal';
 import { openAttachment } from '../../utils/fileHelper';
 import type {
   StudentHomeworkItem,
@@ -40,6 +41,9 @@ export const StudentHomeworkPage: React.FC = () => {
   const [solutionAttachments, setSolutionAttachments] = useState<HomeworkAttachment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Extension request modal state
+  const [selectedHomeworkForExtension, setSelectedHomeworkForExtension] = useState<StudentHomeworkItem | null>(null);
 
   const fetchHomeworks = useCallback(async () => {
     setLoading(true);
@@ -106,7 +110,15 @@ export const StudentHomeworkPage: React.FC = () => {
     e.preventDefault();
     if (!selectedHomeworkForSubmit) return;
 
-    if (new Date(selectedHomeworkForSubmit.dueDate) < new Date()) {
+    const due = new Date(selectedHomeworkForSubmit.dueDate);
+    const extension = selectedHomeworkForSubmit.extensionRequest;
+    const isExtensionApproved = extension?.status === 'approved';
+    const effectiveDueDate =
+      isExtensionApproved && extension?.extendedDueDate
+        ? new Date(extension.extendedDueDate)
+        : due;
+
+    if (effectiveDueDate < new Date() && !isExtensionApproved) {
       setSubmitError('Deadline is over');
       return;
     }
@@ -119,7 +131,7 @@ export const StudentHomeworkPage: React.FC = () => {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      await submitHomeworkApi(selectedHomeworkForSubmit.participantId, {
+      await submitHomeworkApi(selectedHomeworkForSubmit.homeworkId, {
         attachments: solutionAttachments,
       });
       setSelectedHomeworkForSubmit(null);
@@ -345,8 +357,18 @@ export const StudentHomeworkPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredHomeworks.map((hw) => {
             const due = new Date(hw.dueDate);
-            const isPast = due < new Date();
-            const canSubmit = hw.status === 'pending' || hw.status === 'redo';
+            const now = new Date();
+            const extension = hw.extensionRequest;
+            const isExtensionApproved = extension?.status === 'approved';
+            const isExtensionPending = extension?.status === 'pending';
+
+            const effectiveDueDate =
+              isExtensionApproved && extension?.extendedDueDate
+                ? new Date(extension.extendedDueDate)
+                : due;
+
+            const isPast = effectiveDueDate < now;
+            const canSubmit = (hw.status === 'pending' || hw.status === 'redo') && !isPast;
 
             // Distinct 4px left status accent border:
             const statusCardBorder =
@@ -358,6 +380,8 @@ export const StudentHomeworkPage: React.FC = () => {
                 ? 'border-l-4 border-l-amber-500 border-neutral-200/90'
                 : isPast
                 ? 'border-l-4 border-l-rose-500 border-neutral-200/90'
+                : isExtensionApproved
+                ? 'border-l-4 border-l-emerald-500 border-neutral-200/90'
                 : 'border-l-4 border-l-amber-500 border-neutral-200/90';
 
             return (
@@ -445,21 +469,63 @@ export const StudentHomeworkPage: React.FC = () => {
                       <p className="italic text-neutral-800">“{hw.remarks}”</p>
                     </div>
                   )}
+
+                  {/* Extension Request Info Block */}
+                  {extension && (
+                    <div
+                      className={`rounded-xl border p-3 text-xs space-y-1 ${
+                        isExtensionApproved
+                          ? 'border-emerald-200 bg-emerald-50/70 text-emerald-900'
+                          : isExtensionPending
+                          ? 'border-amber-200 bg-amber-50/70 text-amber-900'
+                          : 'border-rose-200 bg-rose-50/70 text-rose-900'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5" />
+                          Extension Request: {extension.status.toUpperCase()}
+                        </span>
+                        {isExtensionApproved && extension.extendedDueDate && (
+                          <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md">
+                            Extended to:{' '}
+                            {new Date(extension.extendedDueDate).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-neutral-700">
+                        <span className="font-semibold text-neutral-800">Reason:</span> {extension.reason}
+                        {extension.explanation && ` — “${extension.explanation}”`}
+                      </p>
+                      {extension.teacherRemarks && (
+                        <p className="italic text-neutral-600 border-t border-neutral-200/60 pt-1 mt-1">
+                          Teacher Note: “{extension.teacherRemarks}”
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Card Bottom / Footer */}
-                <div className="flex items-center justify-between border-t border-neutral-100 pt-3 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3 text-xs">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-3.5 w-3.5 text-neutral-400" />
                     <span
                       className={`rounded-md px-2 py-0.5 text-xs ${
-                        isPast && canSubmit
+                        isPast && (hw.status === 'pending' || hw.status === 'redo')
                           ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200'
+                          : isExtensionApproved
+                          ? 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200'
                           : 'text-neutral-500 font-medium'
                       }`}
                     >
-                      Due:{' '}
-                      {due.toLocaleDateString('en-US', {
+                      {isExtensionApproved ? 'Extended Due: ' : 'Due: '}
+                      {effectiveDueDate.toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         hour: '2-digit',
@@ -469,24 +535,40 @@ export const StudentHomeworkPage: React.FC = () => {
                   </div>
 
                   {canSubmit ? (
-                    isPast ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs text-rose-700 font-bold bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-200">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => {
+                        setSelectedHomeworkForSubmit(hw);
+                        setSolutionAttachments([]);
+                        setSubmitError(null);
+                      }}
+                      className="text-xs"
+                    >
+                      {hw.status === 'redo' ? 'Resubmit Solution' : 'Submit Solution'}
+                    </Button>
+                  ) : (hw.status === 'pending' || hw.status === 'redo') && isPast ? (
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-xs text-rose-700 font-bold bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-200">
                         <AlertCircle className="h-3.5 w-3.5 text-rose-500" /> Deadline is over
                       </span>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => {
-                          setSelectedHomeworkForSubmit(hw);
-                          setSolutionAttachments([]);
-                          setSubmitError(null);
-                        }}
-                        className="text-xs"
-                      >
-                        {hw.status === 'redo' ? 'Resubmit Solution' : 'Submit Solution'}
-                      </Button>
-                    )
+                      {!extension && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => setSelectedHomeworkForExtension(hw)}
+                          className="text-xs"
+                          leftIcon={<Clock className="h-3.5 w-3.5 text-amber-600" />}
+                        >
+                          Request Extension
+                        </Button>
+                      )}
+                      {isExtensionPending && (
+                        <span className="inline-flex items-center gap-1 text-xs text-amber-700 font-semibold bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
+                          <Clock className="h-3.5 w-3.5 text-amber-500" /> Request Pending
+                        </span>
+                      )}
+                    </div>
                   ) : hw.status === 'verified' ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
                       <CheckCircle2 className="h-3 w-3" /> Graded & Verified
@@ -584,6 +666,16 @@ export const StudentHomeworkPage: React.FC = () => {
             </div>
           </form>
         </Modal>
+      )}
+
+      {/* Student Request Extension Modal */}
+      {selectedHomeworkForExtension && (
+        <RequestExtensionModal
+          isOpen={!!selectedHomeworkForExtension}
+          onClose={() => setSelectedHomeworkForExtension(null)}
+          onSuccess={fetchHomeworks}
+          homework={selectedHomeworkForExtension}
+        />
       )}
     </div>
   );

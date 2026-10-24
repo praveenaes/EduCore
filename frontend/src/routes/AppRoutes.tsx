@@ -29,11 +29,16 @@ import CentersPage from '../pages/admin/CentersPage';
 import AcademicYearsPage from '../pages/admin/AcademicYearsPage';
 import SubjectAssignmentsPage from '../pages/admin/SubjectAssignmentsPage';
 import BatchesPage from '../pages/admin/BatchesPage';
+import AssessmentsPage from '../pages/admin/AssessmentsPage';
+import AssessmentCriteriaPage from '../pages/admin/AssessmentCriteriaPage';
+import AssessmentSchedulesPage from '../pages/admin/AssessmentSchedulesPage';
 import TeacherBatchesPage from '../pages/teacher/TeacherBatchesPage';
 import TeacherSubjectsPage from '../pages/teacher/TeacherSubjectsPage';
 import { StudentAttendancePage } from '../pages/student/StudentAttendancePage';
 import TeacherHomeworkPage from '../pages/teacher/TeacherHomeworkPage';
 import StudentHomeworkPage from '../pages/student/StudentHomeworkPage';
+import StudentResultsPage from '../pages/student/StudentResultsPage';
+import TeacherMarkEntryPage from '../pages/teacher/TeacherMarkEntryPage';
 
 const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
   <div className="p-6 space-y-4">
@@ -119,10 +124,10 @@ export const AppRoutes: React.FC = () => {//Creates a React Functional Component
         <Route path="students" element={<StudentsPage />} />
         <Route path="teachers" element={<TeachersPage />} />
         <Route path="batches" element={<BatchesPage />} />
-        <Route path="assessments" element={<PlaceholderPage title="Assessment Events" />} />
-        <Route path="assessments/results" element={<PlaceholderPage title="Results" />} />
-        <Route path="assessments/schedules" element={<PlaceholderPage title="Schedules" />} />
-        <Route path="assessments/criteria" element={<PlaceholderPage title="Assessment Criteria" />} />
+        <Route path="assessments" element={<AssessmentsPage />} />
+        <Route path="assessments/results" element={<TeacherMarkEntryPage />} />
+        <Route path="assessments/schedules" element={<AssessmentSchedulesPage />} />
+        <Route path="assessments/criteria" element={<AssessmentCriteriaPage />} />
         <Route path="subject-assignments" element={<SubjectAssignmentsPage />} />
         <Route path="subjects" element={<SubjectsPage />} />
         <Route path="courses" element={<CoursesPage />} />
@@ -150,7 +155,7 @@ export const AppRoutes: React.FC = () => {//Creates a React Functional Component
         <Route path="dashboard" element={<PlaceholderPage title="Dashboard" />} />
         <Route path="homework" element={<StudentHomeworkPage />} />
         <Route path="attendance" element={<StudentAttendancePage />} />
-        <Route path="results" element={<PlaceholderPage title="Results" />} />
+        <Route path="results" element={<StudentResultsPage />} />
         <Route path="notifications" element={<PlaceholderPage title="Notifications" />} />
         <Route path="chat" element={<PlaceholderPage title="Chat" />} />
         <Route path="fees" element={<PlaceholderPage title="Fees" />} />
@@ -174,7 +179,7 @@ export const AppRoutes: React.FC = () => {//Creates a React Functional Component
         <Route path="homework" element={<TeacherHomeworkPage />} />
         <Route path="batches" element={<TeacherBatchesPage />} />
         <Route path="subjects" element={<TeacherSubjectsPage />} />
-        <Route path="mark-entry" element={<PlaceholderPage title="Exam Mark Entry" />} />
+        <Route path="mark-entry" element={<TeacherMarkEntryPage />} />
         <Route path="notifications" element={<PlaceholderPage title="Notifications" />} />
         <Route path="chat" element={<PlaceholderPage title="Chat" />} />
         <Route path="settings" element={<TeacherSettingsPage />} />

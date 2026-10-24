@@ -8,6 +8,18 @@ export interface IHomeworkAttachmentDocument {
   fileSize?: number;
 }
 
+export interface IHomeworkExtensionRequestDocument {
+  status: 'pending' | 'approved' | 'rejected';
+  reason: string;
+  explanation?: string;
+  attachment?: IHomeworkAttachmentDocument;
+  requestedAt: Date;
+  reviewedAt?: Date | null;
+  reviewedBy?: Types.ObjectId | null;
+  teacherRemarks?: string;
+  extendedDueDate?: Date | null;
+}
+
 export interface IHomeworkSubmissionDocument {
   _id?: Types.ObjectId;
   studentId: Types.ObjectId;
@@ -16,6 +28,7 @@ export interface IHomeworkSubmissionDocument {
   verifiedAt?: Date | null;
   remarks?: string;
   attachments: IHomeworkAttachmentDocument[];
+  extensionRequest?: IHomeworkExtensionRequestDocument | null;
 }
 
 export interface IHomeworkDocument extends Document {
@@ -43,6 +56,26 @@ const AttachmentSchema = new Schema(
   { _id: false }
 );
 
+const ExtensionRequestSchema = new Schema(
+  {
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+      required: true,
+    },
+    reason: { type: String, required: true, trim: true },
+    explanation: { type: String, trim: true, default: '' },
+    attachment: { type: AttachmentSchema, default: null },
+    requestedAt: { type: Date, default: Date.now },
+    reviewedAt: { type: Date, default: null },
+    reviewedBy: { type: Schema.Types.ObjectId, ref: 'Teacher', default: null },
+    teacherRemarks: { type: String, trim: true, default: '' },
+    extendedDueDate: { type: Date, default: null },
+  },
+  { _id: false }
+);
+
 const SubmissionSchema = new Schema(
   {
     studentId:   { type: Schema.Types.ObjectId, ref: 'Student', required: true },
@@ -56,6 +89,7 @@ const SubmissionSchema = new Schema(
     verifiedAt:  { type: Date, default: null },
     remarks:     { type: String, trim: true, default: '' },
     attachments: { type: [AttachmentSchema], default: [] },
+    extensionRequest: { type: ExtensionRequestSchema, default: null },
   },
   { timestamps: true }
 );

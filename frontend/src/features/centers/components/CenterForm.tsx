@@ -90,11 +90,10 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
         .catch((err) => console.error('Failed to load programs for center form:', err));
     }, []);
 
-    // 1. Instant Postal Code Auto-fill (0ms local lookup + background refinement)
     useEffect(() => {
       const cleaned = (watchedPostalCode || '').replace(/\D/g, '');
       if (cleaned.length === 6) {
-        // Immediate local fill
+        // Immediate local lookup
         const local = lookupByPincode(cleaned);
         if (local) {
           if (local.city) setValue('city', local.city, { shouldValidate: true });
@@ -102,7 +101,7 @@ const CenterForm = forwardRef<HTMLFormElement, CenterFormProps>(
           setValue('country', local.country || 'India', { shouldValidate: true });
         }
 
-        // Background refinement with timeout
+        //Online lookup by using onlne source
         let cancelled = false;
         const ctrl = new AbortController();
         setIsFetchingPostal(true);

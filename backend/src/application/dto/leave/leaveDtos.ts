@@ -1,5 +1,19 @@
 import { LeaveStatus, LeaveType, HalfDaySession } from '@/domain/entities/LeaveRequest';
 
+export interface LeaveRescheduleRequestDTO {
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string; // ISO date string
+  reviewedBy?: string;
+  reviewerName?: string;
+  reviewedAt?: string; // ISO date string
+  remarks?: string;
+}
+
 export interface LeaveRequestDTO {
   id: string;
   studentId: string;
@@ -19,6 +33,7 @@ export interface LeaveRequestDTO {
   reviewerName?: string;
   reviewedAt?: string;
   remarks?: string;
+  rescheduleRequest?: LeaveRescheduleRequestDTO;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -60,4 +75,30 @@ export interface ReviewLeaveDTO {
   leaveId: string;
   status: 'approved' | 'rejected';
   remarks?: string;
+}
+
+export interface UpdateStudentLeaveDTO {
+  userId: string;
+  leaveId: string;
+  startDate?: string;
+  endDate?: string;
+  type?: LeaveType;
+  reason?: string;
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
+}
+
+export interface RescheduleStudentLeaveDTO {
+  userId: string;
+  leaveId: string;
+  startDate: string;
+  endDate: string;
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
+  reason: string;
+}
+
+export interface CancelStudentLeaveDTO {
+  userId: string;
+  leaveId: string;
 }

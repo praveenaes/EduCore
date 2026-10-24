@@ -159,6 +159,10 @@ import { IGetStudentHomeworksUseCase } from "@/application/ports/use-cases/homew
 import { GetStudentHomeworks } from "@/application/use-cases/homework/GetStudentHomeworks";
 import { ISubmitHomeworkUseCase } from "@/application/ports/use-cases/homework/ISubmitHomeworkUseCase";
 import { SubmitHomework } from "@/application/use-cases/homework/SubmitHomework";
+import { IRequestHomeworkExtensionUseCase } from "@/application/ports/use-cases/homework/IRequestHomeworkExtensionUseCase";
+import { RequestHomeworkExtension } from "@/application/use-cases/homework/RequestHomeworkExtension";
+import { IReviewHomeworkExtensionUseCase } from "@/application/ports/use-cases/homework/IReviewHomeworkExtensionUseCase";
+import { ReviewHomeworkExtension } from "@/application/use-cases/homework/ReviewHomeworkExtension";
 
 import { IApplyLeaveUseCase } from "@/application/ports/use-cases/leave/IApplyLeaveUseCase";
 import { ApplyLeave } from "@/application/use-cases/leave/ApplyLeave";
@@ -168,6 +172,52 @@ import { IGetBatchLeavesUseCase } from "@/application/ports/use-cases/leave/IGet
 import { GetBatchLeaves } from "@/application/use-cases/leave/GetBatchLeaves";
 import { IReviewLeaveUseCase } from "@/application/ports/use-cases/leave/IReviewLeaveUseCase";
 import { ReviewLeave } from "@/application/use-cases/leave/ReviewLeave";
+import { IUpdateStudentLeaveUseCase } from "@/application/ports/use-cases/leave/IUpdateStudentLeaveUseCase";
+import { UpdateStudentLeave } from "@/application/use-cases/leave/UpdateStudentLeave";
+import { ICancelStudentLeaveUseCase } from "@/application/ports/use-cases/leave/ICancelStudentLeaveUseCase";
+import { CancelStudentLeave } from "@/application/use-cases/leave/CancelStudentLeave";
+import { IRescheduleStudentLeaveUseCase } from "@/application/ports/use-cases/leave/IRescheduleStudentLeaveUseCase";
+import { RescheduleStudentLeave } from "@/application/use-cases/leave/RescheduleStudentLeave";
+
+import { ICreateAssessmentUseCase } from "@/application/ports/use-cases/assessments/ICreateAssessmentUseCase";
+import { CreateAssessment } from "@/application/use-cases/assessments/CreateAssessment";
+import { IGetAssessmentsUseCase } from "@/application/ports/use-cases/assessments/IGetAssessmentsUseCase";
+import { GetAssessments } from "@/application/use-cases/assessments/GetAssessments";
+import { IUpdateAssessmentUseCase } from "@/application/ports/use-cases/assessments/IUpdateAssessmentUseCase";
+import { UpdateAssessment } from "@/application/use-cases/assessments/UpdateAssessment";
+import { IDeleteAssessmentUseCase } from "@/application/ports/use-cases/assessments/IDeleteAssessmentUseCase";
+import { DeleteAssessment } from "@/application/use-cases/assessments/DeleteAssessment";
+
+import { ICreateAssessmentCriteriaUseCase } from "@/application/ports/use-cases/assessment-criteria/ICreateAssessmentCriteriaUseCase";
+import { CreateAssessmentCriteria } from "@/application/use-cases/assessment-criteria/CreateAssessmentCriteria";
+import { IGetAssessmentCriteriaUseCase } from "@/application/ports/use-cases/assessment-criteria/IGetAssessmentCriteriaUseCase";
+import { GetAssessmentCriteria } from "@/application/use-cases/assessment-criteria/GetAssessmentCriteria";
+import { IUpdateAssessmentCriteriaUseCase } from "@/application/ports/use-cases/assessment-criteria/IUpdateAssessmentCriteriaUseCase";
+import { UpdateAssessmentCriteria } from "@/application/use-cases/assessment-criteria/UpdateAssessmentCriteria";
+import { IDeleteAssessmentCriteriaUseCase } from "@/application/ports/use-cases/assessment-criteria/IDeleteAssessmentCriteriaUseCase";
+import { DeleteAssessmentCriteria } from "@/application/use-cases/assessment-criteria/DeleteAssessmentCriteria";
+import { ICreateAssessmentScheduleUseCase } from "@/application/ports/use-cases/assessment-schedules/ICreateAssessmentScheduleUseCase";
+import { CreateAssessmentSchedule } from "@/application/use-cases/assessment-schedules/CreateAssessmentSchedule";
+import { IGetAssessmentSchedulesUseCase } from "@/application/ports/use-cases/assessment-schedules/IGetAssessmentSchedulesUseCase";
+import { GetAssessmentSchedules } from "@/application/use-cases/assessment-schedules/GetAssessmentSchedules";
+import { IUpdateAssessmentScheduleUseCase } from "@/application/ports/use-cases/assessment-schedules/IUpdateAssessmentScheduleUseCase";
+import { UpdateAssessmentSchedule } from "@/application/use-cases/assessment-schedules/UpdateAssessmentSchedule";
+import { IToggleAssessmentScheduleStatusUseCase } from "@/application/ports/use-cases/assessment-schedules/IToggleAssessmentScheduleStatusUseCase";
+import { ToggleAssessmentScheduleStatus } from "@/application/use-cases/assessment-schedules/ToggleAssessmentScheduleStatus";
+import { IDeleteAssessmentScheduleUseCase } from "@/application/ports/use-cases/assessment-schedules/IDeleteAssessmentScheduleUseCase";
+import { DeleteAssessmentSchedule } from "@/application/use-cases/assessment-schedules/DeleteAssessmentSchedule";
+import { ISaveAssessmentMarksUseCase } from "@/application/ports/use-cases/assessment-results/ISaveAssessmentMarksUseCase";
+import { SaveAssessmentMarks } from "@/application/use-cases/assessment-results/SaveAssessmentMarks";
+import { IGetAssessmentResultsUseCase } from "@/application/ports/use-cases/assessment-results/IGetAssessmentResultsUseCase";
+import { GetAssessmentResults } from "@/application/use-cases/assessment-results/GetAssessmentResults";
+import { IGetMarkEntrySheetUseCase } from "@/application/ports/use-cases/assessment-results/IGetMarkEntrySheetUseCase";
+import { GetMarkEntrySheet } from "@/application/use-cases/assessment-results/GetMarkEntrySheet";
+import { IPublishAssessmentResultsUseCase } from "@/application/ports/use-cases/assessment-results/IPublishAssessmentResultsUseCase";
+import { PublishAssessmentResults } from "@/application/use-cases/assessment-results/PublishAssessmentResults";
+import { IGetStudentResultsUseCase } from "@/application/ports/use-cases/assessment-results/IGetStudentResultsUseCase";
+import { GetStudentResults } from "@/application/use-cases/assessment-results/GetStudentResults";
+import { IGetStudentReportCardUseCase } from "@/application/ports/use-cases/assessment-results/IGetStudentReportCardUseCase";
+import { GetStudentReportCard } from "@/application/use-cases/assessment-results/GetStudentReportCard";
 
 export const useCaseModule = new ContainerModule((bind) => {
   bind<IGetOrganizationSettings>(TYPES.GetOrganizationSettingsUseCase)
@@ -427,6 +477,12 @@ export const useCaseModule = new ContainerModule((bind) => {
   bind<ISubmitHomeworkUseCase>(TYPES.SubmitHomeworkUseCase)
     .to(SubmitHomework)
     .inSingletonScope();
+  bind<IRequestHomeworkExtensionUseCase>(TYPES.RequestHomeworkExtensionUseCase)
+    .to(RequestHomeworkExtension)
+    .inSingletonScope();
+  bind<IReviewHomeworkExtensionUseCase>(TYPES.ReviewHomeworkExtensionUseCase)
+    .to(ReviewHomeworkExtension)
+    .inSingletonScope();
 
   // Leaves
   bind<IApplyLeaveUseCase>(TYPES.ApplyLeaveUseCase)
@@ -440,5 +496,79 @@ export const useCaseModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<IReviewLeaveUseCase>(TYPES.ReviewLeaveUseCase)
     .to(ReviewLeave)
+    .inSingletonScope();
+  bind<IUpdateStudentLeaveUseCase>(TYPES.UpdateStudentLeaveUseCase)
+    .to(UpdateStudentLeave)
+    .inSingletonScope();
+  bind<ICancelStudentLeaveUseCase>(TYPES.CancelStudentLeaveUseCase)
+    .to(CancelStudentLeave)
+    .inSingletonScope();
+  bind<IRescheduleStudentLeaveUseCase>(TYPES.RescheduleStudentLeaveUseCase)
+    .to(RescheduleStudentLeave)
+    .inSingletonScope();
+
+  // Assessments
+  bind<ICreateAssessmentUseCase>(TYPES.CreateAssessmentUseCase)
+    .to(CreateAssessment)
+    .inSingletonScope();
+  bind<IGetAssessmentsUseCase>(TYPES.GetAssessmentsUseCase)
+    .to(GetAssessments)
+    .inSingletonScope();
+  bind<IUpdateAssessmentUseCase>(TYPES.UpdateAssessmentUseCase)
+    .to(UpdateAssessment)
+    .inSingletonScope();
+  bind<IDeleteAssessmentUseCase>(TYPES.DeleteAssessmentUseCase)
+    .to(DeleteAssessment)
+    .inSingletonScope();
+
+  // Assessment Criteria
+  bind<ICreateAssessmentCriteriaUseCase>(TYPES.CreateAssessmentCriteriaUseCase)
+    .to(CreateAssessmentCriteria)
+    .inSingletonScope();
+  bind<IGetAssessmentCriteriaUseCase>(TYPES.GetAssessmentCriteriaUseCase)
+    .to(GetAssessmentCriteria)
+    .inSingletonScope();
+  bind<IUpdateAssessmentCriteriaUseCase>(TYPES.UpdateAssessmentCriteriaUseCase)
+    .to(UpdateAssessmentCriteria)
+    .inSingletonScope();
+  bind<IDeleteAssessmentCriteriaUseCase>(TYPES.DeleteAssessmentCriteriaUseCase)
+    .to(DeleteAssessmentCriteria)
+    .inSingletonScope();
+
+  // Assessment Schedules
+  bind<ICreateAssessmentScheduleUseCase>(TYPES.CreateAssessmentScheduleUseCase)
+    .to(CreateAssessmentSchedule)
+    .inSingletonScope();
+  bind<IGetAssessmentSchedulesUseCase>(TYPES.GetAssessmentSchedulesUseCase)
+    .to(GetAssessmentSchedules)
+    .inSingletonScope();
+  bind<IUpdateAssessmentScheduleUseCase>(TYPES.UpdateAssessmentScheduleUseCase)
+    .to(UpdateAssessmentSchedule)
+    .inSingletonScope();
+  bind<IToggleAssessmentScheduleStatusUseCase>(TYPES.ToggleAssessmentScheduleStatusUseCase)
+    .to(ToggleAssessmentScheduleStatus)
+    .inSingletonScope();
+  bind<IDeleteAssessmentScheduleUseCase>(TYPES.DeleteAssessmentScheduleUseCase)
+    .to(DeleteAssessmentSchedule)
+    .inSingletonScope();
+
+  // Assessment Results
+  bind<ISaveAssessmentMarksUseCase>(TYPES.SaveAssessmentMarksUseCase)
+    .to(SaveAssessmentMarks)
+    .inSingletonScope();
+  bind<IGetAssessmentResultsUseCase>(TYPES.GetAssessmentResultsUseCase)
+    .to(GetAssessmentResults)
+    .inSingletonScope();
+  bind<IGetMarkEntrySheetUseCase>(TYPES.GetMarkEntrySheetUseCase)
+    .to(GetMarkEntrySheet)
+    .inSingletonScope();
+  bind<IPublishAssessmentResultsUseCase>(TYPES.PublishAssessmentResultsUseCase)
+    .to(PublishAssessmentResults)
+    .inSingletonScope();
+  bind<IGetStudentResultsUseCase>(TYPES.GetStudentResultsUseCase)
+    .to(GetStudentResults)
+    .inSingletonScope();
+  bind<IGetStudentReportCardUseCase>(TYPES.GetStudentReportCardUseCase)
+    .to(GetStudentReportCard)
     .inSingletonScope();
 });

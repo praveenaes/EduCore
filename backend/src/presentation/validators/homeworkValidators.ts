@@ -12,11 +12,9 @@ export const createHomeworkSchema = z.object({
       (val) => {
         const selected = new Date(val);
         if (isNaN(selected.getTime())) return false;
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
-        return selected > todayEnd;
+        return selected > new Date();
       },
-      { message: 'Due date must be in the future (from tomorrow onwards)' }
+      { message: 'Due date must be in the future' }
     ),
   attachments: z.array(z.any()).optional(),
 });
@@ -32,11 +30,9 @@ export const updateHomeworkSchema = z.object({
         if (!val) return true;
         const selected = new Date(val);
         if (isNaN(selected.getTime())) return false;
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
-        return selected > todayEnd;
+        return selected > new Date();
       },
-      { message: 'Due date must be in the future (from tomorrow onwards)' }
+      { message: 'Due date must be in the future' }
     ),
   attachments: z.array(z.any()).optional(),
 });

@@ -9,6 +9,8 @@ import { IReviewHomeworkSubmissionUseCase } from '@/application/ports/use-cases/
 import { IDeleteHomeworkUseCase } from '@/application/ports/use-cases/homework/IDeleteHomeworkUseCase';
 import { IGetStudentHomeworksUseCase } from '@/application/ports/use-cases/homework/IGetStudentHomeworksUseCase';
 import { ISubmitHomeworkUseCase } from '@/application/ports/use-cases/homework/ISubmitHomeworkUseCase';
+import { IRequestHomeworkExtensionUseCase } from '@/application/ports/use-cases/homework/IRequestHomeworkExtensionUseCase';
+import { IReviewHomeworkExtensionUseCase } from '@/application/ports/use-cases/homework/IReviewHomeworkExtensionUseCase';
 import { ResponseHelper } from '../../helpers/ResponseHelper';
 import { AuthenticatedRequest } from '../../middleware/authMiddleware';
 import { createHomeworkSchema, updateHomeworkSchema } from '../../validators/homeworkValidators';
@@ -33,7 +35,11 @@ export class HomeworkController {
     @inject(TYPES.GetStudentHomeworksUseCase)
     private _getStudentHomeworksUseCase: IGetStudentHomeworksUseCase,
     @inject(TYPES.SubmitHomeworkUseCase)
-    private _submitHomeworkUseCase: ISubmitHomeworkUseCase
+    private _submitHomeworkUseCase: ISubmitHomeworkUseCase,
+    @inject(TYPES.RequestHomeworkExtensionUseCase)
+    private _requestHomeworkExtensionUseCase: IRequestHomeworkExtensionUseCase,
+    @inject(TYPES.ReviewHomeworkExtensionUseCase)
+    private _reviewHomeworkExtensionUseCase: IReviewHomeworkExtensionUseCase
   ) {}
 
   // ==============================
@@ -181,5 +187,45 @@ export class HomeworkController {
     });
 
     ResponseHelper.success(res, 'Homework submitted successfully', null, 200);
+  };
+
+  requestExtension = async (
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> => {
+    const userId = req.user!.id;
+    const homeworkId = req.params.id;
+    const { reason, explanation, attachment } = req.body;
+
+    await this._requestHomeworkExtensionUseCase.execute({
+      homeworkId,
+      userId,
+      reason,
+      explanation,
+      attachment,
+    });
+
+    ResponseHelper.success(res, 'Extension requested successfully', null, 200);
+  };
+
+  reviewExtension = async (
+    req: AuthenticatedRequest,
+    res: Response
+  ): Promise<void> => {
+    const userId = req.user!.id;
+    const homeworkId = req.params.homeworkId;
+    const studentId = req.params.studentId;
+    const { status, extendedDueDate, teacherRemarks } = req.body;
+
+    await this._reviewHomeworkExtensionUseCase.execute({
+      homeworkId,
+      studentId,
+      userId,
+      status,
+      extendedDueDate,
+      teacherRemarks,
+    });
+
+    ResponseHelper.success(res, 'Extension request reviewed successfully', null, 200);
   };
 }

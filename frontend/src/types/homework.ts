@@ -8,6 +8,18 @@ export interface HomeworkAttachment {
   fileSize?: number;
 }
 
+export interface HomeworkExtensionRequest {
+  status: 'pending' | 'approved' | 'rejected';
+  reason: string;
+  explanation?: string;
+  attachment?: HomeworkAttachment;
+  requestedAt: string;
+  reviewedAt?: string | null;
+  reviewedBy?: string | null;
+  teacherRemarks?: string;
+  extendedDueDate?: string | null;
+}
+
 // Single homework item as seen in lists and details
 export interface Homework {
   id: string;
@@ -25,6 +37,7 @@ export interface Homework {
   totalStudents?: number;
   submittedCount?: number;
   verifiedCount?: number;
+  pendingExtensionCount?: number;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -43,6 +56,7 @@ export interface HomeworkParticipant {
   verifiedAt?: string | null;
   remarks?: string;
   submissionAttachments: HomeworkAttachment[];
+  extensionRequest?: HomeworkExtensionRequest | null;
 }
 
 // ==============================
@@ -92,6 +106,18 @@ export interface ReviewSubmissionPayload {
   remarks?: string;
 }
 
+export interface RequestHomeworkExtensionPayload {
+  reason: string;
+  explanation?: string;
+  attachment?: HomeworkAttachment;
+}
+
+export interface ReviewHomeworkExtensionPayload {
+  status: 'approved' | 'rejected';
+  extendedDueDate?: string;
+  teacherRemarks?: string;
+}
+
 // ==============================
 // Student Portal Payloads & Responses
 // ==============================
@@ -110,6 +136,7 @@ export interface StudentHomeworkItem {
   remarks?: string;
   teacherAttachments: HomeworkAttachment[];
   submissionAttachments: HomeworkAttachment[];
+  extensionRequest?: HomeworkExtensionRequest | null;
 }
 
 export interface StudentHomeworkListResponse {

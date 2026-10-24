@@ -61,6 +61,23 @@ export class GetStudentHomeworks implements IGetStudentHomeworksUseCase {
           fileType: a.fileType,
           fileSize: a.fileSize,
         })),
+        extensionRequest: mySubmission?.extensionRequest
+          ? {
+              status: mySubmission.extensionRequest.status,
+              reason: mySubmission.extensionRequest.reason,
+              explanation: mySubmission.extensionRequest.explanation,
+              attachment: mySubmission.extensionRequest.attachment,
+              requestedAt: mySubmission.extensionRequest.requestedAt.toISOString(),
+              reviewedAt: mySubmission.extensionRequest.reviewedAt
+                ? mySubmission.extensionRequest.reviewedAt.toISOString()
+                : null,
+              reviewedBy: mySubmission.extensionRequest.reviewedBy,
+              teacherRemarks: mySubmission.extensionRequest.teacherRemarks,
+              extendedDueDate: mySubmission.extensionRequest.extendedDueDate
+                ? mySubmission.extensionRequest.extendedDueDate.toISOString()
+                : null,
+            }
+          : null,
       };
     });
 

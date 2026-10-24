@@ -25,7 +25,7 @@ export const authenticateAdmin = async (
     : req.cookies?.accessToken;
 
   if (!token) {
-    req.resume();
+    req.resume();//sed to continue reading and discarding any remaining incoming request data
     res.status(401).json({ success: false, message: "Authentication required. Please log in." });
     return;
   }

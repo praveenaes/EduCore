@@ -8,6 +8,8 @@ import type {
   ReviewSubmissionPayload,
   StudentHomeworkListResponse,
   SubmitHomeworkPayload,
+  RequestHomeworkExtensionPayload,
+  ReviewHomeworkExtensionPayload,
 } from '../types/homework';
 
 // ==============================
@@ -69,5 +71,24 @@ export const submitHomeworkApi = (
 ) =>
   axiosInstance.post(
     API_ROUTES.HOMEWORK.STUDENT_SUBMIT(participantId),
+    payload
+  );
+
+export const requestHomeworkExtensionApi = (
+  homeworkId: string,
+  payload: RequestHomeworkExtensionPayload
+) =>
+  axiosInstance.post(
+    API_ROUTES.HOMEWORK.STUDENT_EXTENSION(homeworkId),
+    payload
+  );
+
+export const reviewHomeworkExtensionApi = (
+  homeworkId: string,
+  studentId: string,
+  payload: ReviewHomeworkExtensionPayload
+) =>
+  axiosInstance.patch(
+    API_ROUTES.HOMEWORK.REVIEW_EXTENSION(homeworkId, studentId),
     payload
   );

@@ -14,11 +14,9 @@ export const createHomeworkFormSchema = z.object({
     .refine(
       (val) => {
         const selected = new Date(val);
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
-        return selected > todayEnd;
+        return selected > new Date();
       },
-      { message: 'Due date must be in the future (from tomorrow onwards).' }
+      { message: 'Due date must be in the future.' }
     ),
   description: z.string().max(1000, 'Description cannot exceed 1000 characters.').optional(),
 });
@@ -35,11 +33,9 @@ export const updateHomeworkFormSchema = z.object({
     .refine(
       (val) => {
         const selected = new Date(val);
-        const todayEnd = new Date();
-        todayEnd.setHours(23, 59, 59, 999);
-        return selected > todayEnd;
+        return selected > new Date();
       },
-      { message: 'Due date must be in the future (from tomorrow onwards).' }
+      { message: 'Due date must be in the future.' }
     ),
   description: z.string().max(1000, 'Description cannot exceed 1000 characters.').optional(),
 });

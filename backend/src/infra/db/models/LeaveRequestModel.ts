@@ -1,6 +1,19 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { LeaveStatus, LeaveType, HalfDaySession } from '../../../domain/entities/LeaveRequest';
 
+export interface ILeaveRescheduleDocument {
+  startDate: Date;
+  endDate: Date;
+  isHalfDay?: boolean;
+  halfDaySession?: HalfDaySession;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: Date;
+  reviewedBy?: Types.ObjectId;
+  reviewedAt?: Date;
+  remarks?: string;
+}
+
 export interface ILeaveRequestDocument extends Document {
   studentId: Types.ObjectId;
   batchId: Types.ObjectId;
@@ -15,6 +28,7 @@ export interface ILeaveRequestDocument extends Document {
   reviewedBy?: Types.ObjectId;
   reviewedAt?: Date;
   remarks?: string;
+  rescheduleRequest?: ILeaveRescheduleDocument;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -85,6 +99,24 @@ const LeaveRequestSchema = new Schema<ILeaveRequestDocument>(
       type: String,
       trim: true,
       default: '',
+    },
+    rescheduleRequest: {
+      type: new Schema(
+        {
+          startDate: { type: Date, required: true },
+          endDate: { type: Date, required: true },
+          isHalfDay: { type: Boolean, default: false },
+          halfDaySession: { type: String, enum: ['firstHalf', 'secondHalf'], default: null },
+          reason: { type: String, required: true, trim: true },
+          status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', required: true },
+          requestedAt: { type: Date, default: Date.now, required: true },
+          reviewedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+          reviewedAt: { type: Date },
+          remarks: { type: String, trim: true, default: '' },
+        },
+        { _id: false }
+      ),
+      default: null,
     },
     isDeleted: {
       type: Boolean,

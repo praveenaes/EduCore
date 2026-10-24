@@ -8,6 +8,18 @@ export interface HomeworkAttachmentProps {
   fileSize?: number;
 }
 
+export interface HomeworkExtensionRequestProps {
+  status: 'pending' | 'approved' | 'rejected';
+  reason: string;
+  explanation?: string;
+  attachment?: HomeworkAttachmentProps;
+  requestedAt: Date;
+  reviewedAt?: Date | null;
+  reviewedBy?: string | null;
+  teacherRemarks?: string;
+  extendedDueDate?: Date | null;
+}
+
 export interface HomeworkSubmissionProps {
   id?: string;
   studentId: string;
@@ -16,6 +28,7 @@ export interface HomeworkSubmissionProps {
   verifiedAt?: Date | null;
   remarks?: string;
   attachments?: HomeworkAttachmentProps[];
+  extensionRequest?: HomeworkExtensionRequestProps | null;
 
   // Populated display helpers
   studentName?: string;
@@ -84,6 +97,9 @@ export class Homework {
   get verifiedCount(): number {
     return this._props.submissions.filter((s) => s.status === 'verified').length;
   }
+  get pendingExtensionCount(): number {
+    return this._props.submissions.filter((s) => s.extensionRequest?.status === 'pending').length;
+  }
 
   // Business Methods
   updateDetails(details: {
@@ -117,6 +133,67 @@ export class Homework {
       sub.verifiedAt = new Date();
       this._props.updatedAt = new Date();
     }
+  }
+
+  requestExtension(
+    studentId: string,
+    reason: string,
+    explanation?: string,
+    attachment?: HomeworkAttachmentProps
+  ): void {
+    const sub = this._props.submissions.find((s) => s.studentId === studentId);
+    if (!sub) {
+      throw new Error('Student is not assigned to this homework.');
+    }
+    if (new Date() <= this._props.dueDate) {
+      throw new Error('Deadline has not yet passed.');
+    }
+    if (sub.extensionRequest && sub.extensionRequest.status === 'pending') {
+      throw new Error('You already have a pending extension request for this homework.');
+    }
+
+    sub.extensionRequest = {
+      status: 'pending',
+      reason: reason.trim(),
+      explanation: explanation?.trim(),
+      attachment,
+      requestedAt: new Date(),
+    };
+    this._props.updatedAt = new Date();
+  }
+
+  reviewExtension(
+    studentId: string,
+    status: 'approved' | 'rejected',
+    extendedDueDate?: Date | null,
+    teacherRemarks?: string,
+    reviewedBy?: string
+  ): void {
+    const sub = this._props.submissions.find((s) => s.studentId === studentId);
+    if (!sub || !sub.extensionRequest) {
+      throw new Error('No extension request found for this student.');
+    }
+
+    sub.extensionRequest.status = status;
+    sub.extensionRequest.reviewedAt = new Date();
+    sub.extensionRequest.reviewedBy = reviewedBy;
+    sub.extensionRequest.teacherRemarks = teacherRemarks?.trim();
+    if (status === 'approved' && extendedDueDate) {
+      sub.extensionRequest.extendedDueDate = extendedDueDate;
+    }
+    this._props.updatedAt = new Date();
+  }
+
+  isSubmissionAllowed(studentId: string): boolean {
+    const sub = this._props.submissions.find((s) => s.studentId === studentId);
+    if (!sub) return false;
+    const now = new Date();
+    if (now <= this._props.dueDate) return true;
+    if (sub.extensionRequest?.status === 'approved') {
+      if (!sub.extensionRequest.extendedDueDate) return true;
+      return now <= sub.extensionRequest.extendedDueDate;
+    }
+    return false;
   }
 
   static createNew(props: {
@@ -170,6 +247,7 @@ export class Homework {
       totalStudents: this.totalStudents,
       submittedCount: this.submittedCount,
       verifiedCount: this.verifiedCount,
+      pendingExtensionCount: this.pendingExtensionCount,
     };
   }
 }

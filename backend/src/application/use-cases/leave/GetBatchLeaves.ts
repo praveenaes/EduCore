@@ -59,6 +59,19 @@ export class GetBatchLeaves implements IGetBatchLeavesUseCase {
         reviewerName: l.reviewerName,
         reviewedAt: l.reviewedAt instanceof Date ? l.reviewedAt.toISOString() : l.reviewedAt ? String(l.reviewedAt) : undefined,
         remarks: l.remarks,
+        rescheduleRequest: l.rescheduleRequest ? {
+          startDate: l.rescheduleRequest.startDate instanceof Date ? l.rescheduleRequest.startDate.toISOString().slice(0, 10) : String(l.rescheduleRequest.startDate).slice(0, 10),
+          endDate: l.rescheduleRequest.endDate instanceof Date ? l.rescheduleRequest.endDate.toISOString().slice(0, 10) : String(l.rescheduleRequest.endDate).slice(0, 10),
+          isHalfDay: l.rescheduleRequest.isHalfDay,
+          halfDaySession: l.rescheduleRequest.halfDaySession,
+          reason: l.rescheduleRequest.reason,
+          status: l.rescheduleRequest.status,
+          requestedAt: l.rescheduleRequest.requestedAt instanceof Date ? l.rescheduleRequest.requestedAt.toISOString() : String(l.rescheduleRequest.requestedAt),
+          reviewedBy: l.rescheduleRequest.reviewedBy,
+          reviewerName: l.rescheduleRequest.reviewerName,
+          reviewedAt: l.rescheduleRequest.reviewedAt ? new Date(l.rescheduleRequest.reviewedAt).toISOString() : undefined,
+          remarks: l.rescheduleRequest.remarks,
+        } : undefined,
       };
     });
 

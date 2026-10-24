@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { usePagination } from '../../hooks/usePagination';
-import { BookOpen, Plus, Users, Calendar, Trash2, Edit2 } from 'lucide-react';
+import { BookOpen, Plus, Users, Calendar, Trash2, Edit2, Clock } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
 import { Table, type TableColumn } from '../../components/Table';
@@ -104,7 +104,15 @@ export const TeacherHomeworkPage: React.FC = () => {
             <BookOpen className="h-4 w-4" />
           </div>
           <div>
-            <p className="font-semibold text-neutral-800 line-clamp-1">{hw.title}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold text-neutral-800 line-clamp-1">{hw.title}</p>
+              {hw.pendingExtensionCount && hw.pendingExtensionCount > 0 ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 border border-amber-300">
+                  <Clock className="h-2.5 w-2.5 text-amber-600" />
+                  {hw.pendingExtensionCount} Extension Request{hw.pendingExtensionCount > 1 ? 's' : ''}
+                </span>
+              ) : null}
+            </div>
             {hw.description ? (
               <p className="text-xs text-neutral-400 line-clamp-1 max-w-sm">{hw.description}</p>
             ) : (

@@ -16,6 +16,10 @@ import { BatchController } from "@/presentation/controllers/batches/Batch.contro
 import { AttendanceController } from "@/presentation/controllers/attendance/Attendance.controller";
 import { HomeworkController } from "@/presentation/controllers/homework/Homework.controller";
 import { LeaveController } from "@/presentation/controllers/leave/Leave.controller";
+import { AssessmentController } from "@/presentation/controllers/assessments/Assessment.controller";
+import { AssessmentCriteriaController } from "@/presentation/controllers/assessment-criteria/AssessmentCriteria.controller";
+import { AssessmentScheduleController } from "@/presentation/controllers/assessment-schedules/AssessmentSchedule.controller";
+import { AssessmentResultController } from "@/presentation/controllers/assessment-results/AssessmentResult.controller";
 
 export const controllerModule = new ContainerModule((bind) => {
   bind<SettingsController>(TYPES.SettingsController)
@@ -65,4 +69,17 @@ export const controllerModule = new ContainerModule((bind) => {
   bind<LeaveController>(TYPES.LeaveController)
     .to(LeaveController)
     .inSingletonScope();
+
+  bind<AssessmentController>(TYPES.AssessmentController)
+    .to(AssessmentController)
+    .inSingletonScope();
+
+  bind<AssessmentCriteriaController>(TYPES.AssessmentCriteriaController)
+    .to(AssessmentCriteriaController)
+    .inSingletonScope();
+  bind<AssessmentScheduleController>(TYPES.AssessmentScheduleController)
+    .to(AssessmentScheduleController)
+    .inSingletonScope();
+  bind<AssessmentResultController>(TYPES.AssessmentResultController)
+    .to(AssessmentResultController)
 });

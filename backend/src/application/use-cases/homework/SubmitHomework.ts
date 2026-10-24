@@ -35,7 +35,7 @@ export class SubmitHomework implements ISubmitHomeworkUseCase {
         studentHws.homeworks.find(
           (h) =>
             h.id === dto.participantId ||
-            h.submissions.some((s) => s.id === dto.participantId || s.studentId === student.id!)
+            h.submissions.some((s) => s.id === dto.participantId)
         ) || null;
     }
 
@@ -48,7 +48,7 @@ export class SubmitHomework implements ISubmitHomeworkUseCase {
       throw new BadRequestError('This homework is not assigned to you.');
     }
 
-    if (new Date() > homework.dueDate) {
+    if (!homework.isSubmissionAllowed(student.id!)) {
       throw new BadRequestError('Deadline is over');
     }
 

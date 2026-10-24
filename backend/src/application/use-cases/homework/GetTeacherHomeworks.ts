@@ -55,6 +55,7 @@ export class GetTeacherHomeworks implements IGetTeacherHomeworksUseCase {
       totalStudents: hw.totalStudents,
       submittedCount: hw.submittedCount,
       verifiedCount: hw.verifiedCount,
+      pendingExtensionCount: hw.pendingExtensionCount,
       isActive: hw.isActive,
       createdAt: hw.createdAt?.toISOString(),
       updatedAt: hw.updatedAt?.toISOString(),

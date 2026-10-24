@@ -18,6 +18,17 @@ export const getLeaveRoutes = (container: Container): Router => {
     .post(asyncHandler(leaveController.applyLeave.bind(leaveController)))
     .get(asyncHandler(leaveController.getStudentLeaves.bind(leaveController)));
 
+  // Student routes: update leave (PUT) and cancel leave (DELETE)
+  router
+    .route(API_ROUTES.LEAVES.STUDENT_DETAIL)
+    .put(asyncHandler(leaveController.updateStudentLeave.bind(leaveController)))
+    .delete(asyncHandler(leaveController.cancelStudentLeave.bind(leaveController)));
+
+  // Student route: reschedule approved leave (POST)
+  router
+    .route(API_ROUTES.LEAVES.STUDENT_RESCHEDULE)
+    .post(asyncHandler(leaveController.rescheduleStudentLeave.bind(leaveController)));
+
   // Teacher route: get batch leaves (GET)
   router
     .route(API_ROUTES.LEAVES.BATCH)

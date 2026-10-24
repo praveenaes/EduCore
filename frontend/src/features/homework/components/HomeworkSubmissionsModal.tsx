@@ -15,6 +15,7 @@ import {
 import {
   getHomeworkSubmissionsApi,
   reviewSubmissionApi,
+  reviewHomeworkExtensionApi,
 } from '../../../services/homeworkService';
 import { openAttachment } from '../../../utils/fileHelper';
 import type { Homework, HomeworkParticipant, HomeworkStatus } from '../../../types/homework';
@@ -40,6 +41,13 @@ export const HomeworkSubmissionsModal: React.FC<HomeworkSubmissionsModalProps> =
   const [reviewRemarks, setReviewRemarks] = useState('');
   const [isSavingReview, setIsSavingReview] = useState(false);
 
+  // Active extension review state
+  const [reviewingExtensionSub, setReviewingExtensionSub] = useState<HomeworkParticipant | null>(null);
+  const [extDecision, setExtDecision] = useState<'approved' | 'rejected'>('approved');
+  const [extDueDate, setExtDueDate] = useState('');
+  const [extRemarks, setExtRemarks] = useState('');
+  const [isSavingExtension, setIsSavingExtension] = useState(false);
+
   const fetchSubmissions = useCallback(async () => {
     if (!homework) return;
     setIsLoading(true);
@@ -60,10 +68,13 @@ export const HomeworkSubmissionsModal: React.FC<HomeworkSubmissionsModalProps> =
     } else {
       setReviewingStudentId(null);
       setReviewRemarks('');
+      setReviewingExtensionSub(null);
+      setExtRemarks('');
     }
   }, [isOpen, homework, fetchSubmissions]);
 
   const handleOpenReview = (sub: HomeworkParticipant) => {
+    setReviewingExtensionSub(null);
     setReviewingStudentId(sub.id);
     setReviewStatus(sub.status === 'redo' ? 'redo' : 'verified');
     setReviewRemarks(sub.remarks || '');
@@ -98,7 +109,60 @@ export const HomeworkSubmissionsModal: React.FC<HomeworkSubmissionsModalProps> =
     }
   };
 
-  const getStatusBadge = (status: HomeworkStatus) => {
+  const handleOpenExtensionReview = (sub: HomeworkParticipant) => {
+    setReviewingStudentId(null);
+    setReviewingExtensionSub(sub);
+    setExtDecision(sub.extensionRequest?.status === 'rejected' ? 'rejected' : 'approved');
+
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const mins = String(d.getMinutes()).padStart(2, '0');
+
+    setExtDueDate(
+      sub.extensionRequest?.extendedDueDate
+        ? new Date(sub.extensionRequest.extendedDueDate).toISOString().slice(0, 16)
+        : `${y}-${m}-${day}T${hours}:${mins}`
+    );
+    setExtRemarks(sub.extensionRequest?.teacherRemarks || '');
+  };
+
+  const handleSaveExtensionReview = async () => {
+    if (!homework || !reviewingExtensionSub) return;
+    setIsSavingExtension(true);
+    try {
+      await reviewHomeworkExtensionApi(homework.id, reviewingExtensionSub.studentId, {
+        status: extDecision,
+        extendedDueDate: extDecision === 'approved' && extDueDate ? new Date(extDueDate).toISOString() : undefined,
+        teacherRemarks: extRemarks.trim(),
+      });
+      await fetchSubmissions();
+      setReviewingExtensionSub(null);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to review extension request.');
+    } finally {
+      setIsSavingExtension(false);
+    }
+  };
+
+  const getStatusBadge = (status: HomeworkStatus, ext?: HomeworkParticipant['extensionRequest']) => {
+    if (ext && ext.status === 'pending') {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-300">
+          <Clock className="h-3 w-3 text-amber-600" /> Extension Requested
+        </span>
+      );
+    }
+    if (ext && ext.status === 'approved' && status === 'pending') {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 border border-emerald-300">
+          <CheckCircle className="h-3 w-3 text-emerald-600" /> Extension Approved
+        </span>
+      );
+    }
     switch (status) {
       case 'verified':
         return (
@@ -145,7 +209,7 @@ export const HomeworkSubmissionsModal: React.FC<HomeworkSubmissionsModalProps> =
     },
     {
       header: 'Status',
-      accessor: (row) => getStatusBadge(row.status),
+      accessor: (row) => getStatusBadge(row.status, row.extensionRequest),
     },
     {
       header: 'Submitted At',
@@ -187,17 +251,37 @@ export const HomeworkSubmissionsModal: React.FC<HomeworkSubmissionsModalProps> =
     },
     {
       header: 'Action',
-      accessor: (row) => (
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => handleOpenReview(row)}
-          disabled={row.status === 'pending'}
-          className="text-xs"
-        >
-          Review
-        </Button>
-      ),
+      accessor: (row) => {
+        // Once the student has submitted, show the standard homework Review button
+        if (row.status !== 'pending') {
+          return (
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => handleOpenReview(row)}
+              className="text-xs"
+            >
+              Review
+            </Button>
+          );
+        }
+
+        // If the student has not submitted yet and has a pending extension request, show Review Request
+        if (row.extensionRequest?.status === 'pending') {
+          return (
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => handleOpenExtensionReview(row)}
+              className="text-xs"
+            >
+              Review Request
+            </Button>
+          );
+        }
+
+        return <span className="text-xs text-neutral-400">—</span>;
+      },
     },
   ];
 
@@ -312,6 +396,137 @@ export const HomeworkSubmissionsModal: React.FC<HomeworkSubmissionsModalProps> =
               >
                 Save Evaluation
               </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Inline Extension Request Review Drawer */}
+        {reviewingExtensionSub && reviewingExtensionSub.extensionRequest && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50/50 p-4 space-y-3 transition">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-amber-600" />
+                Reviewing Extension Request — {reviewingExtensionSub.studentName} ({reviewingExtensionSub.admissionNumber || 'Student'})
+              </span>
+              <button
+                type="button"
+                onClick={() => setReviewingExtensionSub(null)}
+                className="text-xs text-neutral-500 hover:text-neutral-700 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="rounded-lg bg-white p-3 border border-amber-200/80 text-xs space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-neutral-700">Reason:</span>
+                <span className="font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded">
+                  {reviewingExtensionSub.extensionRequest.reason}
+                </span>
+              </div>
+              {reviewingExtensionSub.extensionRequest.explanation && (
+                <div>
+                  <span className="font-semibold text-neutral-700">Explanation:</span>
+                  <p className="italic text-neutral-800 mt-0.5">“{reviewingExtensionSub.extensionRequest.explanation}”</p>
+                </div>
+              )}
+              {reviewingExtensionSub.extensionRequest.attachment && (
+                <div className="pt-1">
+                  <span className="font-semibold text-neutral-700">Attached Proof: </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openAttachment(
+                        reviewingExtensionSub.extensionRequest!.attachment!.fileUrl,
+                        reviewingExtensionSub.extensionRequest!.attachment!.fileName
+                      )
+                    }
+                    className="inline-flex items-center gap-1 text-brand-600 hover:underline font-semibold cursor-pointer ml-1"
+                  >
+                    <FileText className="h-3 w-3" />
+                    {reviewingExtensionSub.extensionRequest.attachment.fileName}
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3 pt-1">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                  Decision <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-4 text-xs font-semibold">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-emerald-800">
+                    <input
+                      type="radio"
+                      name="extDecision"
+                      value="approved"
+                      checked={extDecision === 'approved'}
+                      onChange={() => setExtDecision('approved')}
+                    />
+                    Approve Extension
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer text-rose-800">
+                    <input
+                      type="radio"
+                      name="extDecision"
+                      value="rejected"
+                      checked={extDecision === 'rejected'}
+                      onChange={() => setExtDecision('rejected')}
+                    />
+                    Reject Request
+                  </label>
+                </div>
+              </div>
+
+              {extDecision === 'approved' && (
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                    New Extended Due Date & Time <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={extDueDate}
+                    onChange={(e) => setExtDueDate(e.target.value)}
+                    className="w-full sm:w-72 rounded-xl border border-neutral-300 px-3 py-1.5 text-xs text-neutral-800 outline-none bg-white focus:border-brand-500"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                  Teacher Remarks / Feedback
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Approved due to illness. Please submit as soon as possible."
+                  value={extRemarks}
+                  onChange={(e) => setExtRemarks(e.target.value)}
+                  className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-xs text-neutral-800 outline-none bg-white focus:border-brand-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setReviewingExtensionSub(null)}
+                  disabled={isSavingExtension}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={handleSaveExtensionReview}
+                  isLoading={isSavingExtension}
+                  className="text-xs"
+                >
+                  Save Decision
+                </Button>
+              </div>
             </div>
           </div>
         )}

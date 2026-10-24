@@ -14,9 +14,13 @@ import {
   ArrowRight,
   LayoutGrid,
   List,
+  Edit2,
+  Trash2,
+  CalendarClock,
+  RotateCw,
 } from 'lucide-react';
 import { getStudentAttendanceApi } from '../../services/attendanceService';
-import { getStudentLeavesApi } from '../../services/leaveService';
+import { getStudentLeavesApi, cancelStudentLeaveApi } from '../../services/leaveService';
 import type {
   StudentAttendanceRecord,
   DayAttendanceStatus,
@@ -26,6 +30,7 @@ import { Button } from '../../components/Button';
 import { Badge } from '../../components/Badge';
 import { EmptyState } from '../../components/EmptyState';
 import { ApplyLeaveModal } from '../../features/attendance/components/ApplyLeaveModal';
+import { ConfirmationModal } from '../../components/ConfirmationModal';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -73,8 +78,10 @@ export const StudentAttendancePage: React.FC = () => {
   }, [currentMonth, currentYear]);
 
   useEffect(() => {
-    fetchMonthlyAttendance();
-  }, [fetchMonthlyAttendance]);
+    if (activeTab === 'calendar') {
+      fetchMonthlyAttendance();
+    }
+  }, [fetchMonthlyAttendance, activeTab]);
 
  //leave 
   const fetchLeaves = useCallback(async () => {
@@ -96,6 +103,27 @@ export const StudentAttendancePage: React.FC = () => {
     fetchLeaves();
   }, [fetchLeaves]);
 
+  // Edit, Reschedule & Cancel Leave states
+  const [editingLeave, setEditingLeave] = useState<LeaveRequest | null>(null);
+  const [reschedulingLeave, setReschedulingLeave] = useState<LeaveRequest | null>(null);
+  const [cancellingLeave, setCancellingLeave] = useState<LeaveRequest | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleConfirmCancel = async () => {
+    if (!cancellingLeave) return;
+    setIsCancelling(true);
+    try {
+      await cancelStudentLeaveApi(cancellingLeave.id);
+      setCancellingLeave(null);
+      fetchLeaves();
+      await fetchMonthlyAttendance();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to cancel leave application.');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   const handlePrevMonth = () => {
     setDisplayedDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
     setSelectedDayRecord(null);
@@ -109,6 +137,16 @@ export const StudentAttendancePage: React.FC = () => {
   const handleJumpToToday = () => {
     setDisplayedDate(new Date(today.getFullYear(), today.getMonth(), 1));
     setSelectedDayRecord(null);
+  };
+
+  const isLeaveUpcoming = (dateStr: string): boolean => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const cleanDateStr = dateStr.split('T')[0];
+    const [y, m, d] = cleanDateStr.split('-').map(Number);
+    const leaveDate = new Date(y, m - 1, d);
+    leaveDate.setHours(0, 0, 0, 0);
+    return leaveDate >= now;
   };
 
   const getAttendanceForDate = useCallback(
@@ -278,7 +316,10 @@ export const StudentAttendancePage: React.FC = () => {
       <div className="flex items-center gap-6 border-b border-neutral-200/80">
         <button
           type="button"
-          onClick={() => setActiveTab('calendar')}
+          onClick={() => {
+            setActiveTab('calendar');
+            fetchMonthlyAttendance();
+          }}
           className={`pb-3 text-sm font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
             activeTab === 'calendar'
               ? 'border-brand-600 text-brand-700'
@@ -589,12 +630,56 @@ export const StudentAttendancePage: React.FC = () => {
                           <p className="text-neutral-700 italic">“{leave.remarks}”</p>
                         </div>
                       )}
+
                     </div>
 
   {/* Card Footer */}
                     <div className="flex items-center justify-between pt-3 border-t border-neutral-100 text-xs text-neutral-400">
                       <span style={{color:'black'}} >Applied on {formatDateDisplay(leave.appliedAt)}</span>
-                     
+                      {leave.status === 'pending' && (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setEditingLeave(leave)}
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-neutral-600 bg-neutral-100 hover:bg-neutral-200 hover:text-neutral-900 rounded-lg transition cursor-pointer"
+                            title="Update Leave Application"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                            <span>Update</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCancellingLeave(leave)}
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition cursor-pointer border border-rose-200/60"
+                            title="Cancel Leave Application"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            <span>Cancel</span>
+                          </button>
+                        </div>
+                      )}
+                      {leave.status === 'approved' && isLeaveUpcoming(leave.startDate) && (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setReschedulingLeave(leave)}
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-lg transition cursor-pointer border border-brand-200/60"
+                            title="Reschedule Leave"
+                          >
+                            <CalendarClock className="h-3.5 w-3.5" />
+                            <span>Reschedule</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCancellingLeave(leave)}
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition cursor-pointer border border-rose-200/60"
+                            title="Cancel Approved Leave"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            <span>Cancel</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -613,6 +698,7 @@ export const StudentAttendancePage: React.FC = () => {
                       <th className="px-4 py-3.5">Status</th>
                       <th className="px-5 py-3.5">Teacher Note</th>
                       <th className="px-4 py-3.5">Applied On</th>
+                      <th className="px-4 py-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-100 text-neutral-700">
@@ -661,6 +747,49 @@ export const StudentAttendancePage: React.FC = () => {
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-xs text-neutral-400">
                             {formatDateDisplay(leave.appliedAt)}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-right">
+                            {leave.status === 'pending' ? (
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingLeave(leave)}
+                                  className="p-1.5 text-neutral-500 hover:text-brand-600 rounded-lg hover:bg-brand-50 transition cursor-pointer"
+                                  title="Update Leave Application"
+                                >
+                                  <Edit2 className="h-4 w-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setCancellingLeave(leave)}
+                                  className="p-1.5 text-neutral-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer"
+                                  title="Cancel Leave Application"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            ) : leave.status === 'approved' && isLeaveUpcoming(leave.startDate) ? (
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setReschedulingLeave(leave)}
+                                  className="p-1.5 text-brand-600 hover:text-brand-800 rounded-lg hover:bg-brand-50 transition cursor-pointer"
+                                  title="Reschedule Leave"
+                                >
+                                  <CalendarClock className="h-4 w-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setCancellingLeave(leave)}
+                                  className="p-1.5 text-neutral-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer"
+                                  title="Cancel Approved Leave"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-neutral-300">—</span>
+                            )}
                           </td>
                         </tr>
                       );
@@ -738,6 +867,14 @@ export const StudentAttendancePage: React.FC = () => {
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-4 w-4 text-brand-600" />
             <span className="text-base font-bold text-neutral-800">{monthName}</span>
+            <button
+              type="button"
+              onClick={fetchMonthlyAttendance}
+              title="Refresh attendance records"
+              className="ml-1 p-1 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
+            >
+              <RotateCw className="h-3.5 w-3.5" />
+            </button>
           </div>
 
           <button
@@ -824,8 +961,14 @@ export const StudentAttendancePage: React.FC = () => {
                   >
                     <span className="text-sm sm:text-base">{day.getDate()}</span>
                     {status !== 'none' && (
-                      <span className="text-[10px] opacity-90 capitalize font-medium">
-                        {status === 'partial' ? 'Half Day' : status}
+                      <span className="text-[9px] sm:text-[10px] opacity-90 font-medium text-center leading-tight">
+                        {status === 'partial'
+                          ? record?.firstHalf === 'absent'
+                            ? 'Morning Absent'
+                            : record?.secondHalf === 'absent'
+                            ? 'Afternoon Absent'
+                            : 'Half Day'
+                          : status}
                       </span>
                     )}
                   </button>
@@ -834,49 +977,74 @@ export const StudentAttendancePage: React.FC = () => {
             </div>
 
    {/* Selected Date Detail Drawer */}
-            {selectedDayRecord && (
-              <div className="mt-5 flex items-center justify-between rounded-xl bg-neutral-50 p-4 border border-neutral-200/80">
-                <div className="space-y-0.5">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                    Selected Day:{' '}
-                    <span className="font-bold text-neutral-800">
-                      {selectedDayRecord.dateStr}
-                    </span>
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-600">
-                    <span>
-                      Morning:{' '}
-                      <strong className="capitalize text-neutral-800">
-                        {selectedDayRecord.record?.firstHalf ?? 'No session'}
-                      </strong>
-                    </span>
-                    <span>•</span>
-                    <span>
-                      Afternoon:{' '}
-                      <strong className="capitalize text-neutral-800">
-                        {selectedDayRecord.record?.secondHalf ?? 'No session'}
-                      </strong>
-                    </span>
-                    {selectedDayRecord.record?.remarks && (
-                      <>
-                        <span>•</span>
-                        <span className="italic text-neutral-500">
-                          Remarks: "{selectedDayRecord.record.remarks}"
+            {selectedDayRecord && (() => {
+              const isAbsent = selectedDayRecord.status === 'absent' || selectedDayRecord.status === 'partial';
+              const matchingLeave = leaves.find((l) => {
+                if (l.status !== 'approved') return false;
+                const cleanDate = selectedDayRecord.dateStr;
+                const start = (l.startDate || '').split('T')[0];
+                const end = (l.endDate || '').split('T')[0];
+                return cleanDate >= start && cleanDate <= end;
+              });
+
+              return (
+                <div className="mt-5 flex items-center justify-between rounded-xl bg-neutral-50 p-4 border border-neutral-200/80">
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                      Selected Day:{' '}
+                      <span className="font-bold text-neutral-800">
+                        {selectedDayRecord.dateStr}
+                      </span>
+                    </p>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-600">
+                      <span>
+                        Morning:{' '}
+                        <strong className="capitalize text-neutral-800">
+                          {selectedDayRecord.record?.firstHalf ?? 'No session'}
+                        </strong>
+                      </span>
+                      <span>•</span>
+                      <span>
+                        Afternoon:{' '}
+                        <strong className="capitalize text-neutral-800">
+                          {selectedDayRecord.record?.secondHalf ?? 'No session'}
+                        </strong>
+                      </span>
+                      {selectedDayRecord.record?.remarks && !matchingLeave && (
+                        <>
+                          <span>•</span>
+                          <span className="italic text-neutral-500">
+                            Remarks: "{selectedDayRecord.record.remarks}"
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    {isAbsent && (matchingLeave || selectedDayRecord.record?.remarks) && (
+                      <div className="flex items-center gap-2 pt-1 text-xs">
+                        <span className="font-semibold text-rose-700">Absence Reason:</span>
+                        <span className="italic text-neutral-700">
+                          "{matchingLeave ? matchingLeave.reason : selectedDayRecord.record?.remarks}"
                         </span>
-                      </>
+                        {matchingLeave && (
+                          <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                            Approved Leave
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
-                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedDayRecord(null)}
-                  className="text-xs font-semibold text-neutral-400 hover:text-neutral-700 cursor-pointer"
-                >
-                  Clear
-                </button>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDayRecord(null)}
+                    className="text-xs font-semibold text-neutral-400 hover:text-neutral-700 cursor-pointer self-start sm:self-center"
+                  >
+                    Clear
+                  </button>
+                </div>
+              );
+            })()}
 
   {/* Bottom Color Legend  */}
             <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-neutral-100 pt-4 text-xs font-medium text-neutral-600">
@@ -906,13 +1074,37 @@ export const StudentAttendancePage: React.FC = () => {
     </>
   )}
 
-      {/* Apply Leave Modal */}
+      {/* Apply, Edit & Reschedule Leave Modal */}
       <ApplyLeaveModal
-        isOpen={isApplyModalOpen}
-        onClose={() => setIsApplyModalOpen(false)}
+        isOpen={isApplyModalOpen || Boolean(editingLeave) || Boolean(reschedulingLeave)}
+        onClose={() => {
+          setIsApplyModalOpen(false);
+          setEditingLeave(null);
+          setReschedulingLeave(null);
+        }}
         onSuccess={() => {
           fetchLeaves();
+          fetchMonthlyAttendance();
         }}
+        leave={reschedulingLeave || editingLeave}
+        mode={reschedulingLeave ? 'reschedule' : editingLeave ? 'edit' : 'apply'}
+      />
+
+      {/* Cancel Leave Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(cancellingLeave)}
+        title={cancellingLeave?.status === 'approved' ? 'Cancel Approved Leave' : 'Cancel Leave Application'}
+        message={
+          cancellingLeave?.status === 'approved'
+            ? 'Are you sure you want to cancel this approved leave? This action cannot be undone.'
+            : 'Are you sure you want to cancel this leave application? This action cannot be undone.'
+        }
+        confirmText="Cancel Leave"
+        cancelText="Keep Leave"
+        confirmVariant="danger"
+        loading={isCancelling}
+        onConfirm={handleConfirmCancel}
+        onCancel={() => setCancellingLeave(null)}
       />
     </div>
   );

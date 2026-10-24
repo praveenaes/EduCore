@@ -82,4 +82,23 @@ export class MongoAttendanceRepository
 
     return results;
   }
+
+  async deleteByStudentAndDateRange(
+    studentId: string,
+    batchId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<void> {
+    const startOfDay = new Date(startDate);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(endDate);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
+    await AttendanceModel.deleteMany({
+      studentId,
+      batchId,
+      date: { $gte: startOfDay, $lte: endOfDay },
+    });
+  }
 }

@@ -20,6 +20,25 @@ export class LeaveRequestMapper {
     const batchName = doc.batchId?.name;
     const reviewerName = doc.reviewedBy?.name;
 
+    let rescheduleRequest;
+    if (doc.rescheduleRequest) {
+      rescheduleRequest = {
+        startDate: doc.rescheduleRequest.startDate,
+        endDate: doc.rescheduleRequest.endDate,
+        isHalfDay: Boolean(doc.rescheduleRequest.isHalfDay),
+        halfDaySession: doc.rescheduleRequest.halfDaySession ?? undefined,
+        reason: doc.rescheduleRequest.reason,
+        status: doc.rescheduleRequest.status,
+        requestedAt: doc.rescheduleRequest.requestedAt,
+        reviewedBy: doc.rescheduleRequest.reviewedBy?._id
+          ? doc.rescheduleRequest.reviewedBy._id.toString()
+          : doc.rescheduleRequest.reviewedBy?.toString(),
+        reviewerName: doc.rescheduleRequest.reviewedBy?.name,
+        reviewedAt: doc.rescheduleRequest.reviewedAt,
+        remarks: doc.rescheduleRequest.remarks,
+      };
+    }
+
     return new LeaveRequest({
       id: doc._id.toString(),
       studentId,
@@ -35,6 +54,7 @@ export class LeaveRequestMapper {
       reviewedBy,
       reviewedAt: doc.reviewedAt,
       remarks: doc.remarks,
+      rescheduleRequest,
       isDeleted: Boolean(doc.isDeleted),
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
@@ -59,6 +79,7 @@ export class LeaveRequestMapper {
     reviewedBy?: Types.ObjectId;
     reviewedAt?: Date;
     remarks?: string;
+    rescheduleRequest?: any;
     isDeleted: boolean;
   } {
     return {
@@ -75,6 +96,22 @@ export class LeaveRequestMapper {
       reviewedBy: entity.reviewedBy ? new Types.ObjectId(entity.reviewedBy) : undefined,
       reviewedAt: entity.reviewedAt,
       remarks: entity.remarks ?? '',
+      rescheduleRequest: entity.rescheduleRequest
+        ? {
+            startDate: entity.rescheduleRequest.startDate,
+            endDate: entity.rescheduleRequest.endDate,
+            isHalfDay: Boolean(entity.rescheduleRequest.isHalfDay),
+            halfDaySession: entity.rescheduleRequest.halfDaySession,
+            reason: entity.rescheduleRequest.reason,
+            status: entity.rescheduleRequest.status,
+            requestedAt: entity.rescheduleRequest.requestedAt,
+            reviewedBy: entity.rescheduleRequest.reviewedBy
+              ? new Types.ObjectId(entity.rescheduleRequest.reviewedBy)
+              : undefined,
+            reviewedAt: entity.rescheduleRequest.reviewedAt,
+            remarks: entity.rescheduleRequest.remarks ?? '',
+          }
+        : undefined,
       isDeleted: entity.isDeleted,
     };
   }
@@ -95,6 +132,24 @@ export class LeaveRequestMapper {
     if (entity.reviewedBy !== undefined) data.reviewedBy = entity.reviewedBy ? new Types.ObjectId(entity.reviewedBy) : undefined;
     if (entity.reviewedAt !== undefined) data.reviewedAt = entity.reviewedAt;
     if (entity.remarks !== undefined) data.remarks = entity.remarks.trim();
+    if (entity.rescheduleRequest !== undefined) {
+      data.rescheduleRequest = entity.rescheduleRequest
+        ? {
+            startDate: entity.rescheduleRequest.startDate,
+            endDate: entity.rescheduleRequest.endDate,
+            isHalfDay: Boolean(entity.rescheduleRequest.isHalfDay),
+            halfDaySession: entity.rescheduleRequest.halfDaySession,
+            reason: entity.rescheduleRequest.reason,
+            status: entity.rescheduleRequest.status,
+            requestedAt: entity.rescheduleRequest.requestedAt,
+            reviewedBy: entity.rescheduleRequest.reviewedBy
+              ? new Types.ObjectId(entity.rescheduleRequest.reviewedBy)
+              : undefined,
+            reviewedAt: entity.rescheduleRequest.reviewedAt,
+            remarks: entity.rescheduleRequest.remarks ?? '',
+          }
+        : null;
+    }
     if (entity.isDeleted !== undefined) data.isDeleted = entity.isDeleted;
 
     return data;

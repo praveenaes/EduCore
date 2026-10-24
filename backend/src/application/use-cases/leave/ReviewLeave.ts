@@ -3,6 +3,8 @@ import { TYPES } from '@/config/di/types';
 import { ITeacherRepository } from '@/domain/repositories/ITeacherRepository';
 import { IBatchRepository } from '@/domain/repositories/IBatchRepository';
 import { ILeaveRequestRepository } from '@/domain/repositories/ILeaveRequestRepository';
+import { IAttendanceRepository } from '@/domain/repositories/IAttendanceRepository';
+import { Attendance } from '@/domain/entities/Attendance';
 import { IReviewLeaveUseCase } from '../../ports/use-cases/leave/IReviewLeaveUseCase';
 import { ReviewLeaveDTO, LeaveRequestDTO } from '../../dto/leave/leaveDtos';
 import { NotFoundError, ForbiddenError, BadRequestError } from '@/shared/errors/AppError';
@@ -12,7 +14,8 @@ export class ReviewLeave implements IReviewLeaveUseCase {
   constructor(
     @inject(TYPES.TeacherRepository) private _teacherRepo: ITeacherRepository,
     @inject(TYPES.BatchRepository) private _batchRepo: IBatchRepository,
-    @inject(TYPES.LeaveRequestRepository) private _leaveRepo: ILeaveRequestRepository
+    @inject(TYPES.LeaveRequestRepository) private _leaveRepo: ILeaveRequestRepository,
+    @inject(TYPES.AttendanceRepository) private _attendanceRepo: IAttendanceRepository
   ) {}
 
   async execute(dto: ReviewLeaveDTO): Promise<LeaveRequestDTO> {
@@ -37,10 +40,52 @@ export class ReviewLeave implements IReviewLeaveUseCase {
       throw new ForbiddenError('You are not authorized to review leave requests for this batch.');
     }
 
-    leave.review(dto.status, dto.remarks, dto.userId);
+    if (leave.rescheduleRequest && leave.rescheduleRequest.status === 'pending') {
+      leave.reviewReschedule(dto.status, dto.remarks, teacher.id);
+    } else if (leave.status === 'pending') {
+      leave.review(dto.status, dto.remarks, teacher.id);
+    } else {
+      throw new BadRequestError('Only pending leave requests or reschedule requests can be reviewed.');
+    }
+
     const updated = await this._leaveRepo.update(leave.id!, leave);
     if (!updated) {
       throw new NotFoundError('Failed to update leave request.');
+    }
+
+    // Automatically sync attendance based on approval status
+    if (dto.status === 'approved') {
+      const dates: Date[] = [];
+      const current = new Date(updated.startDate);
+      const end = new Date(updated.endDate);
+      current.setUTCHours(0, 0, 0, 0);
+      end.setUTCHours(0, 0, 0, 0);
+
+      while (current <= end) {
+        dates.push(new Date(current));
+        current.setUTCDate(current.getUTCDate() + 1);
+      }
+
+      const attendanceRecords = dates.map((d) =>
+        Attendance.createNew({
+          studentId: updated.studentId,
+          batchId: updated.batchId,
+          date: d,
+          firstHalf: updated.isHalfDay && updated.halfDaySession === 'secondHalf' ? 'present' : 'absent',
+          secondHalf: updated.isHalfDay && updated.halfDaySession === 'firstHalf' ? 'present' : 'absent',
+          remarks: `On Leave: ${updated.reason}`,
+          markedBy: teacher.id!,
+        })
+      );
+
+      await this._attendanceRepo.upsertMany(attendanceRecords);
+    } else if (dto.status === 'rejected') {
+      await this._attendanceRepo.deleteByStudentAndDateRange(
+        updated.studentId,
+        updated.batchId,
+        new Date(updated.startDate),
+        new Date(updated.endDate)
+      );
     }
 
     return {
@@ -61,6 +106,19 @@ export class ReviewLeave implements IReviewLeaveUseCase {
       reviewerName: updated.reviewerName || `${teacher.firstName} ${teacher.lastName}`.trim(),
       reviewedAt: updated.reviewedAt ? new Date(updated.reviewedAt).toISOString() : undefined,
       remarks: updated.remarks,
+      rescheduleRequest: updated.rescheduleRequest ? {
+        startDate: updated.rescheduleRequest.startDate instanceof Date ? updated.rescheduleRequest.startDate.toISOString().slice(0, 10) : String(updated.rescheduleRequest.startDate).slice(0, 10),
+        endDate: updated.rescheduleRequest.endDate instanceof Date ? updated.rescheduleRequest.endDate.toISOString().slice(0, 10) : String(updated.rescheduleRequest.endDate).slice(0, 10),
+        isHalfDay: updated.rescheduleRequest.isHalfDay,
+        halfDaySession: updated.rescheduleRequest.halfDaySession,
+        reason: updated.rescheduleRequest.reason,
+        status: updated.rescheduleRequest.status,
+        requestedAt: updated.rescheduleRequest.requestedAt instanceof Date ? updated.rescheduleRequest.requestedAt.toISOString() : String(updated.rescheduleRequest.requestedAt),
+        reviewedBy: updated.rescheduleRequest.reviewedBy,
+        reviewerName: updated.rescheduleRequest.reviewerName,
+        reviewedAt: updated.rescheduleRequest.reviewedAt ? new Date(updated.rescheduleRequest.reviewedAt).toISOString() : undefined,
+        remarks: updated.rescheduleRequest.remarks,
+      } : undefined,
     };
   }
 }

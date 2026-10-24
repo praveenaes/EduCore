@@ -124,6 +124,8 @@ const TYPES = {
   DeleteHomeworkUseCase: Symbol.for("DeleteHomeworkUseCase"),
   GetStudentHomeworksUseCase: Symbol.for("GetStudentHomeworksUseCase"),
   SubmitHomeworkUseCase: Symbol.for("SubmitHomeworkUseCase"),
+  RequestHomeworkExtensionUseCase: Symbol.for("RequestHomeworkExtensionUseCase"),
+  ReviewHomeworkExtensionUseCase: Symbol.for("ReviewHomeworkExtensionUseCase"),
   HomeworkController: Symbol.for("HomeworkController"),
   // Leaves
   LeaveRequestRepository: Symbol.for("LeaveRequestRepository"),
@@ -131,7 +133,41 @@ const TYPES = {
   GetStudentLeavesUseCase: Symbol.for("GetStudentLeavesUseCase"),
   GetBatchLeavesUseCase: Symbol.for("GetBatchLeavesUseCase"),
   ReviewLeaveUseCase: Symbol.for("ReviewLeaveUseCase"),
+  UpdateStudentLeaveUseCase: Symbol.for("UpdateStudentLeaveUseCase"),
+  RescheduleStudentLeaveUseCase: Symbol.for("RescheduleStudentLeaveUseCase"),
+  CancelStudentLeaveUseCase: Symbol.for("CancelStudentLeaveUseCase"),
   LeaveController: Symbol.for("LeaveController"),
+  // Assessments
+  AssessmentRepository: Symbol.for("AssessmentRepository"),
+  CreateAssessmentUseCase: Symbol.for("CreateAssessmentUseCase"),
+  GetAssessmentsUseCase: Symbol.for("GetAssessmentsUseCase"),
+  UpdateAssessmentUseCase: Symbol.for("UpdateAssessmentUseCase"),
+  DeleteAssessmentUseCase: Symbol.for("DeleteAssessmentUseCase"),
+  AssessmentController: Symbol.for("AssessmentController"),
+  // Assessment Criteria
+  AssessmentCriteriaRepository: Symbol.for("AssessmentCriteriaRepository"),
+  CreateAssessmentCriteriaUseCase: Symbol.for("CreateAssessmentCriteriaUseCase"),
+  GetAssessmentCriteriaUseCase: Symbol.for("GetAssessmentCriteriaUseCase"),
+  UpdateAssessmentCriteriaUseCase: Symbol.for("UpdateAssessmentCriteriaUseCase"),
+  DeleteAssessmentCriteriaUseCase: Symbol.for("DeleteAssessmentCriteriaUseCase"),
+  AssessmentCriteriaController: Symbol.for("AssessmentCriteriaController"),
+  // Assessment Schedules
+  AssessmentScheduleRepository: Symbol.for("AssessmentScheduleRepository"),
+  CreateAssessmentScheduleUseCase: Symbol.for("CreateAssessmentScheduleUseCase"),
+  GetAssessmentSchedulesUseCase: Symbol.for("GetAssessmentSchedulesUseCase"),
+  UpdateAssessmentScheduleUseCase: Symbol.for("UpdateAssessmentScheduleUseCase"),
+  ToggleAssessmentScheduleStatusUseCase: Symbol.for("ToggleAssessmentScheduleStatusUseCase"),
+  DeleteAssessmentScheduleUseCase: Symbol.for("DeleteAssessmentScheduleUseCase"),
+  AssessmentScheduleController: Symbol.for("AssessmentScheduleController"),
+  // Assessment Results
+  AssessmentResultRepository: Symbol.for("AssessmentResultRepository"),
+  SaveAssessmentMarksUseCase: Symbol.for("SaveAssessmentMarksUseCase"),
+  GetAssessmentResultsUseCase: Symbol.for("GetAssessmentResultsUseCase"),
+  GetMarkEntrySheetUseCase: Symbol.for("GetMarkEntrySheetUseCase"),
+  PublishAssessmentResultsUseCase: Symbol.for("PublishAssessmentResultsUseCase"),
+  GetStudentResultsUseCase: Symbol.for("GetStudentResultsUseCase"),
+  GetStudentReportCardUseCase: Symbol.for("GetStudentReportCardUseCase"),
+  AssessmentResultController: Symbol.for("AssessmentResultController"),
 };
 
 export { TYPES };

@@ -16,6 +16,10 @@ import { getBatchRoutes } from "./batch.routes";
 import { getAttendanceRoutes } from "./attendance.routes";
 import { getHomeworkRoutes } from "./homework.routes";
 import { getLeaveRoutes } from "./leave.routes";
+import { getAssessmentRoutes } from "./assessment.routes";
+import { getAssessmentCriteriaRoutes } from "./assessmentCriteria.routes";
+import { getAssessmentScheduleRoutes } from "./assessmentSchedule.routes";
+import { getAssessmentResultRoutes } from "./assessmentResult.routes";
 
 const router = Router();
 
@@ -43,5 +47,10 @@ router.use(API_ROUTES.BATCHES.ROOT, getBatchRoutes(container));
 router.use(API_ROUTES.ATTENDANCE.ROOT, getAttendanceRoutes(container));
 router.use(API_ROUTES.HOMEWORK.ROOT, getHomeworkRoutes(container));
 router.use(API_ROUTES.LEAVES.ROOT, getLeaveRoutes(container));
+router.use(API_ROUTES.ASSESSMENT_CRITERIA.ROOT, getAssessmentCriteriaRoutes(container));
+router.use(API_ROUTES.ASSESSMENT_SCHEDULES.ROOT, getAssessmentScheduleRoutes(container));
+router.use(API_ROUTES.ASSESSMENT_RESULTS.ROOT, getAssessmentResultRoutes(container));
+router.use(API_ROUTES.ASSESSMENTS.ROOT, getAssessmentRoutes(container));
+
 
 export default router;

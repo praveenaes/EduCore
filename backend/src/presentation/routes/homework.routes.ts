@@ -21,6 +21,10 @@ export const getHomeworkRoutes = (container: Container): Router => {
     .route(API_ROUTES.HOMEWORK.STUDENT_SUBMIT)
     .post(asyncHandler(homeworkController.submitHomework.bind(homeworkController)));
 
+  router
+    .route(API_ROUTES.HOMEWORK.STUDENT_EXTENSION)
+    .post(asyncHandler(homeworkController.requestExtension.bind(homeworkController)));
+
   // Teacher collection routes
   router
     .route(API_ROUTES.HOMEWORK.LIST)
@@ -31,6 +35,10 @@ export const getHomeworkRoutes = (container: Container): Router => {
   router
     .route(API_ROUTES.HOMEWORK.SUBMISSIONS)
     .get(asyncHandler(homeworkController.getHomeworkSubmissions.bind(homeworkController)));
+
+  router
+    .route(API_ROUTES.HOMEWORK.REVIEW_EXTENSION)
+    .patch(asyncHandler(homeworkController.reviewExtension.bind(homeworkController)));
 
   router
     .route(API_ROUTES.HOMEWORK.REVIEW)

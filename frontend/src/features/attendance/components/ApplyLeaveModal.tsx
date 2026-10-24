@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '../../../components/Modal';
 import { Button } from '../../../components/Button';
 import { Input } from '../../../components/Input';
 import { Select } from '../../../components/Select';
-import { CalendarX, AlertCircle, Sun, Moon } from 'lucide-react';
-import { applyStudentLeaveApi } from '../../../services/leaveService';
-import type { LeaveType, HalfDaySession } from '../../../types/leave';
+import { CalendarX, AlertCircle, Sun, Moon, Calendar, ArrowRight } from 'lucide-react';
+import {
+  applyStudentLeaveApi,
+  updateStudentLeaveApi,
+  rescheduleStudentLeaveApi,
+} from '../../../services/leaveService';
+import type { LeaveType, HalfDaySession, LeaveRequest } from '../../../types/leave';
 
 interface ApplyLeaveModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  leave?: LeaveRequest | null;
+  mode?: 'apply' | 'edit' | 'reschedule';
 }
 
 const LEAVE_TYPE_OPTIONS = [
@@ -24,6 +30,8 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
+  leave,
+  mode = leave ? 'edit' : 'apply',
 }) => {
   const [isHalfDay, setIsHalfDay] = useState(false);
   const [halfDaySession, setHalfDaySession] = useState<HalfDaySession>('firstHalf');
@@ -36,17 +44,37 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Tomorrow's date string (YYYY-MM-DD) as the minimum allowed date
-  const getTomorrowDate = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const y = tomorrow.getFullYear();
-    const m = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const d = String(tomorrow.getDate()).padStart(2, '0');
+  // Today's date string (YYYY-MM-DD) as the minimum allowed date
+  const getTodayDate = () => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    const d = String(today.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
   };
 
-  const minDate = getTomorrowDate();
+  const minDate = getTodayDate();
+
+  useEffect(() => {
+    if (isOpen) {
+      setError(null);
+      if (leave) {
+        setIsHalfDay(Boolean(leave.isHalfDay));
+        setHalfDaySession(leave.halfDaySession || 'firstHalf');
+        setStartDate(leave.startDate);
+        setEndDate(leave.endDate);
+        setType(leave.type);
+        setReason(mode === 'reschedule' ? '' : leave.reason);
+      } else {
+        setIsHalfDay(false);
+        setHalfDaySession('firstHalf');
+        setStartDate('');
+        setEndDate('');
+        setType('medical');
+        setReason('');
+      }
+    }
+  }, [isOpen, leave, mode]);
 
   const resetForm = () => {
     setIsHalfDay(false);
@@ -73,7 +101,7 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
         return;
       }
       if (startDate < minDate) {
-        setError('Leave can only be applied starting from tomorrow onwards.');
+        setError('Leave cannot be applied for past dates.');
         return;
       }
     } else {
@@ -82,7 +110,7 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
         return;
       }
       if (startDate < minDate) {
-        setError('Leave can only be applied starting from tomorrow onwards.');
+        setError('Leave cannot be applied for past dates.');
         return;
       }
       if (new Date(startDate) > new Date(endDate)) {
@@ -92,37 +120,75 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
     }
 
     if (!reason.trim()) {
-      setError('Please provide a reason for the leave.');
+      setError(
+        mode === 'reschedule'
+          ? 'Please provide a reason for rescheduling the leave.'
+          : 'Please provide a reason for the leave.'
+      );
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await applyStudentLeaveApi({
+      const payload = {
         startDate,
         endDate: isHalfDay ? startDate : endDate,
         type,
         reason: reason.trim(),
         isHalfDay,
         halfDaySession: isHalfDay ? halfDaySession : undefined,
-      });
+      };
+
+      if (mode === 'reschedule' && leave) {
+        await rescheduleStudentLeaveApi(leave.id, {
+          startDate,
+          endDate: isHalfDay ? startDate : endDate,
+          isHalfDay,
+          halfDaySession: isHalfDay ? halfDaySession : undefined,
+          reason: reason.trim(),
+        });
+      } else if (leave) {
+        await updateStudentLeaveApi(leave.id, payload);
+      } else {
+        await applyStudentLeaveApi(payload);
+      }
+
       resetForm();
       onSuccess();
       onClose();
     } catch (err: any) {
       const errorMsg =
-        err?.response?.data?.message || 'Failed to submit leave application.';
+        err?.response?.data?.message ||
+        (mode === 'reschedule'
+          ? 'Failed to submit reschedule request.'
+          : leave
+          ? 'Failed to update leave application.'
+          : 'Failed to submit leave application.');
       setError(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const modalTitle =
+    mode === 'reschedule'
+      ? 'Reschedule Leave'
+      : leave
+      ? 'Update Leave Application'
+      : 'Apply for Leave';
+
+  const submitButtonText =
+    mode === 'reschedule'
+      ? 'Submit Reschedule Request'
+      : leave
+      ? 'Save Changes'
+      : 'Submit Application';
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Apply for Leave"
+      title={modalTitle}
       icon={<CalendarX className="h-5 w-5" />}
       size="md"
     >
@@ -134,10 +200,32 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
           </div>
         )}
 
+        {/* Current Approved Dates info banner when rescheduling */}
+        {mode === 'reschedule' && leave && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 text-xs text-emerald-950 space-y-1">
+            <span className="font-bold text-[11px] uppercase tracking-wider text-emerald-800">
+              Current Approved Dates
+            </span>
+            <div className="flex items-center gap-2 font-semibold text-emerald-900">
+              <Calendar className="h-4 w-4 shrink-0 text-emerald-700" />
+              <span>{leave.startDate}</span>
+              {!leave.isHalfDay && (
+                <>
+                  <ArrowRight className="h-3 w-3 shrink-0 opacity-70" />
+                  <span>{leave.endDate}</span>
+                </>
+              )}
+              <span className="ml-auto rounded-full bg-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-900">
+                {leave.isHalfDay ? 'Half Day' : 'Full Day'}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Duration Mode Switcher (Full Day vs Half Day) */}
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">
-            Leave Duration
+            {mode === 'reschedule' ? 'New Leave Duration' : 'Leave Duration'}
           </label>
           <div className="grid grid-cols-2 gap-2 p-1 bg-neutral-100/90 rounded-xl border border-neutral-200/70">
             <button
@@ -174,14 +262,14 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
         {!isHalfDay ? (
           <div className="grid grid-cols-2 gap-3">
             <Input
-              label="Start Date"
+              label={mode === 'reschedule' ? 'New Start Date' : 'Start Date'}
               type="date"
               min={minDate}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
             <Input
-              label="End Date"
+              label={mode === 'reschedule' ? 'New End Date' : 'End Date'}
               type="date"
               min={startDate || minDate}
               value={endDate}
@@ -191,7 +279,7 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
         ) : (
           <div className="space-y-3">
             <Input
-              label="Date"
+              label={mode === 'reschedule' ? 'New Date' : 'Date'}
               type="date"
               min={minDate}
               value={startDate}
@@ -201,13 +289,12 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
               }}
             />
 
-            {/* Half-day session selector (First Half vs Second Half) */}
+            {/* Half-day session selector */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5">
                 Select Session
               </label>
               <div className="grid grid-cols-2 gap-3">
-                {/* First Half / Morning Button */}
                 <button
                   type="button"
                   onClick={() => setHalfDaySession('firstHalf')}
@@ -217,7 +304,6 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
                       : 'border-neutral-200/90 bg-white hover:border-neutral-300 hover:bg-neutral-50/50'
                   }`}
                 >
-                  {/* Icon Badge */}
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
                       halfDaySession === 'firstHalf'
@@ -228,18 +314,11 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
                     <Sun className="h-5 w-5 transition-transform group-hover:rotate-45" />
                   </div>
                   <div className="text-left">
-                    <div
-                      className={`text-xs font-bold transition-colors ${
-                        halfDaySession === 'firstHalf' ? 'text-amber-950' : 'text-neutral-700'
-                      }`}
-                    >
-                      First Half
-                    </div>
-                    <div className="text-[11px] text-neutral-400 font-medium">Morning Session</div>
+                    <p className="text-xs font-bold text-neutral-800">First Half</p>
+                    <p className="text-[11px] text-neutral-400">Morning Session</p>
                   </div>
                 </button>
 
-                {/* Second Half / Afternoon Button */}
                 <button
                   type="button"
                   onClick={() => setHalfDaySession('secondHalf')}
@@ -249,7 +328,6 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
                       : 'border-neutral-200/90 bg-white hover:border-neutral-300 hover:bg-neutral-50/50'
                   }`}
                 >
-                  {/* Icon Badge */}
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all ${
                       halfDaySession === 'secondHalf'
@@ -260,14 +338,8 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
                     <Moon className="h-5 w-5 transition-transform group-hover:-rotate-12" />
                   </div>
                   <div className="text-left">
-                    <div
-                      className={`text-xs font-bold transition-colors ${
-                        halfDaySession === 'secondHalf' ? 'text-indigo-950' : 'text-neutral-700'
-                      }`}
-                    >
-                      Second Half
-                    </div>
-                    <div className="text-[11px] text-neutral-400 font-medium">Afternoon Session</div>
+                    <p className="text-xs font-bold text-neutral-800">Second Half</p>
+                    <p className="text-[11px] text-neutral-400">Afternoon Session</p>
                   </div>
                 </button>
               </div>
@@ -275,22 +347,30 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
           </div>
         )}
 
-        <Select
-          label="Leave Type"
-          value={type}
-          options={LEAVE_TYPE_OPTIONS}
-          onChange={(e) => setType(e.target.value as LeaveType)}
-        />
+        {/* Leave Type (only shown when applying/editing; in reschedule it defaults to original leave type) */}
+        {mode !== 'reschedule' && (
+          <Select
+            label="Leave Type"
+            value={type}
+            options={LEAVE_TYPE_OPTIONS}
+            onChange={(e) => setType(e.target.value as LeaveType)}
+          />
+        )}
 
+        {/* Reason */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-neutral-600">
-            Reason for Leave
+            {mode === 'reschedule' ? 'Reason for Rescheduling' : 'Reason for Leave'}
           </label>
           <textarea
             rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Explain why you are requesting leave…"
+            placeholder={
+              mode === 'reschedule'
+                ? 'Explain why the leave needs to be rescheduled (preponed, postponed, or extended)…'
+                : 'Explain why you are requesting leave…'
+            }
             className="block w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:border-brand-500 focus:ring-brand-500/20 transition-all duration-200"
           />
         </div>
@@ -300,7 +380,7 @@ export const ApplyLeaveModal: React.FC<ApplyLeaveModalProps> = ({
             Cancel
           </Button>
           <Button type="submit" isLoading={isSubmitting}>
-            Submit Application
+            {submitButtonText}
           </Button>
         </div>
       </form>

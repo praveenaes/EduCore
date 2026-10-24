@@ -62,7 +62,7 @@ export class MongoCourseRepository
     }
 
 //   {
-//   isDeleted: false, 
+//   isDeleted: false,  
 //   programId: ObjectId("68c123abc456..."),
 //   $or: [
 //     { name: /math/i },

@@ -41,17 +41,18 @@ export const CreateHomeworkModal: React.FC<CreateHomeworkModalProps> = ({
     dueDate?: string;
   }>({});
 
-  // Minimum due date & time is tomorrow start of day (local time)
-  const getTomorrowStartDateTime = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const y = tomorrow.getFullYear();
-    const m = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const d = String(tomorrow.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}T00:00`;
+  // Minimum due date & time is current day and time (local time)
+  const getCurrentDateTimeLocal = () => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${d}T${hours}:${minutes}`;
   };
 
-  const minDueDateTime = getTomorrowStartDateTime();
+  const minDueDateTime = getCurrentDateTimeLocal();
 
   // Initialize or pre-fill form data
   useEffect(() => {
@@ -203,7 +204,7 @@ export const CreateHomeworkModal: React.FC<CreateHomeworkModalProps> = ({
       size="lg"
       footer={<></>}
     >
-      <form onSubmit={handleSubmit} className="space-y-4 p-1">
+      <form noValidate onSubmit={handleSubmit} className="space-y-4 p-1">
         {error && (
           <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">
             <AlertCircle className="h-4 w-4 shrink-0" />

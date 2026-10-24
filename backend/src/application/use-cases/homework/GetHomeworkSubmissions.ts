@@ -46,6 +46,23 @@ export class GetHomeworkSubmissions implements IGetHomeworkSubmissionsUseCase {
         fileType: a.fileType,
         fileSize: a.fileSize,
       })),
+      extensionRequest: sub.extensionRequest
+        ? {
+            status: sub.extensionRequest.status,
+            reason: sub.extensionRequest.reason,
+            explanation: sub.extensionRequest.explanation,
+            attachment: sub.extensionRequest.attachment,
+            requestedAt: sub.extensionRequest.requestedAt.toISOString(),
+            reviewedAt: sub.extensionRequest.reviewedAt
+              ? sub.extensionRequest.reviewedAt.toISOString()
+              : null,
+            reviewedBy: sub.extensionRequest.reviewedBy,
+            teacherRemarks: sub.extensionRequest.teacherRemarks,
+            extendedDueDate: sub.extensionRequest.extendedDueDate
+              ? sub.extensionRequest.extendedDueDate.toISOString()
+              : null,
+          }
+        : null,
     }));
 
     return {
@@ -69,6 +86,7 @@ export class GetHomeworkSubmissions implements IGetHomeworkSubmissionsUseCase {
         totalStudents: homework.totalStudents,
         submittedCount: homework.submittedCount,
         verifiedCount: homework.verifiedCount,
+        pendingExtensionCount: homework.pendingExtensionCount,
         isActive: homework.isActive,
         createdAt: homework.createdAt?.toISOString(),
         updatedAt: homework.updatedAt?.toISOString(),

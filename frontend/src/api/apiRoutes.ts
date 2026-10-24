@@ -71,10 +71,36 @@ export const API_ROUTES = {
     REVIEW: (id: string) => `/homework/${id}/review`,
     STUDENT: "/homework/student",
     STUDENT_SUBMIT: (id: string) => `/homework/student/${id}/submit`,
+    STUDENT_EXTENSION: (id: string) => `/homework/student/${id}/extension-request`,
+    REVIEW_EXTENSION: (homeworkId: string, studentId: string) => `/homework/${homeworkId}/submissions/${studentId}/extension`,
   },
   LEAVES: {
-    STUDENT: "/leaves/student",
-    BATCH: (batchId: string) => `/leaves/batch/${batchId}`,
-    REVIEW: (id: string) => `/leaves/${id}/review`,
+    STUDENT: "/leaves/student",//student
+    STUDENT_DETAIL: (id: string) => `/leaves/student/${id}`,
+    STUDENT_RESCHEDULE: (id: string) => `/leaves/student/${id}/reschedule`,
+    BATCH: (batchId: string) => `/leaves/batch/${batchId}`,//teacher
+    REVIEW: (id: string) => `/leaves/${id}/review`,//teacher
+  },
+  ASSESSMENTS: {
+    BASE: "/assessments",
+    DETAIL: (id: string) => `/assessments/${id}`,
+  },
+  ASSESSMENT_CRITERIA: {
+    BASE: "/assessments/criteria",
+    DETAIL: (id: string) => `/assessments/criteria/${id}`,
+  },
+  ASSESSMENT_SCHEDULES: {
+    BASE: "/assessments/schedules",
+    DETAIL: (id: string) => `/assessments/schedules/${id}`,
+    TOGGLE_STATUS: (id: string) => `/assessments/schedules/${id}/toggle-status`,
+  },
+  ASSESSMENT_RESULTS: {
+    BASE: "/assessments/results",
+    SHEET: (scheduleId: string) => `/assessments/results/sheet/${scheduleId}`,
+    PUBLISH: "/assessments/results/publish",
+    MY_RESULTS: "/assessments/results/my-results",
+    MY_REPORT_CARD: (assessmentId: string) => `/assessments/results/my-report-card/${assessmentId}`,
+    STUDENT_REPORT_CARD: (assessmentId: string, studentId: string) =>
+      `/assessments/results/report-card/${assessmentId}/${studentId}`,
   },
 } as const;

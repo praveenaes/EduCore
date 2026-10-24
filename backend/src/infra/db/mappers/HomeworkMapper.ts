@@ -28,6 +28,29 @@ export class HomeworkMapper {
         : undefined;
       const admissionNumber = sub.studentId?.admissionNumber;
 
+      const extensionRequest = sub.extensionRequest
+        ? {
+            status: sub.extensionRequest.status,
+            reason: sub.extensionRequest.reason,
+            explanation: sub.extensionRequest.explanation,
+            attachment: sub.extensionRequest.attachment
+              ? {
+                  fileName: sub.extensionRequest.attachment.fileName,
+                  fileUrl: sub.extensionRequest.attachment.fileUrl,
+                  fileType: sub.extensionRequest.attachment.fileType,
+                  fileSize: sub.extensionRequest.attachment.fileSize,
+                }
+              : undefined,
+            requestedAt: sub.extensionRequest.requestedAt,
+            reviewedAt: sub.extensionRequest.reviewedAt,
+            reviewedBy: sub.extensionRequest.reviewedBy?._id
+              ? sub.extensionRequest.reviewedBy._id.toString()
+              : sub.extensionRequest.reviewedBy?.toString(),
+            teacherRemarks: sub.extensionRequest.teacherRemarks,
+            extendedDueDate: sub.extensionRequest.extendedDueDate,
+          }
+        : null;
+
       return {
         id: sub._id?.toString(),
         studentId,
@@ -35,6 +58,7 @@ export class HomeworkMapper {
         submittedAt: sub.submittedAt,
         verifiedAt: sub.verifiedAt,
         remarks: sub.remarks,
+        extensionRequest,
         attachments: (sub.attachments || []).map((att: any) => ({
           fileName: att.fileName,
           fileUrl: att.fileUrl,
@@ -101,6 +125,28 @@ export class HomeworkMapper {
           fileType: att.fileType,
           fileSize: att.fileSize,
         })),
+        extensionRequest: sub.extensionRequest
+          ? {
+              status: sub.extensionRequest.status,
+              reason: sub.extensionRequest.reason,
+              explanation: sub.extensionRequest.explanation ?? '',
+              attachment: sub.extensionRequest.attachment
+                ? {
+                    fileName: sub.extensionRequest.attachment.fileName,
+                    fileUrl: sub.extensionRequest.attachment.fileUrl,
+                    fileType: sub.extensionRequest.attachment.fileType,
+                    fileSize: sub.extensionRequest.attachment.fileSize,
+                  }
+                : null,
+              requestedAt: sub.extensionRequest.requestedAt,
+              reviewedAt: sub.extensionRequest.reviewedAt ?? null,
+              reviewedBy: sub.extensionRequest.reviewedBy
+                ? new Types.ObjectId(sub.extensionRequest.reviewedBy)
+                : null,
+              teacherRemarks: sub.extensionRequest.teacherRemarks ?? '',
+              extendedDueDate: sub.extensionRequest.extendedDueDate ?? null,
+            }
+          : null,
       })),
       isActive: entity.isActive,
       isDeleted: entity.isDeleted,
@@ -133,6 +179,28 @@ export class HomeworkMapper {
           fileType: att.fileType,
           fileSize: att.fileSize,
         })),
+        extensionRequest: sub.extensionRequest
+          ? {
+              status: sub.extensionRequest.status,
+              reason: sub.extensionRequest.reason,
+              explanation: sub.extensionRequest.explanation ?? '',
+              attachment: sub.extensionRequest.attachment
+                ? {
+                    fileName: sub.extensionRequest.attachment.fileName,
+                    fileUrl: sub.extensionRequest.attachment.fileUrl,
+                    fileType: sub.extensionRequest.attachment.fileType,
+                    fileSize: sub.extensionRequest.attachment.fileSize,
+                  }
+                : null,
+              requestedAt: sub.extensionRequest.requestedAt,
+              reviewedAt: sub.extensionRequest.reviewedAt ?? null,
+              reviewedBy: sub.extensionRequest.reviewedBy
+                ? new Types.ObjectId(sub.extensionRequest.reviewedBy)
+                : null,
+              teacherRemarks: sub.extensionRequest.teacherRemarks ?? '',
+              extendedDueDate: sub.extensionRequest.extendedDueDate ?? null,
+            }
+          : null,
       }));
     }
     if (entity.isActive !== undefined) data.isActive = entity.isActive;

@@ -40,6 +40,14 @@ import { IHomeworkRepository } from "@/domain/repositories/IHomeworkRepository";
 import { MongoHomeworkRepository } from "@/infra/db/MongoHomeworkRepository";
 import { ILeaveRequestRepository } from "@/domain/repositories/ILeaveRequestRepository";
 import { MongoLeaveRequestRepository } from "@/infra/db/MongoLeaveRequestRepository";
+import { IAssessmentRepository } from "@/domain/repositories/IAssessmentRepository";
+import { MongoAssessmentRepository } from "@/infra/db/MongoAssessmentRepository";
+import { IAssessmentCriteriaRepository } from "@/domain/repositories/IAssessmentCriteriaRepository";
+import { MongoAssessmentCriteriaRepository } from "@/infra/db/MongoAssessmentCriteriaRepository";
+import { IAssessmentScheduleRepository } from "@/domain/repositories/IAssessmentScheduleRepository";
+import { MongoAssessmentScheduleRepository } from "@/infra/db/MongoAssessmentScheduleRepository";
+import { IAssessmentResultRepository } from "@/domain/repositories/IAssessmentResultRepository";
+import { MongoAssessmentResultRepository } from "@/infra/db/MongoAssessmentResultRepository";
 
 export const coreModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
@@ -86,6 +94,19 @@ export const coreModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<ILeaveRequestRepository>(TYPES.LeaveRequestRepository)
     .to(MongoLeaveRequestRepository)
+    .inSingletonScope();
+  bind<IAssessmentRepository>(TYPES.AssessmentRepository)
+    .to(MongoAssessmentRepository)
+    .inSingletonScope();
+  bind<IAssessmentCriteriaRepository>(TYPES.AssessmentCriteriaRepository)
+    .to(MongoAssessmentCriteriaRepository)
+    .inSingletonScope();
+  bind<IAssessmentScheduleRepository>(TYPES.AssessmentScheduleRepository)
+    .to(MongoAssessmentScheduleRepository)
+    .inSingletonScope();
+
+  bind<IAssessmentResultRepository>(TYPES.AssessmentResultRepository)
+    .to(MongoAssessmentResultRepository)
     .inSingletonScope();
 
   bind<IAuthService>(TYPES.AuthService)
