@@ -8,8 +8,7 @@ import {
   Building2,
   Users,
   CheckCircle2,
-  CircleDashed,
-  FileSpreadsheet,
+  XCircle,
 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
@@ -20,11 +19,9 @@ import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
 import { ConfirmationModal } from '../../components/ConfirmationModal';
 import AssessmentScheduleModal from '../../features/assessments/components/AssessmentScheduleModal';
-import MarkEntryModal from '../../features/assessments/components/MarkEntryModal';
 import {
   getAssessmentSchedulesApi,
   deleteAssessmentScheduleApi,
-  toggleAssessmentScheduleStatusApi,
 } from '../../services/assessmentScheduleService';
 import { getAssessmentsApi } from '../../services/assessmentService';
 import { getCoursesApi } from '../../services/courseService';
@@ -52,8 +49,6 @@ const AssessmentSchedulesPage: React.FC = () => {
   // Modals
   const [showModal, setShowModal] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<AssessmentSchedule | null>(null);
-  const [showMarkEntryModal, setShowMarkEntryModal] = useState(false);
-  const [markEntryScheduleId, setMarkEntryScheduleId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     show: boolean;
     schedule: AssessmentSchedule | null;
@@ -121,16 +116,53 @@ const AssessmentSchedulesPage: React.FC = () => {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const handleToggleStatus = async (schedule: AssessmentSchedule) => {
-    try {
-      await toggleAssessmentScheduleStatusApi(schedule.id);
-      showToast(
-        `Schedule marked as ${!schedule.isCompleted ? 'Completed' : 'Scheduled'}.`,
-        'success'
-      );
-      fetchSchedules();
-    } catch (err: any) {
-      showToast(err.response?.data?.message || 'Failed to update schedule status.', 'error');
+  const getScheduleStatus = (s: AssessmentSchedule) => {
+    if (s.isPublished) return 'PUBLISHED';
+    if (s.isGraded) return 'GRADED';
+    if (s.assessmentStatus === 'COMPLETED' || s.isCompleted) return 'COMPLETED';
+    if (s.assessmentStatus === 'CANCELLED') return 'CANCELLED';
+    return 'SCHEDULED';
+  };
+
+  const renderStatusBadge = (s: AssessmentSchedule) => {
+    const status = getScheduleStatus(s);
+    switch (status) {
+      case 'PUBLISHED':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Published
+          </span>
+        );
+      case 'GRADED':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Graded
+          </span>
+        );
+      case 'COMPLETED':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Completed
+          </span>
+        );
+      case 'CANCELLED':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+            <XCircle className="h-3.5 w-3.5" />
+            Cancelled
+          </span>
+        );
+      case 'SCHEDULED':
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+            <Clock className="h-3.5 w-3.5" />
+            Scheduled
+          </span>
+        );
     }
   };
 
@@ -213,68 +245,62 @@ const AssessmentSchedulesPage: React.FC = () => {
     },
     {
       header: 'Status',
-      accessor: (s) => (
-        <button
-          type="button"
-          onClick={() => handleToggleStatus(s)}
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border transition-colors ${
-            s.isCompleted
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-              : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-          }`}
-          title="Click to toggle status"
-        >
-          {s.isCompleted ? (
-            <>
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Completed
-            </>
-          ) : (
-            <>
-              <CircleDashed className="h-3.5 w-3.5" />
-              Scheduled
-            </>
-          )}
-        </button>
-      ),
+      accessor: (s) => renderStatusBadge(s),
     },
     {
       header: 'Actions',
-      accessor: (s) => (
-        <div className="flex items-center justify-end gap-1.5">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              setMarkEntryScheduleId(s.id);
-              setShowMarkEntryModal(true);
-            }}
-            className="text-brand-600 hover:text-brand-700 hover:bg-brand-50"
-            title="Enter / View Marks"
-          >
-            <FileSpreadsheet className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              setSelectedSchedule(s);
-              setShowModal(true);
-            }}
-            title="Edit Schedule"
-          >
-            <Edit2 className="h-4 w-4 text-neutral-500" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setDeleteConfirm({ show: true, schedule: s })}
-            title="Delete Schedule"
-          >
-            <Trash2 className="h-4 w-4 text-red-500" />
-          </Button>
-        </div>
-      ),
+      accessor: (s) => {
+        const status = getScheduleStatus(s);
+        const isCompleted = status === 'COMPLETED' || status === 'GRADED' || status === 'PUBLISHED';
+
+        return (
+          <div className="flex items-center justify-end gap-1.5">
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={isCompleted}
+              onClick={() => {
+                if (isCompleted) return;
+                setSelectedSchedule(s);
+                setShowModal(true);
+              }}
+              className={
+                isCompleted
+                  ? 'opacity-30 cursor-not-allowed text-neutral-400'
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }
+              title={
+                isCompleted
+                  ? 'Completed schedules cannot be edited'
+                  : 'Edit Schedule'
+              }
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={isCompleted}
+              onClick={() => {
+                if (isCompleted) return;
+                setDeleteConfirm({ show: true, schedule: s });
+              }}
+              className={
+                isCompleted
+                  ? 'opacity-30 cursor-not-allowed text-neutral-400'
+                  : 'text-red-500 hover:text-red-700'
+              }
+              title={
+                isCompleted
+                  ? 'Completed schedules cannot be deleted'
+                  : 'Delete Schedule'
+              }
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -409,19 +435,6 @@ const AssessmentSchedulesPage: React.FC = () => {
           onClose={() => setShowModal(false)}
           onSuccess={fetchSchedules}
           schedule={selectedSchedule}
-        />
-      )}
-
-      {/* Mark Entry Modal */}
-      {showMarkEntryModal && (
-        <MarkEntryModal
-          isOpen={showMarkEntryModal}
-          onClose={() => {
-            setShowMarkEntryModal(false);
-            setMarkEntryScheduleId(null);
-          }}
-          scheduleId={markEntryScheduleId}
-          onSuccess={fetchSchedules}
         />
       )}
 

@@ -44,6 +44,7 @@ export class AssessmentCriteriaController {
         search: search?.trim(),
         courseId,
         levelNumber,
+      
       },
       {
         page,

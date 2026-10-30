@@ -109,7 +109,7 @@ export class MongoAssessmentCriteriaRepository
     if (filters.courseId) {
       query.courseId = new Types.ObjectId(filters.courseId);
     }
-
+    
     if (filters.levelNumber !== undefined) {
       query.levelNumber = Number(filters.levelNumber);
     }

@@ -34,8 +34,8 @@ const AssessmentSchema = new Schema<IAssessmentDocument>(
     },
     status: {
       type: String,
-      enum: ['DRAFT', 'PUBLISHED', 'COMPLETED', 'CANCELLED'],
-      default: 'DRAFT',
+      enum: ['SCHEDULED', 'COMPLETED', 'PUBLISHED', 'CANCELLED'],
+      default: 'SCHEDULED',
       index: true,
     },
     isDeleted: {

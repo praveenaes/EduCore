@@ -5,6 +5,7 @@ export interface AssessmentCriteriaFilters {
   search?: string;
   courseId?: string;
   levelNumber?: number;
+ 
 }
 
 export interface AssessmentCriteriaPagination {

@@ -40,7 +40,7 @@ export class CreateAssessment implements ICreateAssessmentUseCase {
       academicYearId: dto.academicYearId,
       startDate,
       endDate,
-      status: dto.status,
+      status: dto.status || 'SCHEDULED',
     });
 
     const saved = await this._assessmentRepo.create(assessment);

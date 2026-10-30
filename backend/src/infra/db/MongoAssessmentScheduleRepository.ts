@@ -27,7 +27,7 @@ export class MongoAssessmentScheduleRepository
   protected readonly _mapper = AssessmentScheduleMapper;
 
   private populateOptions = [
-    { path: 'assessmentId', select: 'name startDate endDate' },
+    { path: 'assessmentId', select: 'name status startDate endDate' },
     { path: 'courseId', select: 'name code levelName' },
     {
       path: 'criteriaId',

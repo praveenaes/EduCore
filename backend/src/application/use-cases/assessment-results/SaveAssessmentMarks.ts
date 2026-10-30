@@ -103,11 +103,9 @@ export class SaveAssessmentMarks implements ISaveAssessmentMarksUseCase {
 
     const saved = await this._resultRepo.upsertMany(resultEntities);
 
-    // Automatically mark the exam schedule as completed once marks are saved
-    if (!schedule.isCompleted) {
-      schedule.updateDetails({ isCompleted: true });
-      await this._scheduleRepo.update(schedule.id!, schedule);
-    }
+    // Mark the exam schedule as completed and graded once marks are saved
+    schedule.updateDetails({ isCompleted: true, isGraded: true });
+    await this._scheduleRepo.update(schedule.id!, schedule);
 
     return saved.map((result) => ({
       id: result.id!,

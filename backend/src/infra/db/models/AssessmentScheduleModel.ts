@@ -11,6 +11,8 @@ export interface IAssessmentScheduleDocument extends Document {
   startTime: string;
   endTime: string;
   isCompleted: boolean;
+  isGraded: boolean;
+  isPublished: boolean;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -69,6 +71,16 @@ const AssessmentScheduleSchema = new Schema<IAssessmentScheduleDocument>(
       trim: true,
     },
     isCompleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isGraded: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isPublished: {
       type: Boolean,
       default: false,
       index: true,

@@ -21,6 +21,19 @@ export class DeleteAssessmentCriteria implements IDeleteAssessmentCriteriaUseCas
     }
 
     const linkedSchedules = await this._scheduleRepo.findByCriteriaId(id);
+    const hasCompletedSchedule = linkedSchedules.some(
+      (s) =>
+        !s.isDeleted &&
+        (s.isCompleted ||
+          s.isGraded ||
+          s.assessmentStatus === 'COMPLETED' ||
+          s.assessmentStatus === 'PUBLISHED')
+    );
+    if (hasCompletedSchedule) {
+      throw new ConflictError(
+        `Cannot delete "${criteria.name}" because it is linked to completed exam schedules.`
+      );
+    }
     if (linkedSchedules.length > 0) {
       throw new ConflictError(
         `Cannot delete "${criteria.name}" because it is active under scheduled exam.`

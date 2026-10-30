@@ -26,6 +26,7 @@ export class AssessmentScheduleMapper {
 
     // Populated display helpers
     const assessmentName = doc.assessmentId?.name;
+    const assessmentStatus = doc.assessmentId?.status || 'SCHEDULED';
     const courseName = doc.courseId?.name;
     const courseCode = doc.courseId?.code;
     const levelName = doc.courseId?.levelName;
@@ -51,8 +52,11 @@ export class AssessmentScheduleMapper {
       startTime: doc.startTime,
       endTime: doc.endTime,
       isCompleted: Boolean(doc.isCompleted),
+      isGraded: Boolean(doc.isGraded),
+      isPublished: Boolean(doc.isPublished),
       isDeleted: Boolean(doc.isDeleted),
       assessmentName,
+      assessmentStatus,
       courseName,
       courseCode,
       levelName,
@@ -80,6 +84,8 @@ export class AssessmentScheduleMapper {
       startTime: entity.startTime,
       endTime: entity.endTime,
       isCompleted: entity.isCompleted,
+      isGraded: entity.isGraded,
+      isPublished: entity.isPublished,
       isDeleted: entity.isDeleted,
     };
   }
@@ -97,6 +103,8 @@ export class AssessmentScheduleMapper {
     if (entity.startTime !== undefined) data.startTime = entity.startTime;
     if (entity.endTime !== undefined) data.endTime = entity.endTime;
     if (entity.isCompleted !== undefined) data.isCompleted = entity.isCompleted;
+    if (entity.isGraded !== undefined) data.isGraded = entity.isGraded;
+    if (entity.isPublished !== undefined) data.isPublished = entity.isPublished;
     if (entity.isDeleted !== undefined) data.isDeleted = entity.isDeleted;
     if (entity.updatedAt !== undefined) data.updatedAt = entity.updatedAt;
 

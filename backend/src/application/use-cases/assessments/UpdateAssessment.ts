@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/config/di/types';
 import { IAssessmentRepository } from '@/domain/repositories/IAssessmentRepository';
+import { IAssessmentScheduleRepository } from '@/domain/repositories/IAssessmentScheduleRepository';
 import { IAcademicYearRepository } from '@/domain/repositories/IAcademicYearRepository';
 import { IUpdateAssessmentUseCase } from '@/application/ports/use-cases/assessments/IUpdateAssessmentUseCase';
 import { UpdateAssessmentDTO, AssessmentResponseDTO } from '@/application/dto/assessments/assessmentDtos';
@@ -10,7 +11,8 @@ import { ConflictError, NotFoundError, ValidationError } from '@/shared/errors/A
 export class UpdateAssessment implements IUpdateAssessmentUseCase {
   constructor(
     @inject(TYPES.AssessmentRepository) private _assessmentRepo: IAssessmentRepository,
-    @inject(TYPES.AcademicYearRepository) private _academicYearRepo: IAcademicYearRepository
+    @inject(TYPES.AcademicYearRepository) private _academicYearRepo: IAcademicYearRepository,
+    @inject(TYPES.AssessmentScheduleRepository) private _scheduleRepo: IAssessmentScheduleRepository
   ) {}
 
   async execute(id: string, dto: UpdateAssessmentDTO): Promise<AssessmentResponseDTO> {
@@ -49,6 +51,17 @@ export class UpdateAssessment implements IUpdateAssessmentUseCase {
     });
 
     await this._assessmentRepo.update(id, assessment);
+
+    if (dto.status === 'COMPLETED') {
+      const linkedSchedules = await this._scheduleRepo.findByAssessmentId(id);
+      for (const s of linkedSchedules) {
+        if (!s.isCompleted) {
+          s.updateDetails({ isCompleted: true });
+          await this._scheduleRepo.update(s.id!, s);
+        }
+      }
+    }
+
     const updated = await this._assessmentRepo.findById(id);
 
     return {

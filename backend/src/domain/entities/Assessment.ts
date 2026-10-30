@@ -1,4 +1,4 @@
-export type AssessmentStatus = 'DRAFT' | 'PUBLISHED' | 'COMPLETED' | 'CANCELLED';
+export type AssessmentStatus = 'SCHEDULED' | 'COMPLETED' | 'PUBLISHED' | 'CANCELLED';
 
 export interface AssessmentProps {
   id?: string;
@@ -69,7 +69,7 @@ export class Assessment {
       academicYearId: props.academicYearId,
       startDate: props.startDate,
       endDate: props.endDate,
-      status: props.status || 'DRAFT',
+      status: props.status || 'SCHEDULED',
       isDeleted: false,
     });
   }

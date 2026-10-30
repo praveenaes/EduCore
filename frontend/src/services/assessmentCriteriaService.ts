@@ -14,6 +14,7 @@ export const getAssessmentCriteriaApi = (params?: {
   levelNumber?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+
 }) =>
   axiosInstance.get<AssessmentCriteriaListResponse>(API_ROUTES.ASSESSMENT_CRITERIA.BASE, { params });
 

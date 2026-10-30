@@ -63,22 +63,8 @@ export const updateAssessmentSchema = z
     academicYearId: z.string().trim().min(1).optional(),
     startDate: z.coerce.date().optional(),
     endDate: z.coerce.date().optional(),
-    status: z.enum(['DRAFT', 'PUBLISHED', 'COMPLETED', 'CANCELLED']).optional(),
+    status: z.enum(['SCHEDULED', 'COMPLETED', 'PUBLISHED', 'CANCELLED']).optional(),
   })
-  .refine(
-    (data) => {
-      if (data.startDate) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return data.startDate >= today;
-      }
-      return true;
-    },
-    {
-      message: 'Start date cannot be in the past',
-      path: ['startDate'],
-    }
-  )
   .refine(
     (data) => {
       if (data.startDate && data.endDate) {
@@ -91,3 +77,13 @@ export const updateAssessmentSchema = z
       path: ['endDate'],
     }
   );
+
+export const assessmentQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
+  search: z.string().trim().optional(),
+  academicYearId: z.string().trim().optional(),
+  status: z.enum(['SCHEDULED', 'COMPLETED', 'PUBLISHED', 'CANCELLED']).optional(),
+  sortBy: z.string().trim().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+});

@@ -3,6 +3,7 @@ import { TYPES } from '@/config/di/types';
 import { IStudentRepository } from '@/domain/repositories/IStudentRepository';
 import { IAssessmentResultRepository } from '@/domain/repositories/IAssessmentResultRepository';
 import { IAssessmentRepository } from '@/domain/repositories/IAssessmentRepository';
+import { IAssessmentScheduleRepository } from '@/domain/repositories/IAssessmentScheduleRepository';
 import {
   IGetStudentReportCardUseCase,
   GetStudentReportCardQuery,
@@ -22,7 +23,9 @@ export class GetStudentReportCard implements IGetStudentReportCardUseCase {
     @inject(TYPES.AssessmentResultRepository)
     private _resultRepo: IAssessmentResultRepository,
     @inject(TYPES.AssessmentRepository)
-    private _assessmentRepo: IAssessmentRepository
+    private _assessmentRepo: IAssessmentRepository,
+    @inject(TYPES.AssessmentScheduleRepository)
+    private _scheduleRepo: IAssessmentScheduleRepository
   ) {}
 
   async execute(query: GetStudentReportCardQuery): Promise<StudentReportCardDTO> {
@@ -42,7 +45,7 @@ export class GetStudentReportCard implements IGetStudentReportCardUseCase {
     }
 
     // If student self-service (requested via userId), ensure results are published
-    if (query.userId && assessment.status !== 'PUBLISHED' && assessment.status !== 'COMPLETED') {
+    if (query.userId && assessment.status !== 'PUBLISHED') {
       throw new NotFoundError('Results for this assessment have not been published yet.');
     }
 
@@ -53,6 +56,22 @@ export class GetStudentReportCard implements IGetStudentReportCardUseCase {
 
     if (!results || results.length === 0) {
       throw new NotFoundError('No results recorded for this assessment.');
+    }
+
+    // Ensure all scheduled exams for this student's batch are completed and graded
+    const schedules = await this._scheduleRepo.findByAssessmentId(query.assessmentId);
+    const batchSchedules = schedules.filter(
+      (s) => !s.isDeleted && s.batchId === student.batchId
+    );
+    if (
+      batchSchedules.length > 0 &&
+      (results.length < batchSchedules.length || batchSchedules.some((s) => !s.isGraded))
+    ) {
+      if (query.userId) {
+        throw new NotFoundError(
+          'Progress card is not available until all exam subjects are completed and graded.'
+        );
+      }
     }
 
     let totalMarksObtained = 0;

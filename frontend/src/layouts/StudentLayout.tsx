@@ -15,7 +15,7 @@ const studentNavItems: SidebarItem[] = [
   { label: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
   { label: 'Homeworks', path: '/student/homework', icon: BookOpen },
   { label: 'Attendance', path: '/student/attendance', icon: CalendarCheck },
-  { label: 'Results', path: '/student/results', icon: BarChart2 },
+  { label: 'Exams & Results', path: '/student/results', icon: BarChart2 },
   { label: 'Notifications', path: '/student/notifications', icon: Bell },
   { label: 'Chat', path: '/student/chat', icon: MessageSquare },
   { label: 'Fees', path: '/student/fees', icon: CreditCard },

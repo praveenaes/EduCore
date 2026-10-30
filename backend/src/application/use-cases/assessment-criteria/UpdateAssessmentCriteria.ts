@@ -1,6 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '@/config/di/types';
 import { IAssessmentCriteriaRepository } from '@/domain/repositories/IAssessmentCriteriaRepository';
+import { IAssessmentScheduleRepository } from '@/domain/repositories/IAssessmentScheduleRepository';
 import { ICourseRepository } from '@/domain/repositories/ICourseRepository';
 import { ISubjectRepository } from '@/domain/repositories/ISubjectRepository';
 import { IUpdateAssessmentCriteriaUseCase } from '@/application/ports/use-cases/assessment-criteria/IUpdateAssessmentCriteriaUseCase';
@@ -15,6 +16,8 @@ export class UpdateAssessmentCriteria implements IUpdateAssessmentCriteriaUseCas
   constructor(
     @inject(TYPES.AssessmentCriteriaRepository)
     private _criteriaRepo: IAssessmentCriteriaRepository,
+    @inject(TYPES.AssessmentScheduleRepository)
+    private _scheduleRepo: IAssessmentScheduleRepository,
     @inject(TYPES.CourseRepository)
     private _courseRepo: ICourseRepository,
     @inject(TYPES.SubjectRepository)
@@ -25,6 +28,21 @@ export class UpdateAssessmentCriteria implements IUpdateAssessmentCriteriaUseCas
     const criteria = await this._criteriaRepo.findById(id);
     if (!criteria || criteria.isDeleted) {
       throw new NotFoundError(`Assessment criteria with id "${id}" not found`);
+    }
+
+    const linkedSchedules = await this._scheduleRepo.findByCriteriaId(id);
+    const hasCompletedSchedule = linkedSchedules.some(
+      (s) =>
+        !s.isDeleted &&
+        (s.isCompleted ||
+          s.isGraded ||
+          s.assessmentStatus === 'COMPLETED' ||
+          s.assessmentStatus === 'PUBLISHED')
+    );
+    if (hasCompletedSchedule) {
+      throw new ConflictError(
+        `Cannot edit "${criteria.name}" because it is linked to completed exam schedules.`
+      );
     }
 
     const courseId = dto.courseId ?? criteria.courseId;

@@ -32,6 +32,20 @@ const AssessmentCriteriaPage: React.FC = () => {
   const [selectedCourseFilter, setSelectedCourseFilter] = useState('');
   const limit = 10;
 
+  // Sorting
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    setPage(1);
+  };
+
   // Modals
   const [showModal, setShowModal] = useState(false);
   const [selectedCriteria, setSelectedCriteria] = useState<AssessmentCriteria | null>(null);
@@ -43,7 +57,6 @@ const AssessmentCriteriaPage: React.FC = () => {
 
   // Toast
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
   // Debounce search
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -76,6 +89,8 @@ const AssessmentCriteriaPage: React.FC = () => {
         limit,
         search: debouncedSearch || undefined,
         courseId: selectedCourseFilter || undefined,
+        sortBy,
+        sortOrder,
       });
       const data = response.data.data;
       setCriteriaList(data.criteria || []);
@@ -86,7 +101,7 @@ const AssessmentCriteriaPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch, selectedCourseFilter]);
+  }, [page, limit, debouncedSearch, selectedCourseFilter, sortBy, sortOrder]);
 
   useEffect(() => {
     fetchCriteria();
@@ -96,7 +111,7 @@ const AssessmentCriteriaPage: React.FC = () => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
-
+ 
   const handleDelete = async () => {
     if (!deleteConfirm.criteria) return;
     const target = deleteConfirm.criteria;
@@ -137,6 +152,7 @@ const AssessmentCriteriaPage: React.FC = () => {
   const columns: TableColumn<AssessmentCriteria>[] = [
     {
       header: 'Criteria Name',
+      sortField: 'name',
       accessor: (item) => (
         <div>
           <span className="font-semibold text-neutral-800">{item.name}</span>
@@ -168,10 +184,12 @@ const AssessmentCriteriaPage: React.FC = () => {
     },
     {
       header: 'Type',
+      sortField: 'assessmentType',
       accessor: (item) => getTypeBadge(item.assessmentType),
     },
     {
       header: 'Marks (Max / Pass)',
+      sortField: 'maxMarks',
       accessor: (item) => (
         <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-700">
           <Award className="h-3.5 w-3.5 text-neutral-400" />
@@ -196,29 +214,57 @@ const AssessmentCriteriaPage: React.FC = () => {
     },
     {
       header: 'Actions',
-      accessor: (item) => (
-        <div className="flex items-center justify-end gap-1.5">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              setSelectedCriteria(item);
-              setShowModal(true);
-            }}
-            title="Edit Criteria"
-          >
-            <Edit2 className="h-4 w-4 text-neutral-500" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setDeleteConfirm({ show: true, criteria: item })}
-            title="Delete Criteria"
-          >
-            <Trash2 className="h-4 w-4 text-red-500" />
-          </Button>
-        </div>
-      ),
+      accessor: (item) => {
+        const isCompleted = Boolean(item.hasCompletedSchedule);
+
+        return (
+          <div className="flex items-center justify-end gap-1.5">
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={isCompleted}
+              onClick={() => {
+                if (isCompleted) return;
+                setSelectedCriteria(item);
+                setShowModal(true);
+              }}
+              className={
+                isCompleted
+                  ? 'opacity-30 cursor-not-allowed text-neutral-400'
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }
+              title={
+                isCompleted
+                  ? 'Criteria linked to completed exams cannot be edited'
+                  : 'Edit Criteria'
+              }
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={isCompleted}
+              onClick={() => {
+                if (isCompleted) return;
+                setDeleteConfirm({ show: true, criteria: item });
+              }}
+              className={
+                isCompleted
+                  ? 'opacity-30 cursor-not-allowed text-neutral-400'
+                  : 'text-red-500 hover:text-red-700'
+              }
+              title={
+                isCompleted
+                  ? 'Criteria linked to completed exams cannot be deleted'
+                  : 'Delete Criteria'
+              }
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -314,6 +360,9 @@ const AssessmentCriteriaPage: React.FC = () => {
               columns={columns}
               data={criteriaList}
               keyExtractor={(item) => item.id}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={handleSort}
             />
             <div className="p-4 border-t border-neutral-100">
               <Pagination

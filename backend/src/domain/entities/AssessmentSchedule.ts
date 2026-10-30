@@ -10,12 +10,15 @@ export interface AssessmentScheduleProps {
   startTime: string; // HH:mm
   endTime: string;   // HH:mm
   isCompleted: boolean;
+  isGraded: boolean;
+  isPublished?: boolean;
   isDeleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 
   // Populated display helpers
   assessmentName?: string;
+  assessmentStatus?: string;
   courseName?: string;
   courseCode?: string;
   levelName?: string;
@@ -47,11 +50,14 @@ export class AssessmentSchedule {
   get startTime(): string { return this._props.startTime; }
   get endTime(): string { return this._props.endTime; }
   get isCompleted(): boolean { return this._props.isCompleted; }
+  get isGraded(): boolean { return this._props.isGraded ?? false; }
+  get isPublished(): boolean { return this._props.isPublished ?? false; }
   get isDeleted(): boolean { return this._props.isDeleted; }
   get createdAt(): Date | undefined { return this._props.createdAt; }
   get updatedAt(): Date | undefined { return this._props.updatedAt; }
 
   get assessmentName(): string | undefined { return this._props.assessmentName; }
+  get assessmentStatus(): string | undefined { return this._props.assessmentStatus; }
   get courseName(): string | undefined { return this._props.courseName; }
   get courseCode(): string | undefined { return this._props.courseCode; }
   get levelName(): string | undefined { return this._props.levelName; }
@@ -75,6 +81,8 @@ export class AssessmentSchedule {
     startTime?: string;
     endTime?: string;
     isCompleted?: boolean;
+    isGraded?: boolean;
+    isPublished?: boolean;
   }): void {
     if (details.assessmentId !== undefined) this._props.assessmentId = details.assessmentId;
     if (details.courseId !== undefined) this._props.courseId = details.courseId;
@@ -86,6 +94,18 @@ export class AssessmentSchedule {
     if (details.startTime !== undefined) this._props.startTime = details.startTime;
     if (details.endTime !== undefined) this._props.endTime = details.endTime;
     if (details.isCompleted !== undefined) this._props.isCompleted = details.isCompleted;
+    if (details.isGraded !== undefined) this._props.isGraded = details.isGraded;
+    if (details.isPublished !== undefined) this._props.isPublished = details.isPublished;
+    this._props.updatedAt = new Date();
+  }
+
+  publish(): void {
+    this._props.isPublished = true;
+    this._props.updatedAt = new Date();
+  }
+
+  unpublish(): void {
+    this._props.isPublished = false;
     this._props.updatedAt = new Date();
   }
 
@@ -121,6 +141,8 @@ export class AssessmentSchedule {
       startTime: props.startTime,
       endTime: props.endTime,
       isCompleted: false,
+      isGraded: false,
+      isPublished: false,
       isDeleted: false,
     });
   }
@@ -138,10 +160,13 @@ export class AssessmentSchedule {
       startTime: this.startTime,
       endTime: this.endTime,
       isCompleted: this.isCompleted,
+      isGraded: this.isGraded,
+      isPublished: this.isPublished,
       isDeleted: this.isDeleted,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       assessmentName: this.assessmentName,
+      assessmentStatus: this.assessmentStatus,
       courseName: this.courseName,
       courseCode: this.courseCode,
       levelName: this.levelName,

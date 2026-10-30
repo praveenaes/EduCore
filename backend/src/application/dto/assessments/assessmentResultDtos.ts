@@ -42,6 +42,15 @@ export interface AssessmentResultResponseDTO {
   isAbsent: boolean;
   isPassed: boolean;
   remarks?: string;
+  examDate?: string;
+  startTime?: string;
+  endTime?: string;
+  centerName?: string;
+  scheduleStatus?: 'SCHEDULED' | 'COMPLETED' | 'PUBLISHED' | 'CANCELLED';
+  isPublished?: boolean;
+  totalExamsInEvent?: number;
+  completedExamsInEvent?: number;
+  allExamsCompleted?: boolean;
   isDeleted: boolean;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -84,6 +93,9 @@ export interface MarkEntrySheetDTO {
   scheduleId: string;
   assessmentId: string;
   assessmentName: string;
+  assessmentStatus?: string;
+  isPublished?: boolean;
+  isGraded?: boolean;
   courseId: string;
   courseName: string;
   levelNumber: number;

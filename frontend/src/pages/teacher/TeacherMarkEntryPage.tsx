@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   Clock,
   Calendar,
+  XCircle,
 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
@@ -81,6 +82,56 @@ export const TeacherMarkEntryPage: React.FC = () => {
     fetchSchedules();
   }, [fetchSchedules]);
 
+  const getScheduleStatus = (s: AssessmentSchedule) => {
+    if (s.isPublished) return 'PUBLISHED';
+    if (s.isGraded) return 'GRADED';
+    if (s.assessmentStatus === 'COMPLETED' || s.isCompleted) return 'COMPLETED';
+    if (s.assessmentStatus === 'CANCELLED') return 'CANCELLED';
+    return 'SCHEDULED';
+  };
+
+  const renderStatusBadge = (s: AssessmentSchedule) => {
+    const status = getScheduleStatus(s);
+    switch (status) {
+      case 'PUBLISHED':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Published
+          </span>
+        );
+      case 'GRADED':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Graded
+          </span>
+        );
+      case 'COMPLETED':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Completed
+          </span>
+        );
+      case 'CANCELLED':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+            <XCircle className="h-3.5 w-3.5" />
+            Cancelled
+          </span>
+        );
+      case 'SCHEDULED':
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+            <Clock className="h-3.5 w-3.5" />
+            Scheduled
+          </span>
+        );
+    }
+  };
+
   const columns: TableColumn<AssessmentSchedule>[] = [
     {
       header: 'Exam / Criteria',
@@ -125,44 +176,37 @@ export const TeacherMarkEntryPage: React.FC = () => {
     },
     {
       header: 'Status',
-      accessor: (s) => (
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-            s.isCompleted
-              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              : 'bg-amber-50 text-amber-700 border border-amber-200'
-          }`}
-        >
-          {s.isCompleted ? (
-            <>
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Graded
-            </>
-          ) : (
-            <>
-              <Clock className="h-3.5 w-3.5" />
-              Pending Grading
-            </>
-          )}
-        </span>
-      ),
+      accessor: (s) => renderStatusBadge(s),
     },
     {
       header: 'Action',
-      accessor: (s) => (
-        <Button
-          size="sm"
-          variant="primary"
-          onClick={() => {
-            setSelectedScheduleId(s.id);
-            setShowMarkEntryModal(true);
-          }}
-          className="flex items-center gap-1.5 text-xs"
-        >
-          <FileSpreadsheet className="h-3.5 w-3.5" />
-          {s.isCompleted ? 'Edit Marks' : 'Enter Marks'}
-        </Button>
-      ),
+      accessor: (s) => {
+        const status = getScheduleStatus(s);
+        const isEntryDisabled = status === 'SCHEDULED' || status === 'CANCELLED';
+
+        return (
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={isEntryDisabled}
+            onClick={() => {
+              setSelectedScheduleId(s.id);
+              setShowMarkEntryModal(true);
+            }}
+            className="flex items-center gap-1.5 text-xs"
+            title={
+              status === 'SCHEDULED'
+                ? 'Marks can only be entered once exam is completed'
+                : status === 'CANCELLED'
+                ? 'Exam is cancelled'
+                : undefined
+            }
+          >
+            <FileSpreadsheet className="h-3.5 w-3.5" />
+            {status === 'GRADED' || status === 'PUBLISHED' ? 'Edit Marks' : 'Enter Marks'}
+          </Button>
+        );
+      },
     },
   ];
 
@@ -176,7 +220,7 @@ export const TeacherMarkEntryPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+{/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-200/80 pb-5">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900 flex items-center gap-2.5">
@@ -189,7 +233,7 @@ export const TeacherMarkEntryPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Filter Toolbar */}
+ {/* search */}
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <div className="w-full sm:w-72">
           <SearchBox
@@ -198,6 +242,7 @@ export const TeacherMarkEntryPage: React.FC = () => {
             onChange={setSearch}
           />
         </div>
+  {/* Filter Toolbar */}       
         <div className="w-full sm:w-64">
           <Select
             options={assessmentFilterOptions}
@@ -210,7 +255,7 @@ export const TeacherMarkEntryPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+{/* Main Content */}
       <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-sm text-neutral-500">Loading exam schedules...</div>
@@ -239,7 +284,7 @@ export const TeacherMarkEntryPage: React.FC = () => {
         )}
       </div>
 
-      {/* Mark Entry Modal */}
+{/* Mark Entry Modal */}
       {showMarkEntryModal && (
         <MarkEntryModal
           isOpen={showMarkEntryModal}

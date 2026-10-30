@@ -27,6 +27,7 @@ export interface AssessmentScheduleResponseDTO {
   id: string;
   assessmentId: string;
   assessmentName?: string;
+  assessmentStatus?: string;
   courseId: string;
   courseName?: string;
   courseCode?: string;
@@ -46,6 +47,8 @@ export interface AssessmentScheduleResponseDTO {
   startTime: string;
   endTime: string;
   isCompleted: boolean;
+  isGraded?: boolean;
+  isPublished?: boolean;
   isDeleted: boolean;
   createdAt?: Date | string;
   updatedAt?: Date | string;

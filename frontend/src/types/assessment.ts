@@ -1,4 +1,4 @@
-export type AssessmentStatus = 'DRAFT' | 'PUBLISHED' | 'COMPLETED' | 'CANCELLED';
+export type AssessmentStatus = 'SCHEDULED' | 'COMPLETED' | 'PUBLISHED' | 'CANCELLED';
 
 export const STANDARD_EXAM_PRESETS = [
   'First Unit Test',
@@ -55,4 +55,5 @@ export interface AssessmentFormData {
   academicYearId: string;
   startDate: string;
   endDate: string;
+  status?: AssessmentStatus;
 }

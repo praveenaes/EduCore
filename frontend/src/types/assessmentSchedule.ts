@@ -34,6 +34,9 @@ export interface AssessmentSchedule {
   endTime: string;       // HH:mm (e.g. "12:30")
 
   // Status & Completion
+  assessmentStatus?: string;
+  isGraded?: boolean;
+  isPublished?: boolean;
   isCompleted: boolean;
   isDeleted: boolean;
   createdAt?: string;

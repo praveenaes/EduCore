@@ -19,11 +19,11 @@ export const getAssessmentSchema = (_mode: 'create' | 'edit' = 'create') =>
       academicYearId: z.string().trim().min(1, 'Academic Year is required'),
       startDate: z.string().min(1, 'Start date is required'),
       endDate: z.string().min(1, 'End date is required'),
-      status: z.enum(['DRAFT', 'PUBLISHED', 'COMPLETED', 'CANCELLED']).optional(),
+      status: z.enum(['SCHEDULED', 'COMPLETED', 'PUBLISHED', 'CANCELLED']).optional(),
     })
     .refine(
       (data) => {
-        if (data.startDate) {
+        if (_mode === 'create' && data.startDate) {
           const selected = new Date(data.startDate + 'T00:00:00');
           const today = new Date();
           today.setHours(0, 0, 0, 0);

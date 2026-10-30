@@ -29,6 +29,7 @@ export interface AssessmentCriteria {
   maxMarks: number;
   passMarks: number;
   hasCe: boolean;
+  hasCompletedSchedule?: boolean;
   isDeleted: boolean;
   createdAt?: string;
   updatedAt?: string;

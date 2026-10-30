@@ -4,6 +4,7 @@ import { TYPES } from '@/config/di/types';
 import {
   createAssessmentSchema,
   updateAssessmentSchema,
+  assessmentQuerySchema,
 } from '../../validators/assessmentValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
@@ -29,11 +30,13 @@ export class AssessmentController {
   ) {}
 
   getAll = async (req: Request, res: Response): Promise<void> => {
-    const { search, academicYearId, status, sortBy, sortOrder } =
-      req.query as Record<string, string | undefined>;
+    const parsed = assessmentQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR;
+      throw new ValidationError(msg);
+    }
 
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const { page, limit, search, academicYearId, status, sortBy, sortOrder } = parsed.data;
 
     const result = await this._getAssessmentsUseCase.execute(
       {
@@ -45,17 +48,18 @@ export class AssessmentController {
         page,
         limit,
         sortBy,
-        sortOrder: sortOrder as 'asc' | 'desc' | undefined,
+        sortOrder,
       }
     );
 
     ResponseHelper.success(res, 'Assessments retrieved successfully', result, HTTP_STATUS.OK);
   };
 
+
   create = async (req: Request, res: Response): Promise<void> => {
     const parsed = createAssessmentSchema.safeParse(req.body);
     if (!parsed.success) {
-      throw new ValidationError( ERROR_MESSAGES.VALIDATION_ERROR);
+      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
     }
 
     const result = await this._createAssessmentUseCase.execute(parsed.data);
@@ -67,14 +71,14 @@ export class AssessmentController {
     const { id } = req.params;
     const parsed = updateAssessmentSchema.safeParse(req.body);
     if (!parsed.success) {
-      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
+      const msg = parsed.error.errors.map((e) => e.message).join(', ') || ERROR_MESSAGES.VALIDATION_ERROR;
+      throw new ValidationError(msg);
     }
 
     const result = await this._updateAssessmentUseCase.execute(id, parsed.data);
     ResponseHelper.success(res, 'Assessment updated successfully.', result, HTTP_STATUS.OK);
   };
 
-  
   delete = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await this._deleteAssessmentUseCase.execute(id);

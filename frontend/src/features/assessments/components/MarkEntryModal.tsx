@@ -161,12 +161,21 @@ export const MarkEntryModal: React.FC<MarkEntryModalProps> = ({
     setIsPublishing(true);
     setError(null);
     try {
-      const nextStatus = !data.isCompleted;
+      const isCurrentlyPublished = Boolean(data.isPublished);
+      const nextStatus = !isCurrentlyPublished;
       await publishAssessmentResultsApi({
+        scheduleId: data.scheduleId,
         assessmentId: data.assessmentId,
         isPublished: nextStatus,
       });
-      setData((prev) => (prev ? { ...prev, isCompleted: nextStatus } : null));
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              isPublished: nextStatus,
+            }
+          : null
+      );
       setSuccessMsg(nextStatus ? 'Results published to students!' : 'Results unpublished.');
       if (onSuccess) onSuccess();
     } catch (err: any) {
@@ -175,6 +184,8 @@ export const MarkEntryModal: React.FC<MarkEntryModalProps> = ({
       setIsPublishing(false);
     }
   };
+
+  const isSheetPublished = Boolean(data?.isPublished);
 
   return (
     <Modal
@@ -188,13 +199,13 @@ export const MarkEntryModal: React.FC<MarkEntryModalProps> = ({
           <div>
             {isAdmin && data && (
               <Button
-                variant={data.isCompleted ? 'secondary' : 'primary'}
+                variant={isSheetPublished ? 'secondary' : 'primary'}
                 onClick={handleTogglePublish}
                 disabled={isPublishing || isSaving || students.length === 0}
                 className="text-xs flex items-center gap-1.5"
               >
                 <Globe className="h-4 w-4" />
-                {data.isCompleted ? 'Unpublish Results' : 'Publish to Students'}
+                {isSheetPublished ? 'Unpublish Results' : 'Publish to Students'}
               </Button>
             )}
           </div>

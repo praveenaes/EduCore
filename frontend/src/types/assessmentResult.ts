@@ -30,6 +30,15 @@ export interface AssessmentResult {
   maxMarks?: number;
   passMarks?: number;
   hasCe?: boolean;
+  examDate?: string;
+  startTime?: string;
+  endTime?: string;
+  centerName?: string;
+  scheduleStatus?: 'SCHEDULED' | 'COMPLETED' | 'PUBLISHED' | 'CANCELLED';
+  isPublished?: boolean;
+  totalExamsInEvent?: number;
+  completedExamsInEvent?: number;
+  allExamsCompleted?: boolean;
 }
 
 export interface MarkEntryStudentRow {
@@ -48,6 +57,9 @@ export interface MarkEntrySheetData {
   scheduleId: string;
   assessmentId: string;
   assessmentName: string;
+  assessmentStatus?: string;
+  isPublished?: boolean;
+  isGraded?: boolean;
   courseId: string;
   courseName: string;
   levelNumber: number;
@@ -78,7 +90,8 @@ export interface SaveMarksPayload {
 }
 
 export interface PublishResultsPayload {
-  assessmentId: string;
+  assessmentId?: string;
+  scheduleId?: string;
   isPublished: boolean;
 }
 

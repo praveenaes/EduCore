@@ -37,6 +37,7 @@ export interface AssessmentCriteriaResponseDTO {
   maxMarks: number;
   passMarks: number;
   hasCe: boolean;
+  hasCompletedSchedule?: boolean;
   isDeleted: boolean;
   createdAt?: Date | string;
   updatedAt?: Date | string;

@@ -59,7 +59,7 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
         academicYearId: defaultValues?.academicYearId ?? '',
         startDate: formatDateForInput(defaultValues?.startDate),
         endDate: formatDateForInput(defaultValues?.endDate),
-        status: defaultValues?.status ?? 'DRAFT',
+        status: defaultValues?.status ?? 'SCHEDULED',
       },
     });
 
@@ -120,7 +120,7 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
           academicYearId: defaultValues.academicYearId ?? '',
           startDate: formatDateForInput(defaultValues.startDate),
           endDate: formatDateForInput(defaultValues.endDate),
-          status: defaultValues.status ?? 'DRAFT',
+          status: defaultValues.status ?? 'SCHEDULED',
         });
       }
     }, [defaultValues, reset]);
@@ -153,9 +153,11 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
     ];
 
     const statusOptions = [
-      { value: 'DRAFT', label: 'Draft (In preparation / hidden from students)' },
-      { value: 'PUBLISHED', label: 'Published (Released to students)' },
-      { value: 'COMPLETED', label: 'Completed (Term concluded & archived)' },
+      { value: 'SCHEDULED', label: 'Scheduled (Upcoming exam event)' },
+      { value: 'COMPLETED', label: 'Completed (Exams finished / Mark entry open)' },
+      ...(defaultValues?.status === 'PUBLISHED'
+        ? [{ value: 'PUBLISHED', label: 'Published (Results released to students)' }]
+        : []),
       { value: 'CANCELLED', label: 'Cancelled (Called off)' },
     ];
 
@@ -200,7 +202,7 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
           <Input
             label="Start Date"
             type="date"
-            min={todayStr}
+            min={mode === 'create' ? todayStr : undefined}
             {...register('startDate')}
             error={errors.startDate?.message}
           />
@@ -208,7 +210,7 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
           <Input
             label="End Date"
             type="date"
-            min={watchedStartDate || todayStr}
+            min={watchedStartDate || (mode === 'create' ? todayStr : undefined)}
             {...register('endDate')}
             error={errors.endDate?.message}
           />

@@ -48,10 +48,12 @@ export const assessmentResultQuerySchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
-export const publishResultsSchema = z.object({
-  assessmentId: z
-    .string({ required_error: 'Assessment event ID is required' })
-    .trim()
-    .min(1, 'Assessment event ID is required'),
-  isPublished: z.boolean().default(true),
-});
+export const publishResultsSchema = z
+  .object({
+    assessmentId: z.string().trim().optional(),
+    scheduleId: z.string().trim().optional(),
+    isPublished: z.boolean().default(true),
+  })
+  .refine((data) => Boolean(data.assessmentId || data.scheduleId), {
+    message: 'Either assessmentId or scheduleId is required',
+  });
