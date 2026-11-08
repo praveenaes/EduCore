@@ -17,21 +17,28 @@ export class UpdateSubject implements IUpdateSubject {
       throw new NotFoundError("Subject not found.");
     }
 
-    if (dto.code && dto.code.trim().toUpperCase() !== subject.code) {
-      const existingByCode = await this._subjectRepo.findByCode(dto.code);
+    const trimmedCode = dto.code.trim().toUpperCase();
+    const trimmedName = dto.name.trim();
+
+    if (trimmedCode !== subject.code) {
+      const existingByCode = await this._subjectRepo.findByCode(trimmedCode);
       if (existingByCode && existingByCode.id !== id) {
         throw new ValidationError("Subject with this code already exists.");
       }
     }
 
-    if (dto.name && dto.name.trim() !== subject.name) {
-      const existingByName = await this._subjectRepo.findByName(dto.name);
+    if (trimmedName !== subject.name) {
+      const existingByName = await this._subjectRepo.findByName(trimmedName);
       if (existingByName && existingByName.id !== id) {
         throw new ValidationError("Subject with this name already exists.");
       }
     }
 
-    subject.updateDetails(dto.name, dto.code, dto.description);
+    subject.updateDetails({
+      name: trimmedName,
+      code: trimmedCode,
+      description: dto.description.trim(),
+    });
 
     const updated = await this._subjectRepo.update(id, subject);
     if (!updated) {

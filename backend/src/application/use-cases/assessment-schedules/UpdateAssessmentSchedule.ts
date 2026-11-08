@@ -36,30 +36,27 @@ export class UpdateAssessmentSchedule implements IUpdateAssessmentScheduleUseCas
       throw new NotFoundError(`Assessment schedule with id "${id}" not found`);
     }
 
-    const assessmentId = dto.assessmentId ?? schedule.assessmentId;
-    const courseId = dto.courseId ?? schedule.courseId;
-    const levelNumber = dto.levelNumber !== undefined ? Number(dto.levelNumber) : schedule.levelNumber;
-    const criteriaId = dto.criteriaId ?? schedule.criteriaId;
-    const batchId = dto.batchId ?? schedule.batchId;
-    const centerId = dto.centerId ?? schedule.centerId;
+    // Clean destructuring: No redundant nullish coalescing checks
+    const { assessmentId, courseId, levelNumber, criteriaId, batchId, centerId, startTime, endTime } = dto;
 
     const assessment = await this._assessmentRepo.findById(assessmentId);
     if (!assessment || assessment.isDeleted) {
       throw new NotFoundError('Selected assessment event not found');
     }
 
-    if (dto.courseId && dto.courseId !== schedule.courseId) {
+    // Existence checks only if foreign entity references changed
+    if (courseId !== schedule.courseId) {
       const course = await this._courseRepo.findById(courseId);
       if (!course || course.isDeleted) {
         throw new NotFoundError('Selected course not found');
       }
-      const level = course.levels.find((l) => l.levelNumber === levelNumber);
+      const level = course.levels.find((l) => l.levelNumber === Number(levelNumber));
       if (!level) {
         throw new ValidationError(`Level ${levelNumber} does not exist in course "${course.name}"`);
       }
     }
 
-    if (dto.criteriaId && dto.criteriaId !== schedule.criteriaId) {
+    if (criteriaId !== schedule.criteriaId) {
       const criteria = await this._criteriaRepo.findById(criteriaId);
       if (!criteria || criteria.isDeleted) {
         throw new NotFoundError('Selected assessment criteria not found');
@@ -71,7 +68,7 @@ export class UpdateAssessmentSchedule implements IUpdateAssessmentScheduleUseCas
       throw new NotFoundError('Selected batch not found');
     }
 
-    if (dto.centerId && dto.centerId !== schedule.centerId) {
+    if (centerId !== schedule.centerId) {
       const center = await this._centerRepo.findById(centerId);
       if (!center || center.status === 'inactive') {
         throw new NotFoundError('Selected exam center not found');
@@ -85,34 +82,30 @@ export class UpdateAssessmentSchedule implements IUpdateAssessmentScheduleUseCas
       );
     }
 
-    let parsedExamDate: Date | undefined;
-    if (dto.examDate !== undefined) {
-      parsedExamDate = new Date(dto.examDate);
-      if (isNaN(parsedExamDate.getTime())) {
-        throw new ValidationError('Invalid exam date provided');
-      }
-
-      const eventStart = new Date(assessment.startDate);
-      const eventEnd = new Date(assessment.endDate);
-      eventStart.setHours(0, 0, 0, 0);
-      eventEnd.setHours(23, 59, 59, 999);
-      const compareDate = new Date(parsedExamDate);
-      compareDate.setHours(12, 0, 0, 0);
-
-      if (compareDate < eventStart || compareDate > eventEnd) {
-        throw new ValidationError(
-          `Exam date must fall within the event window (${eventStart.toLocaleDateString()} to ${eventEnd.toLocaleDateString()})`
-        );
-      }
+    const parsedExamDate = new Date(dto.examDate);
+    if (isNaN(parsedExamDate.getTime())) {
+      throw new ValidationError('Invalid exam date provided');
     }
 
-    const startTime = dto.startTime ?? schedule.startTime;
-    const endTime = dto.endTime ?? schedule.endTime;
+    const eventStart = new Date(assessment.startDate);
+    const eventEnd = new Date(assessment.endDate);
+    eventStart.setHours(0, 0, 0, 0);
+    eventEnd.setHours(23, 59, 59, 999);
+    const compareDate = new Date(parsedExamDate);
+    compareDate.setHours(12, 0, 0, 0);
+
+    if (compareDate < eventStart || compareDate > eventEnd) {
+      throw new ValidationError(
+        `Exam date must fall within the event window (${eventStart.toLocaleDateString()} to ${eventEnd.toLocaleDateString()})`
+      );
+    }
+
+    // Time ordering check
     if (startTime >= endTime) {
       throw new ValidationError('End time must be after start time');
     }
 
-    // Check conflict if assessment, batch, or criteria changed
+    // Check duplicate schedule if assessment, batch, or criteria changed
     const isScopeChanged =
       assessmentId !== schedule.assessmentId ||
       batchId !== schedule.batchId ||
@@ -132,8 +125,7 @@ export class UpdateAssessmentSchedule implements IUpdateAssessmentScheduleUseCas
     }
 
     // Check for overlapping exam time for the same batch on the same date
-    const effectiveExamDate = parsedExamDate ?? schedule.examDate;
-    const sameDaySchedules = await this._scheduleRepo.findByBatchAndDate(batchId, effectiveExamDate);
+    const sameDaySchedules = await this._scheduleRepo.findByBatchAndDate(batchId, parsedExamDate);
     const overlapping = sameDaySchedules.find(
       (s) => s.id !== id && startTime < s.endTime && endTime > s.startTime
     );
@@ -143,17 +135,17 @@ export class UpdateAssessmentSchedule implements IUpdateAssessmentScheduleUseCas
       );
     }
 
+    // Direct domain update: No undefined checks or optional properties
     schedule.updateDetails({
-      assessmentId: dto.assessmentId,
-      courseId: dto.courseId,
-      levelNumber: dto.levelNumber !== undefined ? Number(dto.levelNumber) : undefined,
-      criteriaId: dto.criteriaId,
-      batchId: dto.batchId,
-      centerId: dto.centerId,
+      assessmentId,
+      courseId,
+      levelNumber: Number(levelNumber),
+      criteriaId,
+      batchId,
+      centerId,
       examDate: parsedExamDate,
-      startTime: dto.startTime?.trim(),
-      endTime: dto.endTime?.trim(),
-      isCompleted: dto.isCompleted,
+      startTime: startTime.trim(),
+      endTime: endTime.trim(),
     });
 
     await this._scheduleRepo.update(id, schedule);

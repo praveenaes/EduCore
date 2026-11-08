@@ -24,3 +24,11 @@ export const updateAssessmentApi = (id: string, payload: UpdateAssessmentPayload
 
 export const deleteAssessmentApi = (id: string) =>
   axiosInstance.delete(API_ROUTES.ASSESSMENTS.DETAIL(id));
+
+export const requestAssessmentDelegationApi = (assessmentId: string, payload: { reason: string }) =>
+  axiosInstance.post(API_ROUTES.ASSESSMENTS.REQUEST_DELEGATION(assessmentId), payload);
+
+export const reviewAssessmentDelegationApi = (
+  assessmentId: string,
+  payload: { status: 'APPROVED' | 'REJECTED'; reviewNotes?: string }
+) => axiosInstance.post(API_ROUTES.ASSESSMENTS.REVIEW_DELEGATION(assessmentId), payload);

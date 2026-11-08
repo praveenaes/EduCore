@@ -183,10 +183,16 @@ import { ICreateAssessmentUseCase } from "@/application/ports/use-cases/assessme
 import { CreateAssessment } from "@/application/use-cases/assessments/CreateAssessment";
 import { IGetAssessmentsUseCase } from "@/application/ports/use-cases/assessments/IGetAssessmentsUseCase";
 import { GetAssessments } from "@/application/use-cases/assessments/GetAssessments";
+import { IGetAssessmentByIdUseCase } from "@/application/ports/use-cases/assessments/IGetAssessmentByIdUseCase";
+import { GetAssessmentById } from "@/application/use-cases/assessments/GetAssessmentById";
 import { IUpdateAssessmentUseCase } from "@/application/ports/use-cases/assessments/IUpdateAssessmentUseCase";
 import { UpdateAssessment } from "@/application/use-cases/assessments/UpdateAssessment";
 import { IDeleteAssessmentUseCase } from "@/application/ports/use-cases/assessments/IDeleteAssessmentUseCase";
 import { DeleteAssessment } from "@/application/use-cases/assessments/DeleteAssessment";
+import { IRequestAssessmentDelegationUseCase } from "@/application/ports/use-cases/assessments/IRequestAssessmentDelegationUseCase";
+import { RequestAssessmentDelegation } from "@/application/use-cases/assessments/RequestAssessmentDelegation";
+import { IReviewAssessmentDelegationUseCase } from "@/application/ports/use-cases/assessments/IReviewAssessmentDelegationUseCase";
+import { ReviewAssessmentDelegation } from "@/application/use-cases/assessments/ReviewAssessmentDelegation";
 
 import { ICreateAssessmentCriteriaUseCase } from "@/application/ports/use-cases/assessment-criteria/ICreateAssessmentCriteriaUseCase";
 import { CreateAssessmentCriteria } from "@/application/use-cases/assessment-criteria/CreateAssessmentCriteria";
@@ -204,6 +210,10 @@ import { IUpdateAssessmentScheduleUseCase } from "@/application/ports/use-cases/
 import { UpdateAssessmentSchedule } from "@/application/use-cases/assessment-schedules/UpdateAssessmentSchedule";
 import { IToggleAssessmentScheduleStatusUseCase } from "@/application/ports/use-cases/assessment-schedules/IToggleAssessmentScheduleStatusUseCase";
 import { ToggleAssessmentScheduleStatus } from "@/application/use-cases/assessment-schedules/ToggleAssessmentScheduleStatus";
+import { IRequestMarkEntryDelegationUseCase } from "@/application/ports/use-cases/assessment-schedules/IRequestMarkEntryDelegationUseCase";
+import { RequestMarkEntryDelegation } from "@/application/use-cases/assessment-schedules/RequestMarkEntryDelegation";
+import { IReviewMarkEntryDelegationUseCase } from "@/application/ports/use-cases/assessment-schedules/IReviewMarkEntryDelegationUseCase";
+import { ReviewMarkEntryDelegation } from "@/application/use-cases/assessment-schedules/ReviewMarkEntryDelegation";
 import { IDeleteAssessmentScheduleUseCase } from "@/application/ports/use-cases/assessment-schedules/IDeleteAssessmentScheduleUseCase";
 import { DeleteAssessmentSchedule } from "@/application/use-cases/assessment-schedules/DeleteAssessmentSchedule";
 import { ISaveAssessmentMarksUseCase } from "@/application/ports/use-cases/assessment-results/ISaveAssessmentMarksUseCase";
@@ -218,6 +228,24 @@ import { IGetStudentResultsUseCase } from "@/application/ports/use-cases/assessm
 import { GetStudentResults } from "@/application/use-cases/assessment-results/GetStudentResults";
 import { IGetStudentReportCardUseCase } from "@/application/ports/use-cases/assessment-results/IGetStudentReportCardUseCase";
 import { GetStudentReportCard } from "@/application/use-cases/assessment-results/GetStudentReportCard";
+import { ICreateFeeAssignmentsUseCase } from "@/application/ports/use-cases/fees/ICreateFeeAssignmentsUseCase";
+import { CreateFeeAssignments } from "@/application/use-cases/fees/CreateFeeAssignments";
+import { IGetFeeAssignmentsUseCase } from "@/application/ports/use-cases/fees/IGetFeeAssignmentsUseCase";
+import { GetFeeAssignments } from "@/application/use-cases/fees/GetFeeAssignments";
+import { IInitFeePaymentUseCase } from "@/application/ports/use-cases/fees/IInitFeePaymentUseCase";
+import { InitFeePayment } from "@/application/use-cases/fees/InitFeePayment";
+import { IConfirmFeePaymentUseCase } from "@/application/ports/use-cases/fees/IConfirmFeePaymentUseCase";
+import { ConfirmFeePayment } from "@/application/use-cases/fees/ConfirmFeePayment";
+import { IGetPaymentLedgerUseCase } from "@/application/ports/use-cases/fees/IGetPaymentLedgerUseCase";
+import { GetPaymentLedger } from "@/application/use-cases/fees/GetPaymentLedger";
+import { IProcessFeeWebhookUseCase } from "@/application/ports/use-cases/fees/IProcessFeeWebhookUseCase";
+import { ProcessFeeWebhook } from "@/application/use-cases/fees/ProcessFeeWebhook";
+import { IRefundFeePaymentUseCase } from "@/application/ports/use-cases/fees/IRefundFeePaymentUseCase";
+import { RefundFeePayment } from "@/application/use-cases/fees/RefundFeePayment";
+import { IRequestFeeRefundUseCase } from "@/application/ports/use-cases/fees/IRequestFeeRefundUseCase";
+import { RequestFeeRefund } from "@/application/use-cases/fees/RequestFeeRefund";
+import { IRejectFeeRefundUseCase } from "@/application/ports/use-cases/fees/IRejectFeeRefundUseCase";
+import { RejectFeeRefund } from "@/application/use-cases/fees/RejectFeeRefund";
 
 export const useCaseModule = new ContainerModule((bind) => {
   bind<IGetOrganizationSettings>(TYPES.GetOrganizationSettingsUseCase)
@@ -514,11 +542,20 @@ export const useCaseModule = new ContainerModule((bind) => {
   bind<IGetAssessmentsUseCase>(TYPES.GetAssessmentsUseCase)
     .to(GetAssessments)
     .inSingletonScope();
+  bind<IGetAssessmentByIdUseCase>(TYPES.GetAssessmentByIdUseCase)
+    .to(GetAssessmentById)
+    .inSingletonScope();
   bind<IUpdateAssessmentUseCase>(TYPES.UpdateAssessmentUseCase)
     .to(UpdateAssessment)
     .inSingletonScope();
   bind<IDeleteAssessmentUseCase>(TYPES.DeleteAssessmentUseCase)
     .to(DeleteAssessment)
+    .inSingletonScope();
+  bind<IRequestAssessmentDelegationUseCase>(TYPES.RequestAssessmentDelegationUseCase)
+    .to(RequestAssessmentDelegation)
+    .inSingletonScope();
+  bind<IReviewAssessmentDelegationUseCase>(TYPES.ReviewAssessmentDelegationUseCase)
+    .to(ReviewAssessmentDelegation)
     .inSingletonScope();
 
   // Assessment Criteria
@@ -548,6 +585,12 @@ export const useCaseModule = new ContainerModule((bind) => {
   bind<IToggleAssessmentScheduleStatusUseCase>(TYPES.ToggleAssessmentScheduleStatusUseCase)
     .to(ToggleAssessmentScheduleStatus)
     .inSingletonScope();
+  bind<IRequestMarkEntryDelegationUseCase>(TYPES.RequestMarkEntryDelegationUseCase)
+    .to(RequestMarkEntryDelegation)
+    .inSingletonScope();
+  bind<IReviewMarkEntryDelegationUseCase>(TYPES.ReviewMarkEntryDelegationUseCase)
+    .to(ReviewMarkEntryDelegation)
+    .inSingletonScope();
   bind<IDeleteAssessmentScheduleUseCase>(TYPES.DeleteAssessmentScheduleUseCase)
     .to(DeleteAssessmentSchedule)
     .inSingletonScope();
@@ -570,5 +613,34 @@ export const useCaseModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<IGetStudentReportCardUseCase>(TYPES.GetStudentReportCardUseCase)
     .to(GetStudentReportCard)
+    .inSingletonScope();
+
+  // Fees
+  bind<ICreateFeeAssignmentsUseCase>(TYPES.CreateFeeAssignmentsUseCase)
+    .to(CreateFeeAssignments)
+    .inSingletonScope();
+  bind<IGetFeeAssignmentsUseCase>(TYPES.GetFeeAssignmentsUseCase)
+    .to(GetFeeAssignments)
+    .inSingletonScope();
+  bind<IInitFeePaymentUseCase>(TYPES.InitFeePaymentUseCase)
+    .to(InitFeePayment)
+    .inSingletonScope();
+  bind<IConfirmFeePaymentUseCase>(TYPES.ConfirmFeePaymentUseCase)
+    .to(ConfirmFeePayment)
+    .inSingletonScope();
+  bind<IGetPaymentLedgerUseCase>(TYPES.GetPaymentLedgerUseCase)
+    .to(GetPaymentLedger)
+    .inSingletonScope();
+  bind<IProcessFeeWebhookUseCase>(TYPES.ProcessFeeWebhookUseCase)
+    .to(ProcessFeeWebhook)
+    .inSingletonScope();
+  bind<IRefundFeePaymentUseCase>(TYPES.RefundFeePaymentUseCase)
+    .to(RefundFeePayment)
+    .inSingletonScope();
+  bind<IRequestFeeRefundUseCase>(TYPES.RequestFeeRefundUseCase)
+    .to(RequestFeeRefund)
+    .inSingletonScope();
+  bind<IRejectFeeRefundUseCase>(TYPES.RejectFeeRefundUseCase)
+    .to(RejectFeeRefund)
     .inSingletonScope();
 });

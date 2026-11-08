@@ -18,38 +18,42 @@ export class UpdateAcademicYear implements IUpdateAcademicYearUseCase {
       throw new NotFoundError(`Academic Year with id "${id}" not found`);
     }
 
-    if (dto.code && dto.code.trim().toUpperCase() !== academicYear.code) {
-      const existing = await this._academicYearRepository.findByCode(dto.code);
+    const { name, code, startDate, endDate, current, centers } = dto;
+    const trimmedCode = code.trim().toUpperCase();
+    const trimmedName = name.trim();
+
+    if (trimmedCode !== academicYear.code) {
+      const existing = await this._academicYearRepository.findByCode(trimmedCode);
       if (existing && existing.id !== id) {
-        throw new ConflictError(`Academic Year with code "${dto.code}" already exists`);
+        throw new ConflictError(`Academic Year with code "${trimmedCode}" already exists`);
       }
     }
 
-    if (dto.name && dto.name.trim().toLowerCase() !== academicYear.name.toLowerCase()) {
-      const existing = await this._academicYearRepository.findByName(dto.name);
+    if (trimmedName.toLowerCase() !== academicYear.name.toLowerCase()) {
+      const existing = await this._academicYearRepository.findByName(trimmedName);
       if (existing && existing.id !== id) {
-        throw new ConflictError(`Academic Year with name "${dto.name}" already exists`);
+        throw new ConflictError(`Academic Year with name "${trimmedName}" already exists`);
       }
     }
 
-    const newStartDate = dto.startDate ? new Date(dto.startDate) : academicYear.startDate;
-    const newEndDate = dto.endDate ? new Date(dto.endDate) : academicYear.endDate;
+    const parsedStartDate = new Date(startDate);
+    const parsedEndDate = new Date(endDate);
 
-    if (newEndDate <= newStartDate) {
+    if (parsedEndDate <= parsedStartDate) {
       throw new ValidationError('End date must be after start date');
     }
 
-    if (dto.current === true && !academicYear.current) {
+    if (current === true && !academicYear.current) {
       await this._academicYearRepository.unsetCurrent();
     }
 
     academicYear.updateDetails({
-      name: dto.name,
-      code: dto.code,
-      startDate: dto.startDate ? new Date(dto.startDate) : undefined,
-      endDate: dto.endDate ? new Date(dto.endDate) : undefined,
-      centers: dto.centers,
-      current: dto.current,
+      name: trimmedName,
+      code: trimmedCode,
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
+      centers: centers ?? [],
+      current: current ?? false,
     });
 
     const updated = await this._academicYearRepository.update(id, academicYear);

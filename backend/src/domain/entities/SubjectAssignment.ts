@@ -93,18 +93,17 @@ export class SubjectAssignment {
   }
 
   updateDetails(details: {
-    courseId?: string;
-    levelNumber?: number;
-    levelName?: string;
-    subjectId?: string;
+    courseId: string;
+    levelNumber: number;
+    levelName: string;
+    subjectId: string;
     teacherId?: string | null;
   }): void {
-    if (details.courseId !== undefined) this._props.courseId = details.courseId;
-    if (details.levelNumber !== undefined) this._props.levelNumber = details.levelNumber;
-    if (details.levelName !== undefined) this._props.levelName = details.levelName.trim();
-    if (details.subjectId !== undefined) this._props.subjectId = details.subjectId;
-    // null = explicitly clear teacher; undefined = don't touch; string = set new teacher
-    if ('teacherId' in details) this._props.teacherId = details.teacherId ?? undefined;
+    this._props.courseId = details.courseId;
+    this._props.levelNumber = details.levelNumber;
+    this._props.levelName = details.levelName.trim();
+    this._props.subjectId = details.subjectId;
+    this._props.teacherId = details.teacherId ?? undefined;
     this._props.updatedAt = new Date();
   }
 

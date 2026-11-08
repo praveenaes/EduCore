@@ -14,6 +14,7 @@ import {
 import { BatchModel } from './models/BatchModel';
 import { AssessmentCriteriaModel } from './models/AssessmentCriteriaModel';
 import { CenterModel } from './models/CenterModel';
+import { AssessmentResultModel } from './models/AssessmentResultModel';
 import { AssessmentScheduleMapper } from './mappers/AssessmentScheduleMapper';
 import { PaginationHelper } from '@/shared/utils/pagination';
 import { BaseMongoRepository } from './BaseMongoRepository';
@@ -39,10 +40,21 @@ export class MongoAssessmentScheduleRepository
   ];
 
   async findById(id: string): Promise<AssessmentSchedule | null> {
-    const doc = await AssessmentScheduleModel.findOne({ _id: id, isDeleted: false })
+    const queryId = Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : id;
+    const doc = await AssessmentScheduleModel.findOne({ _id: queryId, isDeleted: false })
       .populate(this.populateOptions);
 
     if (!doc) return null;
+
+    const hasResults = await AssessmentResultModel.exists({
+      scheduleId: doc._id,
+      isDeleted: false,
+    });
+    if (hasResults) {
+      doc.isGraded = true;
+      doc.isCompleted = true;
+    }
+
     return AssessmentScheduleMapper.toDomain(doc);
   }
 
@@ -70,6 +82,19 @@ export class MongoAssessmentScheduleRepository
       .populate(this.populateOptions)
       .sort({ examDate: 1, startTime: 1 });
 
+    const scheduleIds = docs.map((d) => d._id);
+    const gradedScheduleIds = await AssessmentResultModel.distinct('scheduleId', {
+      scheduleId: { $in: scheduleIds },
+      isDeleted: false,
+    });
+    const gradedSet = new Set(gradedScheduleIds.map((id) => id.toString()));
+    for (const doc of docs) {
+      if (gradedSet.has(doc._id.toString())) {
+        doc.isGraded = true;
+        doc.isCompleted = true;
+      }
+    }
+
     return docs.map((doc) => AssessmentScheduleMapper.toDomain(doc));
   }
 
@@ -81,6 +106,19 @@ export class MongoAssessmentScheduleRepository
       .populate(this.populateOptions)
       .sort({ examDate: 1, startTime: 1 });
 
+    const scheduleIds = docs.map((d) => d._id);
+    const gradedScheduleIds = await AssessmentResultModel.distinct('scheduleId', {
+      scheduleId: { $in: scheduleIds },
+      isDeleted: false,
+    });
+    const gradedSet = new Set(gradedScheduleIds.map((id) => id.toString()));
+    for (const doc of docs) {
+      if (gradedSet.has(doc._id.toString())) {
+        doc.isGraded = true;
+        doc.isCompleted = true;
+      }
+    }
+
     return docs.map((doc) => AssessmentScheduleMapper.toDomain(doc));
   }
 
@@ -91,6 +129,19 @@ export class MongoAssessmentScheduleRepository
     })
       .populate(this.populateOptions)
       .sort({ examDate: 1, startTime: 1 });
+
+    const scheduleIds = docs.map((d) => d._id);
+    const gradedScheduleIds = await AssessmentResultModel.distinct('scheduleId', {
+      scheduleId: { $in: scheduleIds },
+      isDeleted: false,
+    });
+    const gradedSet = new Set(gradedScheduleIds.map((id) => id.toString()));
+    for (const doc of docs) {
+      if (gradedSet.has(doc._id.toString())) {
+        doc.isGraded = true;
+        doc.isCompleted = true;
+      }
+    }
 
     return docs.map((doc) => AssessmentScheduleMapper.toDomain(doc));
   }
@@ -108,6 +159,19 @@ export class MongoAssessmentScheduleRepository
     })
       .populate(this.populateOptions)
       .sort({ startTime: 1 });
+
+    const scheduleIds = docs.map((d) => d._id);
+    const gradedScheduleIds = await AssessmentResultModel.distinct('scheduleId', {
+      scheduleId: { $in: scheduleIds },
+      isDeleted: false,
+    });
+    const gradedSet = new Set(gradedScheduleIds.map((id) => id.toString()));
+    for (const doc of docs) {
+      if (gradedSet.has(doc._id.toString())) {
+        doc.isGraded = true;
+        doc.isCompleted = true;
+      }
+    }
 
     return docs.map((doc) => AssessmentScheduleMapper.toDomain(doc));
   }
@@ -181,10 +245,35 @@ export class MongoAssessmentScheduleRepository
       AssessmentScheduleModel.countDocuments(query),
     ]);
 
+    const scheduleIds = docs.map((d) => d._id);
+    const gradedScheduleIds = await AssessmentResultModel.distinct('scheduleId', {
+      scheduleId: { $in: scheduleIds },
+      isDeleted: false,
+    });
+    const gradedSet = new Set(gradedScheduleIds.map((id) => id.toString()));
+    for (const doc of docs) {
+      if (gradedSet.has(doc._id.toString())) {
+        doc.isGraded = true;
+        doc.isCompleted = true;
+      }
+    }
+
     return {
       schedules: docs.map((doc) => AssessmentScheduleMapper.toDomain(doc)),
       total,
     };
+  }
+
+  override async update(id: string, entity: Partial<AssessmentSchedule>): Promise<AssessmentSchedule | null> {
+    const queryId = Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : id;
+    const updateData = AssessmentScheduleMapper.toPersistencePartial(entity);
+    const doc = await AssessmentScheduleModel.findOneAndUpdate(
+      { _id: queryId, isDeleted: false },
+      { $set: updateData },
+      { new: true }
+    );
+    if (!doc) return null;
+    return AssessmentScheduleMapper.toDomain(doc);
   }
 
   async toggleCompleted(id: string): Promise<AssessmentSchedule | null> {

@@ -17,9 +17,11 @@ export const getAssessmentSchema = (_mode: 'create' | 'edit' = 'create') =>
           'Assessment title must contain letters (cannot be numbers only)'
         ),
       academicYearId: z.string().trim().min(1, 'Academic Year is required'),
+      courseId: z.string().trim().min(1, 'Course is required'),
+      levelNumber: z.string().trim().min(1, 'Course level is required'),
       startDate: z.string().min(1, 'Start date is required'),
       endDate: z.string().min(1, 'End date is required'),
-      status: z.enum(['SCHEDULED', 'COMPLETED', 'PUBLISHED', 'CANCELLED']).optional(),
+      status: z.enum(['SCHEDULED', 'COMPLETED', 'GRADED', 'PUBLISHED', 'CANCELLED']).optional(),
     })
     .refine(
       (data) => {

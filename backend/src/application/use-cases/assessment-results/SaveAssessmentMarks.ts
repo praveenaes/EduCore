@@ -1,6 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { TYPES } from '@/config/di/types';
 import { IAssessmentResultRepository } from '@/domain/repositories/IAssessmentResultRepository';
+import { IAssessmentRepository } from '@/domain/repositories/IAssessmentRepository';
 import { IAssessmentScheduleRepository } from '@/domain/repositories/IAssessmentScheduleRepository';
 import { IAssessmentCriteriaRepository } from '@/domain/repositories/IAssessmentCriteriaRepository';
 import { IBatchRepository } from '@/domain/repositories/IBatchRepository';
@@ -25,7 +26,9 @@ export class SaveAssessmentMarks implements ISaveAssessmentMarksUseCase {
     @inject(TYPES.BatchRepository)
     private _batchRepo: IBatchRepository,
     @inject(TYPES.StudentRepository)
-    private _studentRepo: IStudentRepository
+    private _studentRepo: IStudentRepository,
+    @inject(TYPES.AssessmentRepository)
+    private _assessmentRepo: IAssessmentRepository
   ) {}
 
   async execute(dto: SaveAssessmentMarksDTO): Promise<AssessmentResultResponseDTO[]> {
@@ -104,8 +107,23 @@ export class SaveAssessmentMarks implements ISaveAssessmentMarksUseCase {
     const saved = await this._resultRepo.upsertMany(resultEntities);
 
     // Mark the exam schedule as completed and graded once marks are saved
-    schedule.updateDetails({ isCompleted: true, isGraded: true });
+    schedule.markAsGraded();
     await this._scheduleRepo.update(schedule.id!, schedule);
+
+    // Only if every subject under the assessment event is graded, update event status to GRADED
+    const allSchedules = await this._scheduleRepo.findByAssessmentId(assessmentId);
+    const activeSchedules = allSchedules.filter((s) => !s.isDeleted);
+    const isEverySubjectGraded =
+      activeSchedules.length > 0 &&
+      activeSchedules.every((s) => (s.id === schedule.id ? true : s.isGraded));
+
+    if (isEverySubjectGraded) {
+      const assessment = await this._assessmentRepo.findById(assessmentId);
+      if (assessment && !assessment.isDeleted && assessment.status !== 'PUBLISHED') {
+        assessment.updateStatus('GRADED');
+        await this._assessmentRepo.update(assessmentId, assessment);
+      }
+    }
 
     return saved.map((result) => ({
       id: result.id!,

@@ -32,3 +32,12 @@ export const deleteAssessmentScheduleApi = (id: string) =>
 
 export const toggleAssessmentScheduleStatusApi = (id: string) =>
   axiosInstance.patch(API_ROUTES.ASSESSMENT_SCHEDULES.TOGGLE_STATUS(id));
+
+export const requestDelegationApi = (scheduleId: string, payload: { reason: string }) =>
+  axiosInstance.post(API_ROUTES.ASSESSMENT_SCHEDULES.REQUEST_DELEGATION(scheduleId), payload);
+
+export const reviewDelegationApi = (
+  scheduleId: string,
+  payload: { status: 'APPROVED' | 'REJECTED'; reviewNotes?: string }
+) =>
+  axiosInstance.post(API_ROUTES.ASSESSMENT_SCHEDULES.REVIEW_DELEGATION(scheduleId), payload);

@@ -4,6 +4,8 @@ import { TYPES } from '@/config/di/types';
 import {
   createAssessmentScheduleSchema,
   updateAssessmentScheduleSchema,
+  requestDelegationSchema,
+  reviewDelegationSchema,
 } from '../../validators/assessmentScheduleValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
@@ -13,6 +15,8 @@ import { ICreateAssessmentScheduleUseCase } from '@/application/ports/use-cases/
 import { IGetAssessmentSchedulesUseCase } from '@/application/ports/use-cases/assessment-schedules/IGetAssessmentSchedulesUseCase';
 import { IUpdateAssessmentScheduleUseCase } from '@/application/ports/use-cases/assessment-schedules/IUpdateAssessmentScheduleUseCase';
 import { IToggleAssessmentScheduleStatusUseCase } from '@/application/ports/use-cases/assessment-schedules/IToggleAssessmentScheduleStatusUseCase';
+import { IRequestMarkEntryDelegationUseCase } from '@/application/ports/use-cases/assessment-schedules/IRequestMarkEntryDelegationUseCase';
+import { IReviewMarkEntryDelegationUseCase } from '@/application/ports/use-cases/assessment-schedules/IReviewMarkEntryDelegationUseCase';
 import { IDeleteAssessmentScheduleUseCase } from '@/application/ports/use-cases/assessment-schedules/IDeleteAssessmentScheduleUseCase';
 
 @injectable()
@@ -26,6 +30,10 @@ export class AssessmentScheduleController {
     private _updateUseCase: IUpdateAssessmentScheduleUseCase,
     @inject(TYPES.ToggleAssessmentScheduleStatusUseCase)
     private _toggleStatusUseCase: IToggleAssessmentScheduleStatusUseCase,
+    @inject(TYPES.RequestMarkEntryDelegationUseCase)
+    private _requestDelegationUseCase: IRequestMarkEntryDelegationUseCase,
+    @inject(TYPES.ReviewMarkEntryDelegationUseCase)
+    private _reviewDelegationUseCase: IReviewMarkEntryDelegationUseCase,
     @inject(TYPES.DeleteAssessmentScheduleUseCase)
     private _deleteUseCase: IDeleteAssessmentScheduleUseCase
   ) {}
@@ -99,5 +107,27 @@ export class AssessmentScheduleController {
     const { id } = req.params;
     await this._deleteUseCase.execute(id);
     ResponseHelper.success(res, 'Assessment schedule deleted successfully.', null, HTTP_STATUS.OK);
+  };
+
+  requestDelegation = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const parsed = requestDelegationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError(parsed.error.errors[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR);
+    }
+
+    const result = await this._requestDelegationUseCase.execute(id, parsed.data);
+    ResponseHelper.success(res, 'Mark entry delegation requested successfully.', result, HTTP_STATUS.OK);
+  };
+
+  reviewDelegation = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const parsed = reviewDelegationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError(parsed.error.errors[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR);
+    }
+
+    const result = await this._reviewDelegationUseCase.execute(id, parsed.data);
+    ResponseHelper.success(res, `Mark entry delegation ${parsed.data.status.toLowerCase()} successfully.`, result, HTTP_STATUS.OK);
   };
 }

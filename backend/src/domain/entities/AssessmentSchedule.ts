@@ -1,3 +1,5 @@
+export type DelegationStatus = 'NONE' | 'REQUESTED' | 'APPROVED' | 'REJECTED';
+
 export interface AssessmentScheduleProps {
   id?: string;
   assessmentId: string;
@@ -12,6 +14,10 @@ export interface AssessmentScheduleProps {
   isCompleted: boolean;
   isGraded: boolean;
   isPublished?: boolean;
+  delegationStatus?: DelegationStatus;
+  delegationReason?: string;
+  delegatedAt?: Date;
+  delegationReviewedAt?: Date;
   isDeleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -52,6 +58,10 @@ export class AssessmentSchedule {
   get isCompleted(): boolean { return this._props.isCompleted; }
   get isGraded(): boolean { return this._props.isGraded ?? false; }
   get isPublished(): boolean { return this._props.isPublished ?? false; }
+  get delegationStatus(): DelegationStatus { return this._props.delegationStatus ?? 'NONE'; }
+  get delegationReason(): string | undefined { return this._props.delegationReason; }
+  get delegatedAt(): Date | undefined { return this._props.delegatedAt; }
+  get delegationReviewedAt(): Date | undefined { return this._props.delegationReviewedAt; }
   get isDeleted(): boolean { return this._props.isDeleted; }
   get createdAt(): Date | undefined { return this._props.createdAt; }
   get updatedAt(): Date | undefined { return this._props.updatedAt; }
@@ -71,31 +81,36 @@ export class AssessmentSchedule {
 
   // Business Methods
   updateDetails(details: {
-    assessmentId?: string;
-    courseId?: string;
-    levelNumber?: number;
-    criteriaId?: string;
-    batchId?: string;
-    centerId?: string;
-    examDate?: Date;
-    startTime?: string;
-    endTime?: string;
-    isCompleted?: boolean;
-    isGraded?: boolean;
-    isPublished?: boolean;
+    assessmentId: string;
+    courseId: string;
+    levelNumber: number;
+    criteriaId: string;
+    batchId: string;
+    centerId: string;
+    examDate: Date;
+    startTime: string;
+    endTime: string;
   }): void {
-    if (details.assessmentId !== undefined) this._props.assessmentId = details.assessmentId;
-    if (details.courseId !== undefined) this._props.courseId = details.courseId;
-    if (details.levelNumber !== undefined) this._props.levelNumber = details.levelNumber;
-    if (details.criteriaId !== undefined) this._props.criteriaId = details.criteriaId;
-    if (details.batchId !== undefined) this._props.batchId = details.batchId;
-    if (details.centerId !== undefined) this._props.centerId = details.centerId;
-    if (details.examDate !== undefined) this._props.examDate = details.examDate;
-    if (details.startTime !== undefined) this._props.startTime = details.startTime;
-    if (details.endTime !== undefined) this._props.endTime = details.endTime;
-    if (details.isCompleted !== undefined) this._props.isCompleted = details.isCompleted;
-    if (details.isGraded !== undefined) this._props.isGraded = details.isGraded;
-    if (details.isPublished !== undefined) this._props.isPublished = details.isPublished;
+    this._props.assessmentId = details.assessmentId;
+    this._props.courseId = details.courseId;
+    this._props.levelNumber = details.levelNumber;
+    this._props.criteriaId = details.criteriaId;
+    this._props.batchId = details.batchId;
+    this._props.centerId = details.centerId;
+    this._props.examDate = details.examDate;
+    this._props.startTime = details.startTime;
+    this._props.endTime = details.endTime;
+    this._props.updatedAt = new Date();
+  }
+
+  markAsGraded(): void {
+    this._props.isGraded = true;
+    this._props.isCompleted = true;
+    this._props.updatedAt = new Date();
+  }
+
+  markAsCompleted(): void {
+    this._props.isCompleted = true;
     this._props.updatedAt = new Date();
   }
 
@@ -106,6 +121,19 @@ export class AssessmentSchedule {
 
   unpublish(): void {
     this._props.isPublished = false;
+    this._props.updatedAt = new Date();
+  }
+
+  requestDelegation(reason: string): void {
+    this._props.delegationStatus = 'REQUESTED';
+    this._props.delegationReason = reason.trim();
+    this._props.delegatedAt = new Date();
+    this._props.updatedAt = new Date();
+  }
+
+  reviewDelegation(status: 'APPROVED' | 'REJECTED'): void {
+    this._props.delegationStatus = status;
+    this._props.delegationReviewedAt = new Date();
     this._props.updatedAt = new Date();
   }
 
@@ -143,6 +171,7 @@ export class AssessmentSchedule {
       isCompleted: false,
       isGraded: false,
       isPublished: false,
+      delegationStatus: 'NONE',
       isDeleted: false,
     });
   }
@@ -162,6 +191,10 @@ export class AssessmentSchedule {
       isCompleted: this.isCompleted,
       isGraded: this.isGraded,
       isPublished: this.isPublished,
+      delegationStatus: this.delegationStatus,
+      delegationReason: this.delegationReason,
+      delegatedAt: this.delegatedAt,
+      delegationReviewedAt: this.delegationReviewedAt,
       isDeleted: this.isDeleted,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

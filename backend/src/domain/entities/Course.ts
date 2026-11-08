@@ -81,29 +81,22 @@ export class Course {
 
   // Business Methods
   updateDetails(details: {
-    programId?: string;
-    name?: string;
-    code?: string;
+    programId: string;
+    name: string;
+    code: string;
     description?: string;
     durationMonths?: number;
-    levelName?: string;
-    levelCount?: number;
+    levelName: string;
+    levelCount: number;
   }): void {
-    if (details.programId !== undefined) this._props.programId = details.programId;
-    if (details.name !== undefined) this._props.name = details.name.trim();
-    if (details.code !== undefined) this._props.code = details.code.trim().toUpperCase();
-    if (details.description !== undefined) this._props.description = details.description.trim();
-    if (details.durationMonths !== undefined) this._props.durationMonths = details.durationMonths;
-
-    const newLevelName = details.levelName !== undefined ? details.levelName.trim() : this._props.levelName;
-    const newLevelCount = details.levelCount !== undefined ? details.levelCount : this._props.levelCount;
-
-    if (details.levelName !== undefined || details.levelCount !== undefined) {
-      this._props.levelName = newLevelName;
-      this._props.levelCount = newLevelCount;
-      this._props.levels = Course.generateLevels(newLevelName, newLevelCount);
-    }
-
+    this._props.programId = details.programId;
+    this._props.name = details.name.trim();
+    this._props.code = details.code.trim().toUpperCase();
+    this._props.description = details.description ? details.description.trim() : '';
+    this._props.durationMonths = details.durationMonths ?? 0;
+    this._props.levelName = details.levelName.trim();
+    this._props.levelCount = details.levelCount;
+    this._props.levels = Course.generateLevels(details.levelName, details.levelCount);
     this._props.updatedAt = new Date();
   }
 

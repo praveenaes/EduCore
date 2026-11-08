@@ -6,9 +6,9 @@ export interface CreateSubjectAssignmentDTO {
 }
 
 export interface UpdateSubjectAssignmentDTO {
-  courseId?: string;
-  levelNumber?: number;
-  subjectId?: string;
+  courseId: string;
+  levelNumber: number;
+  subjectId: string;
   teacherId?: string | null;
 }
 

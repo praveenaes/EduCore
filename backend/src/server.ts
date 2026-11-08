@@ -18,7 +18,14 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json({ limit: '50mb' }));
+app.use(
+  express.json({
+    limit: '50mb',
+    verify: (req: any, _res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());//Reads cookies sent by the browser.
 app.use(morganMiddleware);

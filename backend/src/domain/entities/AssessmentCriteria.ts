@@ -100,23 +100,23 @@ export class AssessmentCriteria {
 
   // Business Methods
   updateDetails(details: {
-    name?: string;
-    courseId?: string;
-    levelNumber?: number;
-    subjectId?: string;
-    assessmentType?: AssessmentCriteriaType;
-    maxMarks?: number;
-    passMarks?: number;
+    name: string;
+    courseId: string;
+    levelNumber: number;
+    subjectId: string;
+    assessmentType: AssessmentCriteriaType;
+    maxMarks: number;
+    passMarks: number;
     hasCe?: boolean;
   }): void {
-    if (details.name !== undefined) this._props.name = details.name.trim();
-    if (details.courseId !== undefined) this._props.courseId = details.courseId;
-    if (details.levelNumber !== undefined) this._props.levelNumber = details.levelNumber;
-    if (details.subjectId !== undefined) this._props.subjectId = details.subjectId;
-    if (details.assessmentType !== undefined) this._props.assessmentType = details.assessmentType;
-    if (details.maxMarks !== undefined) this._props.maxMarks = details.maxMarks;
-    if (details.passMarks !== undefined) this._props.passMarks = details.passMarks;
-    if (details.hasCe !== undefined) this._props.hasCe = details.hasCe;
+    this._props.name = details.name.trim();
+    this._props.courseId = details.courseId;
+    this._props.levelNumber = details.levelNumber;
+    this._props.subjectId = details.subjectId;
+    this._props.assessmentType = details.assessmentType;
+    this._props.maxMarks = details.maxMarks;
+    this._props.passMarks = details.passMarks;
+    this._props.hasCe = details.hasCe ?? false;
     this._props.updatedAt = new Date();
   }
 

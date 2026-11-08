@@ -17,23 +17,30 @@ export class UpdateProgram implements IUpdateProgram {
       throw new NotFoundError("Program not found.");
     }
 
+    const trimmedCode = dto.code.trim().toUpperCase();
+    const trimmedName = dto.name.trim();
+
     // Check code uniqueness if code changed
-    if (dto.code && dto.code.trim().toUpperCase() !== program.code) {
-      const existingByCode = await this._programRepo.findByCode(dto.code);
+    if (trimmedCode !== program.code) {
+      const existingByCode = await this._programRepo.findByCode(trimmedCode);
       if (existingByCode && existingByCode.id !== id) {
         throw new ValidationError("Program with this code already exists.");
       }
     }
 
     // Check name uniqueness if name changed
-    if (dto.name && dto.name.trim() !== program.name) {
-      const existingByName = await this._programRepo.findByName(dto.name);
+    if (trimmedName !== program.name) {
+      const existingByName = await this._programRepo.findByName(trimmedName);
       if (existingByName && existingByName.id !== id) {
         throw new ValidationError("Program with this name already exists.");
       }
     }
 
-    program.updateDetails(dto.name, dto.code, dto.description);
+    program.updateDetails({
+      name: trimmedName,
+      code: trimmedCode,
+      description: dto.description.trim(),
+    });
 
     const updated = await this._programRepo.update(id, program);
     if (!updated) {

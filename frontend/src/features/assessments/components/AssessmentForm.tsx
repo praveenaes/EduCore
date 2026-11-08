@@ -1,5 +1,5 @@
-import { useEffect, useState, forwardRef } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState, useMemo, forwardRef } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../../components/Input';
 import { Select } from '../../../components/Select';
@@ -9,7 +9,9 @@ import {
   type AssessmentFormValues,
 } from '../../../validators/assessmentValidator';
 import { getAcademicYearsApi } from '../../../services/academicYearService';
+import { getCoursesApi } from '../../../services/courseService';
 import type { AcademicYear } from '../../../types/academicYear';
+import type { Course } from '../../../types/course';
 import type {
   Assessment,
   CreateAssessmentPayload,
@@ -28,7 +30,8 @@ interface AssessmentFormProps {
 export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
   ({ mode, defaultValues, isLoading, onSubmit, onCancel }, ref) => {
     const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
-    const [isLoadingYears, setIsLoadingYears] = useState(false);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [isLoadingData, setIsLoadingData] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const formatDateForInput = (dateStr?: string) => {
@@ -50,6 +53,7 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
       handleSubmit,
       reset,
       setValue,
+      control,
       watch,
       formState: { errors },
     } = useForm<AssessmentFormValues>({
@@ -57,6 +61,8 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
       defaultValues: {
         name: defaultValues?.name ?? '',
         academicYearId: defaultValues?.academicYearId ?? '',
+        courseId: defaultValues?.courseId ?? '',
+        levelNumber: defaultValues?.levelNumber ? String(defaultValues.levelNumber) : '',
         startDate: formatDateForInput(defaultValues?.startDate),
         endDate: formatDateForInput(defaultValues?.endDate),
         status: defaultValues?.status ?? 'SCHEDULED',
@@ -64,81 +70,83 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
     });
 
     const watchedStartDate = watch('startDate');
+    const watchedCourseId = useWatch({ control, name: 'courseId' });
+    const watchedAcademicYearId = useWatch({ control, name: 'academicYearId' });
+    const watchedLevelNumber = useWatch({ control, name: 'levelNumber' });
+    const watchedStatus = useWatch({ control, name: 'status' });
+    const watchedName = useWatch({ control, name: 'name' });
 
-    const isStandardPreset = (val?: string) =>
-      STANDARD_EXAM_PRESETS.includes(val as any);
-
-    const [presetChoice, setPresetChoice] = useState<string>(() => {
-      if (!defaultValues?.name) return '';
-      return isStandardPreset(defaultValues.name) ? defaultValues.name : 'CUSTOM';
-    });
+    const [presetChoice, setPresetChoice] = useState<string>(() => defaultValues?.name || '');
 
     const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
       const val = e.target.value;
       setPresetChoice(val);
-      if (val === 'CUSTOM') {
-        setValue(
-          'name',
-          defaultValues?.name && !isStandardPreset(defaultValues.name)
-            ? defaultValues.name
-            : '',
-          { shouldValidate: true }
-        );
-      } else {
-        setValue('name', val, { shouldValidate: true });
-      }
+      setValue('name', val, { shouldValidate: true });
     };
 
     useEffect(() => {
-      const loadYears = async () => {
-        setIsLoadingYears(true);
+      const loadData = async () => {
+        setIsLoadingData(true);
         setError(null);
         try {
-          const res = await getAcademicYearsApi({ limit: 100 });
-          setAcademicYears(res.data.data.academicYears || []);
+          const [yearsRes, coursesRes] = await Promise.all([
+            getAcademicYearsApi({ limit: 100 }),
+            getCoursesApi({ limit: 100 }),
+          ]);
+          setAcademicYears(yearsRes.data.data.academicYears || []);
+          setCourses(coursesRes.data.data.courses || []);
         } catch (err: any) {
-          setError(err?.response?.data?.message || 'Failed to load academic years.');
+          setError(err?.response?.data?.message || 'Failed to load form options.');
         } finally {
-          setIsLoadingYears(false);
+          setIsLoadingData(false);
         }
       };
-      loadYears();
+      loadData();
     }, []);
 
     useEffect(() => {
-      if (defaultValues) {
-        const isStandard = isStandardPreset(defaultValues.name);
-        setPresetChoice(
-          isStandard
-            ? defaultValues.name!
-            : defaultValues.name
-            ? 'CUSTOM'
-            : ''
-        );
+      if (defaultValues && !isLoadingData) {
+        const nameVal = defaultValues.name || '';
+        const yearVal = defaultValues.academicYearId || '';
+        const courseVal = defaultValues.courseId || '';
+        const levelVal =
+          defaultValues.levelNumber !== undefined && defaultValues.levelNumber !== null
+            ? String(defaultValues.levelNumber)
+            : '';
+        const startVal = formatDateForInput(defaultValues.startDate);
+        const endVal = formatDateForInput(defaultValues.endDate);
+        const statusVal = defaultValues.status || 'SCHEDULED';
+
+        setPresetChoice(nameVal);
         reset({
-          name: defaultValues.name ?? '',
-          academicYearId: defaultValues.academicYearId ?? '',
-          startDate: formatDateForInput(defaultValues.startDate),
-          endDate: formatDateForInput(defaultValues.endDate),
-          status: defaultValues.status ?? 'SCHEDULED',
+          name: nameVal,
+          academicYearId: yearVal,
+          courseId: courseVal,
+          levelNumber: levelVal,
+          startDate: startVal,
+          endDate: endVal,
+          status: statusVal,
         });
       }
-    }, [defaultValues, reset]);
+    }, [defaultValues, isLoadingData, reset]);
 
-    const handleFormSubmit = async (values: AssessmentFormValues) => {
-      await onSubmit({
-        name: values.name.trim(),
-        academicYearId: values.academicYearId,
-        startDate: new Date(values.startDate).toISOString(),
-        endDate: new Date(values.endDate).toISOString(),
-        ...(values.status ? { status: values.status as any } : {}),
-      });
-    };
+    const selectedCourse = courses.find((c) => c.id === watchedCourseId);
+    const availableLevels = useMemo(() => selectedCourse?.levels || [], [selectedCourse]);
+
+    // Ensure levelNumber is selected once course levels are available
+    useEffect(() => {
+      if (defaultValues?.levelNumber !== undefined && defaultValues?.levelNumber !== null && availableLevels.length > 0) {
+        const lvlStr = String(defaultValues.levelNumber);
+        if (availableLevels.some((l) => String(l.levelNumber) === lvlStr)) {
+          setValue('levelNumber', lvlStr, { shouldValidate: true });
+        }
+      }
+    }, [defaultValues?.levelNumber, availableLevels, setValue]);
 
     const academicYearOptions = [
       {
         value: '',
-        label: isLoadingYears ? 'Loading academic years...' : 'Select Academic Year',
+        label: isLoadingData ? 'Loading academic years...' : 'Select Academic Year',
       },
       ...academicYears.map((ay) => ({
         value: ay.id,
@@ -146,11 +154,42 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
       })),
     ];
 
-    const examPresetOptions = [
-      { value: '', label: 'Select standard exam...' },
-      ...STANDARD_EXAM_PRESETS.map((p) => ({ value: p, label: p })),
-      { value: 'CUSTOM', label: 'Other / Custom Exam Name...' },
+    const courseOptions = [
+      {
+        value: '',
+        label: isLoadingData ? 'Loading courses...' : 'Select Course',
+      },
+      ...courses.map((c) => ({
+        value: c.id,
+        label: `${c.name} (${c.code})`,
+      })),
     ];
+
+    const levelOptions = [
+      {
+        value: '',
+        label: !watchedCourseId
+          ? 'Select a course first'
+          : availableLevels.length === 0
+          ? 'No levels configured'
+          : 'Select Course Level / Semester',
+      },
+      ...availableLevels.map((lvl) => ({
+        value: String(lvl.levelNumber),
+        label: lvl.name || `Level ${lvl.levelNumber}`,
+      })),
+    ];
+
+    const examPresetOptions = useMemo(() => {
+      const presets = [...STANDARD_EXAM_PRESETS];
+      if (defaultValues?.name && !presets.includes(defaultValues.name as any)) {
+        presets.unshift(defaultValues.name as any);
+      }
+      return [
+        { value: '', label: 'Select standard exam...' },
+        ...presets.map((p) => ({ value: p, label: p })),
+      ];
+    }, [defaultValues?.name]);
 
     const statusOptions = [
       { value: 'SCHEDULED', label: 'Scheduled (Upcoming exam event)' },
@@ -161,31 +200,35 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
       { value: 'CANCELLED', label: 'Cancelled (Called off)' },
     ];
 
+    const handleFormSubmit = async (values: AssessmentFormValues) => {
+      await onSubmit({
+        name: values.name.trim(),
+        academicYearId: values.academicYearId,
+        courseId: values.courseId,
+        levelNumber: Number(values.levelNumber),
+        startDate: new Date(values.startDate).toISOString(),
+        endDate: new Date(values.endDate).toISOString(),
+        ...(values.status ? { status: values.status as any } : {}),
+      });
+    };
+
     return (
       <form ref={ref} onSubmit={handleSubmit(handleFormSubmit)} noValidate className="space-y-4">
         <Select
-          label="Exam / Assessment Type"
+          label="Assessment Event Name *"
           options={examPresetOptions}
-          value={presetChoice}
+          {...register('name')}
+          value={presetChoice || watchedName || ''}
           onChange={handlePresetChange}
-          error={presetChoice !== 'CUSTOM' ? errors.name?.message : undefined}
+          error={errors.name?.message}
         />
-
-        {presetChoice === 'CUSTOM' && (
-          <Input
-            label="Custom Exam Title"
-            placeholder="e.g. Practical Lab Assessment / Supplementary Exam"
-            {...register('name')}
-            error={errors.name?.message}
-            autoFocus
-          />
-        )}
 
         {mode === 'edit' && (
           <Select
             label="Assessment Status"
             options={statusOptions}
             {...register('status')}
+            value={watchedStatus || 'SCHEDULED'}
             error={errors.status?.message}
           />
         )}
@@ -194,9 +237,30 @@ export const AssessmentForm = forwardRef<HTMLFormElement, AssessmentFormProps>(
           label="Academic Year"
           options={academicYearOptions}
           {...register('academicYearId')}
+          value={watchedAcademicYearId || ''}
           error={errors.academicYearId?.message || error || undefined}
-          disabled={isLoadingYears}
+          disabled={isLoadingData}
         />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Select
+            label="Course"
+            options={courseOptions}
+            {...register('courseId')}
+            value={watchedCourseId || ''}
+            error={errors.courseId?.message}
+            disabled={isLoadingData}
+          />
+
+          <Select
+            label="Course Level / Semester"
+            options={levelOptions}
+            {...register('levelNumber')}
+            value={watchedLevelNumber || ''}
+            error={errors.levelNumber?.message}
+            disabled={isLoadingData || !watchedCourseId}
+          />
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input

@@ -20,6 +20,7 @@ import { getAssessmentRoutes } from "./assessment.routes";
 import { getAssessmentCriteriaRoutes } from "./assessmentCriteria.routes";
 import { getAssessmentScheduleRoutes } from "./assessmentSchedule.routes";
 import { getAssessmentResultRoutes } from "./assessmentResult.routes";
+import { getFeeRoutes } from "./fee.routes";
 
 const router = Router();
 
@@ -51,6 +52,7 @@ router.use(API_ROUTES.ASSESSMENT_CRITERIA.ROOT, getAssessmentCriteriaRoutes(cont
 router.use(API_ROUTES.ASSESSMENT_SCHEDULES.ROOT, getAssessmentScheduleRoutes(container));
 router.use(API_ROUTES.ASSESSMENT_RESULTS.ROOT, getAssessmentResultRoutes(container));
 router.use(API_ROUTES.ASSESSMENTS.ROOT, getAssessmentRoutes(container));
+router.use(API_ROUTES.FEES.ROOT, getFeeRoutes(container));
 
 
 export default router;

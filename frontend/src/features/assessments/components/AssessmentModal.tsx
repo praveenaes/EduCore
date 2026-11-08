@@ -15,7 +15,7 @@ import type {
 interface AssessmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (createdId?: string) => void;
   assessment?: Assessment | null;
 }
 
@@ -51,10 +51,11 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
     try {
       if (isEditMode && assessment) {
         await updateAssessmentApi(assessment.id, data as UpdateAssessmentPayload);
+        onSuccess();
       } else {
-        await createAssessmentApi(data as CreateAssessmentPayload);
+        const res = await createAssessmentApi(data as CreateAssessmentPayload);
+        onSuccess(res.data.data?.id);
       }
-      onSuccess();
       handleClose();
     } catch (err: any) {
       const msg = err.response?.data?.message ?? 'An error occurred. Please try again.';
@@ -82,6 +83,7 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({
         )}
 
         <AssessmentForm
+          key={assessment ? `${assessment.id}-${isOpen}` : `new-${isOpen}`}
           mode={isEditMode ? 'edit' : 'create'}
           defaultValues={assessment ?? undefined}
           isLoading={isLoading}

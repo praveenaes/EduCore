@@ -26,5 +26,13 @@ export const getAssessmentScheduleRoutes = (container: Container): Router => {
     .route(API_ROUTES.ASSESSMENT_SCHEDULES.TOGGLE_STATUS)
     .patch(authenticateAdmin, asyncHandler(scheduleController.toggleStatus.bind(scheduleController)));
 
+  router
+    .route(API_ROUTES.ASSESSMENT_SCHEDULES.REQUEST_DELEGATION)
+    .post(authenticateUser, asyncHandler(scheduleController.requestDelegation.bind(scheduleController)));
+
+  router
+    .route(API_ROUTES.ASSESSMENT_SCHEDULES.REVIEW_DELEGATION)
+    .post(authenticateAdmin, asyncHandler(scheduleController.reviewDelegation.bind(scheduleController)));
+
   return router;
 };

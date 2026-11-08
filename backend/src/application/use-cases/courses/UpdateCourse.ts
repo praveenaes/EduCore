@@ -19,9 +19,13 @@ export class UpdateCourse implements IUpdateCourse {
       throw new NotFoundError("Course not found.");
     }
 
+    const { programId, name, code, description, durationMonths, levelName, levelCount } = dto;
+    const trimmedCode = code.trim().toUpperCase();
+    const trimmedName = name.trim();
+
     let programName = course.programName;
-    if (dto.programId && dto.programId !== course.programId) {
-      const program = await this._programRepo.findById(dto.programId);
+    if (programId !== course.programId) {
+      const program = await this._programRepo.findById(programId);
       if (!program || program.isDeleted) {
         throw new NotFoundError("Selected program does not exist or has been deleted.");
       }
@@ -31,21 +35,29 @@ export class UpdateCourse implements IUpdateCourse {
       if (program) programName = program.name;
     }
 
-    if (dto.code && dto.code.trim().toUpperCase() !== course.code) {
-      const existingByCode = await this._courseRepo.findByCode(dto.code);
+    if (trimmedCode !== course.code) {
+      const existingByCode = await this._courseRepo.findByCode(trimmedCode);
       if (existingByCode && existingByCode.id !== id) {
         throw new ValidationError("Course with this code already exists.");
       }
     }
 
-    if (dto.name && dto.name.trim() !== course.name) {
-      const existingByName = await this._courseRepo.findByName(dto.name);
+    if (trimmedName !== course.name) {
+      const existingByName = await this._courseRepo.findByName(trimmedName);
       if (existingByName && existingByName.id !== id) {
         throw new ValidationError("Course with this name already exists.");
       }
     }
 
-    course.updateDetails(dto);
+    course.updateDetails({
+      programId,
+      name: trimmedName,
+      code: trimmedCode,
+      description,
+      durationMonths,
+      levelName,
+      levelCount: Number(levelCount),
+    });
 
     const updated = await this._courseRepo.update(id, course);
     if (!updated) {

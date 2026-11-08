@@ -11,16 +11,15 @@ export interface CreateAssessmentScheduleDTO {
 }
 
 export interface UpdateAssessmentScheduleDTO {
-  assessmentId?: string;
-  courseId?: string;
-  levelNumber?: number;
-  criteriaId?: string;
-  batchId?: string;
-  centerId?: string;
-  examDate?: Date | string;
-  startTime?: string;
-  endTime?: string;
-  isCompleted?: boolean;
+  assessmentId: string;
+  courseId: string;
+  levelNumber: number;
+  criteriaId: string;
+  batchId: string;
+  centerId: string;
+  examDate: Date | string;
+  startTime: string;
+  endTime: string;
 }
 
 export interface AssessmentScheduleResponseDTO {
@@ -49,6 +48,10 @@ export interface AssessmentScheduleResponseDTO {
   isCompleted: boolean;
   isGraded?: boolean;
   isPublished?: boolean;
+  delegationStatus?: 'NONE' | 'REQUESTED' | 'APPROVED' | 'REJECTED';
+  delegationReason?: string;
+  delegatedAt?: Date | string;
+  delegationReviewedAt?: Date | string;
   isDeleted: boolean;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -70,6 +73,16 @@ export interface AssessmentScheduleQueryDTO {
   batchId?: string;
   centerId?: string;
   isCompleted?: boolean;
+  delegationStatus?: 'NONE' | 'REQUESTED' | 'APPROVED' | 'REJECTED';
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+}
+
+export interface RequestDelegationDTO {
+  reason: string;
+}
+
+export interface ReviewDelegationDTO {
+  status: 'APPROVED' | 'REJECTED';
+  reviewNotes?: string;
 }

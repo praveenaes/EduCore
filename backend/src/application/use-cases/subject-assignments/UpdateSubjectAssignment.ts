@@ -30,15 +30,14 @@ export class UpdateSubjectAssignment implements IUpdateSubjectAssignmentUseCase 
       throw new NotFoundError(`Subject assignment with id "${id}" not found`);
     }
 
-    const courseId = dto.courseId ?? assignment.courseId;
-    const levelNumber =
-      dto.levelNumber !== undefined ? Number(dto.levelNumber) : assignment.levelNumber;
-    const subjectId = dto.subjectId ?? assignment.subjectId;
-    let levelName = assignment.levelName;
+    const { courseId, levelNumber, subjectId, teacherId } = dto;
+    const parsedLevelNumber = Number(levelNumber);
 
     const isCourseOrLevelChanged =
-      (dto.courseId !== undefined && dto.courseId !== assignment.courseId) ||
-      (dto.levelNumber !== undefined && Number(dto.levelNumber) !== assignment.levelNumber);
+      courseId !== assignment.courseId ||
+      parsedLevelNumber !== assignment.levelNumber;
+
+    let levelName = assignment.levelName;
 
     if (isCourseOrLevelChanged) {
       const course = await this._courseRepo.findById(courseId);
@@ -46,23 +45,22 @@ export class UpdateSubjectAssignment implements IUpdateSubjectAssignmentUseCase 
         throw new NotFoundError('Associated course not found');
       }
 
-      const level = course.levels.find((l) => l.levelNumber === levelNumber);
+      const level = course.levels.find((l) => l.levelNumber === parsedLevelNumber);
       if (!level) {
         throw new ValidationError(
-          `Level ${levelNumber} does not exist in course "${course.name}"`
+          `Level ${parsedLevelNumber} does not exist in course "${course.name}"`
         );
       }
       levelName = level.name;
     }
 
     const isScopeChanged =
-      isCourseOrLevelChanged ||
-      (dto.subjectId !== undefined && dto.subjectId !== assignment.subjectId);
+      isCourseOrLevelChanged || subjectId !== assignment.subjectId;
 
     if (isScopeChanged) {
       const existing = await this._assignmentRepo.findByCourseLevelAndSubject(
         courseId,
-        levelNumber,
+        parsedLevelNumber,
         subjectId
       );
       if (existing && existing.id !== id) {
@@ -72,19 +70,19 @@ export class UpdateSubjectAssignment implements IUpdateSubjectAssignmentUseCase 
       }
     }
 
-    if (dto.teacherId) {
-      const teacher = await this._teacherRepo.findById(dto.teacherId);
+    if (teacherId) {
+      const teacher = await this._teacherRepo.findById(teacherId);
       if (!teacher || teacher.isDeleted) {
         throw new NotFoundError('Selected teacher does not exist or has been deleted');
       }
     }
 
     assignment.updateDetails({
-      courseId: dto.courseId,
-      levelNumber: dto.levelNumber !== undefined ? Number(dto.levelNumber) : undefined,
+      courseId,
+      levelNumber: parsedLevelNumber,
       levelName,
-      subjectId: dto.subjectId,
-      ...('teacherId' in dto && { teacherId: dto.teacherId }),
+      subjectId,
+      teacherId,
     });
 
     await this._assignmentRepo.update(id, assignment);

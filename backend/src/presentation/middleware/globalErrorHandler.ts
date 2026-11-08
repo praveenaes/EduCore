@@ -1,7 +1,7 @@
 import { ErrorRequestHandler } from "express";
 import { AppError, ValidationError } from "@/shared/errors/AppError";
 import { z, ZodError } from "zod";
-import {logger} from '@/infra/logger/logger'
+import { logger } from "@/infra/logger/logger";
 
 export const globalErrorHandler: ErrorRequestHandler = (
   err,
@@ -44,7 +44,7 @@ export const globalErrorHandler: ErrorRequestHandler = (
         } else if (msg.includes("name")) {
           errors = [
             { field: "firstName", message: msg },
-            { field: "lastName", message: msg }
+            { field: "lastName", message: msg },
           ];
         }
       }
@@ -58,11 +58,21 @@ export const globalErrorHandler: ErrorRequestHandler = (
   }
 
   // Handle payload too large (e.g. large PDF/document uploads)
-  if (err.type === 'entity.too.large' || err.status === 413) {
+  if (err.type === "entity.too.large" || err.status === 413) {
     return res.status(413).json({
       success: false,
-      error: 'Uploaded file is too large. Please upload files under 50MB.',
-      message: 'Uploaded file is too large. Please upload files under 50MB.',
+      error: "Uploaded file is too large. Please upload files under 50MB.",
+      message: "Uploaded file is too large. Please upload files under 50MB.",
+    });
+  }
+
+  // Handle Mongo duplicate key error (11000)
+  if ((err as any).code === 11000) {
+    const field = Object.keys((err as any).keyPattern || {})[0] || "Field";
+    return res.status(409).json({
+      success: false,
+      error: `A record with this ${field} already exists.`,
+      message: `A record with this ${field} already exists.`,
     });
   }
 

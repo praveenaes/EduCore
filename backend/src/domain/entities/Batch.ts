@@ -50,24 +50,23 @@ export class Batch {
 
   // Business Methods
   updateDetails(details: {
-    name?: string;
-    courseId?: string;
-    levelNumber?: number;
-    levelName?: string;
-    centerId?: string;
-    academicYearId?: string;
+    name: string;
+    courseId: string;
+    levelNumber: number;
+    levelName: string;
+    centerId: string;
+    academicYearId: string;
     teacherId?: string | null;
     isActive?: boolean;
   }): void {
-    if (details.name !== undefined) this._props.name = details.name.trim();
-    if (details.courseId !== undefined) this._props.courseId = details.courseId;
-    if (details.levelNumber !== undefined) this._props.levelNumber = details.levelNumber;
-    if (details.levelName !== undefined) this._props.levelName = details.levelName;
-    if (details.centerId !== undefined) this._props.centerId = details.centerId;
-    if (details.academicYearId !== undefined) this._props.academicYearId = details.academicYearId;
-    // null = explicitly clear teacher; undefined/missing key = don't touch
-    if ('teacherId' in details) this._props.teacherId = details.teacherId ?? undefined;
-    if (details.isActive !== undefined) this._props.isActive = details.isActive;
+    this._props.name = details.name.trim();
+    this._props.courseId = details.courseId;
+    this._props.levelNumber = details.levelNumber;
+    this._props.levelName = details.levelName;
+    this._props.centerId = details.centerId;
+    this._props.academicYearId = details.academicYearId;
+    this._props.teacherId = details.teacherId ?? undefined;
+    this._props.isActive = details.isActive ?? this._props.isActive;
     this._props.updatedAt = new Date();
   }
 

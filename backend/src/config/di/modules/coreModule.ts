@@ -48,6 +48,12 @@ import { IAssessmentScheduleRepository } from "@/domain/repositories/IAssessment
 import { MongoAssessmentScheduleRepository } from "@/infra/db/MongoAssessmentScheduleRepository";
 import { IAssessmentResultRepository } from "@/domain/repositories/IAssessmentResultRepository";
 import { MongoAssessmentResultRepository } from "@/infra/db/MongoAssessmentResultRepository";
+import { IFeeAssignmentRepository } from "@/domain/repositories/IFeeAssignmentRepository";
+import { MongoFeeAssignmentRepository } from "@/infra/db/MongoFeeAssignmentRepository";
+import { IFeePaymentRepository } from "@/domain/repositories/IFeePaymentRepository";
+import { MongoFeePaymentRepository } from "@/infra/db/MongoFeePaymentRepository";
+import { IPaymentService } from "@/application/ports/services/IPaymentService";
+import { RazorpayService } from "@/infra/services/RazorpayService";
 
 export const coreModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
@@ -107,6 +113,18 @@ export const coreModule = new ContainerModule((bind) => {
 
   bind<IAssessmentResultRepository>(TYPES.AssessmentResultRepository)
     .to(MongoAssessmentResultRepository)
+    .inSingletonScope();
+
+  bind<IFeeAssignmentRepository>(TYPES.FeeAssignmentRepository)
+    .to(MongoFeeAssignmentRepository)
+    .inSingletonScope();
+
+  bind<IFeePaymentRepository>(TYPES.FeePaymentRepository)
+    .to(MongoFeePaymentRepository)
+    .inSingletonScope();
+
+  bind<IPaymentService>(TYPES.PaymentService)
+    .to(RazorpayService)
     .inSingletonScope();
 
   bind<IAuthService>(TYPES.AuthService)

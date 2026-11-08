@@ -54,6 +54,10 @@ export class AssessmentScheduleMapper {
       isCompleted: Boolean(doc.isCompleted),
       isGraded: Boolean(doc.isGraded),
       isPublished: Boolean(doc.isPublished),
+      delegationStatus: doc.delegationStatus || 'NONE',
+      delegationReason: doc.delegationReason,
+      delegatedAt: doc.delegatedAt,
+      delegationReviewedAt: doc.delegationReviewedAt,
       isDeleted: Boolean(doc.isDeleted),
       assessmentName,
       assessmentStatus,
@@ -86,6 +90,10 @@ export class AssessmentScheduleMapper {
       isCompleted: entity.isCompleted,
       isGraded: entity.isGraded,
       isPublished: entity.isPublished,
+      delegationStatus: entity.delegationStatus,
+      delegationReason: entity.delegationReason,
+      delegatedAt: entity.delegatedAt,
+      delegationReviewedAt: entity.delegationReviewedAt,
       isDeleted: entity.isDeleted,
     };
   }
@@ -105,6 +113,10 @@ export class AssessmentScheduleMapper {
     if (entity.isCompleted !== undefined) data.isCompleted = entity.isCompleted;
     if (entity.isGraded !== undefined) data.isGraded = entity.isGraded;
     if (entity.isPublished !== undefined) data.isPublished = entity.isPublished;
+    if (entity.delegationStatus !== undefined) data.delegationStatus = entity.delegationStatus;
+    if (entity.delegationReason !== undefined) data.delegationReason = entity.delegationReason;
+    if (entity.delegatedAt !== undefined) data.delegatedAt = entity.delegatedAt;
+    if (entity.delegationReviewedAt !== undefined) data.delegationReviewedAt = entity.delegationReviewedAt;
     if (entity.isDeleted !== undefined) data.isDeleted = entity.isDeleted;
     if (entity.updatedAt !== undefined) data.updatedAt = entity.updatedAt;
 

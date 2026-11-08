@@ -67,19 +67,19 @@ export class AcademicYear {
 
   // Business Methods
   updateDetails(details: {
-    name?: string;
-    code?: string;
-    startDate?: Date;
-    endDate?: Date;
+    name: string;
+    code: string;
+    startDate: Date;
+    endDate: Date;
     current?: boolean;
     centers?: (IAcademicYearCenterInfo | string)[];
   }): void {
-    if (details.name !== undefined) this._props.name = details.name.trim();
-    if (details.code !== undefined) this._props.code = details.code.trim().toUpperCase();
-    if (details.startDate !== undefined) this._props.startDate = details.startDate;
-    if (details.endDate !== undefined) this._props.endDate = details.endDate;
-    if (details.current !== undefined) this._props.current = details.current;
-    if (details.centers !== undefined) this._props.centers = [...details.centers];
+    this._props.name = details.name.trim();
+    this._props.code = details.code.trim().toUpperCase();
+    this._props.startDate = details.startDate;
+    this._props.endDate = details.endDate;
+    this._props.current = details.current ?? false;
+    this._props.centers = details.centers ? [...details.centers] : [];
     this._props.updatedAt = new Date();
   }
 

@@ -1,4 +1,4 @@
-﻿import { Model,FilterQuery, UpdateQuery  } from "mongoose";
+import { Model, FilterQuery, UpdateQuery, Types } from "mongoose";
 import { injectable } from "inversify";
 import { IBaseRepository } from "../../domain/repositories/IBaseRepository";
 
@@ -20,15 +20,17 @@ export abstract class BaseMongoRepository<TDomain, TDoc> implements IBaseReposit
   }
 
   async findById(id: string): Promise<TDomain | null> {
-    const doc = await this._model.findOne({ _id: id, isDeleted: { $ne: true } } as FilterQuery<TDoc>);
+    const queryId = Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : id;
+    const doc = await this._model.findOne({ _id: queryId, isDeleted: { $ne: true } } as FilterQuery<TDoc>);
     if (!doc) return null;
     return this._mapper.toDomain(doc as unknown as TDoc);
   }
 
   async update(id: string, entity: Partial<TDomain>): Promise<TDomain | null> {
+    const queryId = Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : id;
     const updateData = this._mapper.toPersistencePartial(entity);
     const doc = await this._model.findOneAndUpdate(
-      { _id: id, isDeleted: { $ne: true } } as FilterQuery<TDoc>,
+      { _id: queryId, isDeleted: { $ne: true } } as FilterQuery<TDoc>,
       { $set: updateData } as UpdateQuery<TDoc>,
       { new: true }
     );

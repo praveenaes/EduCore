@@ -149,6 +149,7 @@ export const MarkEntryModal: React.FC<MarkEntryModalProps> = ({
       setSuccessMsg('Marks saved successfully!');
       setData((prev) => (prev ? { ...prev, isCompleted: true } : null));
       if (onSuccess) onSuccess();
+      onClose();
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save marks');
     } finally {

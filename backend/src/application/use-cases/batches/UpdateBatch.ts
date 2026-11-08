@@ -25,14 +25,14 @@ export class UpdateBatch implements IUpdateBatchUseCase {
       throw new NotFoundError(`Batch with id "${id}" not found`);
     }
 
-    const courseId = dto.courseId ?? batch.courseId;
-    const levelNumber =
-      dto.levelNumber !== undefined ? Number(dto.levelNumber) : batch.levelNumber;
-    let levelName = batch.levelName;
+    const { name, courseId, levelNumber, centerId, academicYearId, teacherId, isActive } = dto;
+    const parsedLevelNumber = Number(levelNumber);
+    const trimmedName = name.trim();
 
     const isCourseOrLevelChanged =
-      (dto.courseId && dto.courseId !== batch.courseId) ||
-      (dto.levelNumber !== undefined && Number(dto.levelNumber) !== batch.levelNumber);
+      courseId !== batch.courseId || parsedLevelNumber !== batch.levelNumber;
+
+    let levelName = batch.levelName;
 
     if (isCourseOrLevelChanged) {
       const course = await this._courseRepo.findById(courseId);
@@ -40,69 +40,66 @@ export class UpdateBatch implements IUpdateBatchUseCase {
         throw new NotFoundError('Associated course not found');
       }
 
-      const level = course.levels.find((l) => l.levelNumber === levelNumber);
+      const level = course.levels.find((l) => l.levelNumber === parsedLevelNumber);
       if (!level) {
         throw new ValidationError(
-          `Level ${levelNumber} does not exist in course "${course.name}"`
+          `Level ${parsedLevelNumber} does not exist in course "${course.name}"`
         );
       }
       levelName = level.name;
     }
 
-    const centerId = dto.centerId ?? batch.centerId;
-    if (dto.centerId && dto.centerId !== batch.centerId) {
-      const center = await this._centerRepo.findById(dto.centerId);
+    if (centerId !== batch.centerId) {
+      const center = await this._centerRepo.findById(centerId);
       if (!center || center.status === 'inactive') {
         throw new NotFoundError('Selected center not found or is inactive');
       }
     }
 
-    const academicYearId = dto.academicYearId ?? batch.academicYearId;
-    if (dto.academicYearId && dto.academicYearId !== batch.academicYearId) {
-      const academicYear = await this._academicYearRepo.findById(dto.academicYearId);
+    if (academicYearId !== batch.academicYearId) {
+      const academicYear = await this._academicYearRepo.findById(academicYearId);
       if (!academicYear || academicYear.isDeleted) {
         throw new NotFoundError('Selected academic year not found');
       }
     }
 
-    const name = dto.name !== undefined ? dto.name.trim() : batch.name;
     const isNameOrScopeChanged =
-      (dto.name && dto.name.trim().toLowerCase() !== batch.name.toLowerCase()) ||
+      trimmedName.toLowerCase() !== batch.name.toLowerCase() ||
       isCourseOrLevelChanged ||
-      (dto.centerId && dto.centerId !== batch.centerId) ||
-      (dto.academicYearId && dto.academicYearId !== batch.academicYearId);
+      centerId !== batch.centerId ||
+      academicYearId !== batch.academicYearId;
 
     if (isNameOrScopeChanged) {
       const existing = await this._batchRepo.findByName(
-        name,
+        trimmedName,
         courseId,
-        levelNumber,
+        parsedLevelNumber,
         centerId,
         academicYearId
       );
       if (existing && existing.id !== id) {
         throw new ConflictError(
-          `Batch with name "${name}" already exists for this course level, center, and academic year`
+          `Batch with name "${trimmedName}" already exists for this course level, center, and academic year`
         );
       }
     }
 
-    if (dto.teacherId && dto.teacherId !== batch.teacherId) {
-      const teacher = await this._teacherRepo.findById(dto.teacherId);
+    if (teacherId && teacherId !== batch.teacherId) {
+      const teacher = await this._teacherRepo.findById(teacherId);
       if (!teacher || teacher.isDeleted) {
         throw new NotFoundError('Selected teacher not found');
       }
     }
 
     batch.updateDetails({
-      name: dto.name,
-      courseId: dto.courseId,
-      levelNumber: dto.levelNumber !== undefined ? Number(dto.levelNumber) : undefined,
+      name: trimmedName,
+      courseId,
+      levelNumber: parsedLevelNumber,
       levelName,
-      centerId: dto.centerId,
-      academicYearId: dto.academicYearId,
-      ...('teacherId' in dto && { teacherId: dto.teacherId }),
-      isActive: dto.isActive,
+      centerId,
+      academicYearId,
+      teacherId,
+      isActive,
     });
 
     await this._batchRepo.update(id, batch);

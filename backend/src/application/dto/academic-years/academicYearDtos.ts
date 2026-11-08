@@ -8,10 +8,10 @@ export interface CreateAcademicYearDTO {
 }
 
 export interface UpdateAcademicYearDTO {
-  name?: string;
-  code?: string;
-  startDate?: string;
-  endDate?: string;
+  name: string;
+  code: string;
+  startDate: string;
+  endDate: string;
   current?: boolean;
   centers?: string[];
 }

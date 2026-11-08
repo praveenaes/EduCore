@@ -12,13 +12,13 @@ export interface CreateAssessmentCriteriaDTO {
 }
 
 export interface UpdateAssessmentCriteriaDTO {
-  name?: string;
-  courseId?: string;
-  levelNumber?: number;
-  subjectId?: string;
-  assessmentType?: AssessmentCriteriaType;
-  maxMarks?: number;
-  passMarks?: number;
+  name: string;
+  courseId: string;
+  levelNumber: number;
+  subjectId: string;
+  assessmentType: AssessmentCriteriaType;
+  maxMarks: number;
+  passMarks: number;
   hasCe?: boolean;
 }
 

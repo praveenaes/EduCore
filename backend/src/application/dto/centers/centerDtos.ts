@@ -16,17 +16,17 @@ export interface CreateCenterDTO {
 }
 
 export interface UpdateCenterDTO {
-  name?: string;
-  code?: string;
-  phone?: string;
-  email?: string;
-  timezone?: string;
-  address?: {
-    addressLine1?: string;
-    city?: string;
-    state?: string;
-    postalCode?: string;
-    country?: string;
+  name: string;
+  code: string;
+  phone: string;
+  email: string;
+  timezone: string;
+  address: {
+    addressLine1: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
   };
   status?: 'active' | 'inactive';
   programs?: string[];

@@ -5,9 +5,9 @@ export interface CreateSubjectDTO {
 }
 
 export interface UpdateSubjectDTO {
-  name?: string;
-  code?: string;
-  description?: string;
+  name: string;
+  code: string;
+  description: string;
 }
 
 export interface SubjectResponseDTO {

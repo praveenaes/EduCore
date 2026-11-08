@@ -84,6 +84,8 @@ export const API_ROUTES = {
   ASSESSMENTS: {
     BASE: "/assessments",
     DETAIL: (id: string) => `/assessments/${id}`,
+    REQUEST_DELEGATION: (id: string) => `/assessments/${id}/request-delegation`,
+    REVIEW_DELEGATION: (id: string) => `/assessments/${id}/review-delegation`,
   },
   ASSESSMENT_CRITERIA: {
     BASE: "/assessments/criteria",
@@ -93,6 +95,8 @@ export const API_ROUTES = {
     BASE: "/assessments/schedules",
     DETAIL: (id: string) => `/assessments/schedules/${id}`,
     TOGGLE_STATUS: (id: string) => `/assessments/schedules/${id}/toggle-status`,
+    REQUEST_DELEGATION: (id: string) => `/assessments/schedules/${id}/request-delegation`,
+    REVIEW_DELEGATION: (id: string) => `/assessments/schedules/${id}/review-delegation`,
   },
   ASSESSMENT_RESULTS: {
     BASE: "/assessments/results",
@@ -102,5 +106,15 @@ export const API_ROUTES = {
     MY_REPORT_CARD: (assessmentId: string) => `/assessments/results/my-report-card/${assessmentId}`,
     STUDENT_REPORT_CARD: (assessmentId: string, studentId: string) =>
       `/assessments/results/report-card/${assessmentId}/${studentId}`,
+  },
+  FEES: {
+    BASE: "/fees",
+    TRANSACTIONS: "/fees/transactions",
+    REFUND_PAYMENT: (paymentId: string) => `/fees/payments/${paymentId}/refund`,
+    REJECT_REFUND: (paymentId: string) => `/fees/payments/${paymentId}/reject-refund`,
+    REQUEST_REFUND: (id: string) => `/fees/${id}/request-refund`,
+    DETAIL: (id: string) => `/fees/${id}`,
+    INIT_PAYMENT: (id: string) => `/fees/${id}/init`,
+    CONFIRM_PAYMENT: (id: string) => `/fees/${id}/confirm`,
   },
 } as const;

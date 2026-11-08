@@ -14,13 +14,13 @@ export interface CreateCourseDTO {
 }
 
 export interface UpdateCourseDTO {
-  programId?: string;
-  name?: string;
-  code?: string;
+  programId: string;
+  name: string;
+  code: string;
   description?: string;
   durationMonths?: number;
-  levelName?: string;
-  levelCount?: number;
+  levelName: string;
+  levelCount: number;
 }
 
 export interface CourseResponseDTO {

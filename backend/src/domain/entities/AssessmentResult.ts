@@ -76,34 +76,17 @@ export class AssessmentResult {
 
   // Business Methods
   updateMarks(details: {
-    marksObtained?: number;
-    ceMarksObtained?: number;
-    isAbsent?: boolean;
+    marksObtained: number;
+    ceMarksObtained: number;
+    isAbsent: boolean;
+    passMarks: number;
     remarks?: string;
-    passMarks?: number;
   }): void {
-    if (details.isAbsent !== undefined) {
-      this._props.isAbsent = details.isAbsent;
-    }
-
-    if (details.marksObtained !== undefined) {
-      this._props.marksObtained = details.marksObtained;
-    }
-
-    if (details.ceMarksObtained !== undefined) {
-      this._props.ceMarksObtained = details.ceMarksObtained;
-    }
-
-    if (details.remarks !== undefined) {
-      this._props.remarks = details.remarks;
-    }
-
-    if (this._props.isAbsent) {
-      this._props.isPassed = false;
-    } else if (details.passMarks !== undefined) {
-      this._props.isPassed = this._props.marksObtained >= details.passMarks;
-    }
-
+    this._props.isAbsent = details.isAbsent;
+    this._props.marksObtained = details.isAbsent ? 0 : details.marksObtained;
+    this._props.ceMarksObtained = details.ceMarksObtained;
+    this._props.remarks = details.remarks;
+    this._props.isPassed = !details.isAbsent && details.marksObtained >= details.passMarks;
     this._props.updatedAt = new Date();
   }
 

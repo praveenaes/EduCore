@@ -45,39 +45,7 @@ export const createAssessmentScheduleSchema = z
     path: ['endTime'],
   });
 
-export const updateAssessmentScheduleSchema = z
-  .object({
-    assessmentId: z.string().trim().min(1).optional(),
-    courseId: z.string().trim().min(1).optional(),
-    levelNumber: z.coerce.number().min(1).optional(),
-    criteriaId: z.string().trim().min(1).optional(),
-    batchId: z.string().trim().min(1).optional(),
-    centerId: z.string().trim().min(1).optional(),
-    examDate: z.coerce.date().optional(),
-    startTime: z
-      .string()
-      .trim()
-      .regex(timeRegex, 'Start time must be in HH:mm format (e.g. 09:30)')
-      .optional(),
-    endTime: z
-      .string()
-      .trim()
-      .regex(timeRegex, 'End time must be in HH:mm format (e.g. 11:30)')
-      .optional(),
-    isCompleted: z.boolean().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.startTime && data.endTime) {
-        return data.startTime < data.endTime;
-      }
-      return true;
-    },
-    {
-      message: 'End time must be after start time',
-      path: ['endTime'],
-    }
-  );
+export const updateAssessmentScheduleSchema = createAssessmentScheduleSchema;
 
 export const assessmentScheduleQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
@@ -95,4 +63,19 @@ export const assessmentScheduleQuerySchema = z.object({
     .optional(),
   sortBy: z.string().trim().optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
+});
+
+export const requestDelegationSchema = z.object({
+  reason: z
+    .string({ required_error: 'Reason for delegation is required' })
+    .trim()
+    .min(5, 'Reason must be at least 5 characters')
+    .max(500, 'Reason cannot exceed 500 characters'),
+});
+
+export const reviewDelegationSchema = z.object({
+  status: z.enum(['APPROVED', 'REJECTED'], {
+    required_error: 'Status must be APPROVED or REJECTED',
+  }),
+  reviewNotes: z.string().trim().max(500).optional(),
 });

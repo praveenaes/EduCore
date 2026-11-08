@@ -18,53 +18,55 @@ export class UpdateCenter implements IUpdateCenterUseCase {
       throw new NotFoundError(`Center with id "${id}" not found`);
     }
 
-    if (dto.code && dto.code.trim().toUpperCase() !== center.code) {
-      const existing = await this._centerRepository.findByCode(dto.code);
+    const { name, code, phone, email, timezone, address, status, programs } = dto;
+    const trimmedCode = code.trim().toUpperCase();
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPhone = phone.trim();
+
+    if (trimmedCode !== center.code) {
+      const existing = await this._centerRepository.findByCode(trimmedCode);
       if (existing && existing.id !== id) {
-        throw new ConflictError(`Center with code "${dto.code}" already exists`);
+        throw new ConflictError(`Center with code "${trimmedCode}" already exists`);
       }
     }
 
-    if (dto.name && dto.name.trim().toLowerCase() !== center.name.toLowerCase()) {
-      const existing = await this._centerRepository.findByName(dto.name);
+    if (trimmedName.toLowerCase() !== center.name.toLowerCase()) {
+      const existing = await this._centerRepository.findByName(trimmedName);
       if (existing && existing.id !== id) {
-        throw new ConflictError(`Center with name "${dto.name}" already exists`);
+        throw new ConflictError(`Center with name "${trimmedName}" already exists`);
       }
     }
 
-    if (dto.email && dto.email.trim().toLowerCase() !== center.email.toLowerCase()) {
-      const existing = await this._centerRepository.findByEmail(dto.email);
+    if (trimmedEmail !== center.email.toLowerCase()) {
+      const existing = await this._centerRepository.findByEmail(trimmedEmail);
       if (existing && existing.id !== id) {
-        throw new ConflictError(`Center with email "${dto.email}" already exists`);
+        throw new ConflictError(`Center with email "${trimmedEmail}" already exists`);
       }
     }
 
-    if (dto.phone && dto.phone.trim() !== center.phone) {
-      const existing = await this._centerRepository.findByPhone(dto.phone);
+    if (trimmedPhone !== center.phone) {
+      const existing = await this._centerRepository.findByPhone(trimmedPhone);
       if (existing && existing.id !== id) {
-        throw new ConflictError(`Center with phone "${dto.phone}" already exists`);
+        throw new ConflictError(`Center with phone "${trimmedPhone}" already exists`);
       }
     }
-
-    const updatedAddress = dto.address
-      ? {
-          addressLine1: dto.address.addressLine1 || center.address.addressLine1,
-          city: dto.address.city || center.address.city,
-          state: dto.address.state || center.address.state,
-          postalCode: dto.address.postalCode || center.address.postalCode,
-          country: dto.address.country || center.address.country,
-        }
-      : undefined;
 
     center.updateDetails({
-      name: dto.name,
-      code: dto.code,
-      phone: dto.phone,
-      email: dto.email,
-      timezone: dto.timezone,
-      address: updatedAddress,
-      status: dto.status,
-      programs: dto.programs,
+      name: trimmedName,
+      code: trimmedCode,
+      phone: trimmedPhone,
+      email: trimmedEmail,
+      timezone: timezone.trim(),
+      address: {
+        addressLine1: address.addressLine1.trim(),
+        city: address.city.trim(),
+        state: address.state.trim(),
+        postalCode: address.postalCode.trim(),
+        country: address.country.trim(),
+      },
+      status,
+      programs,
     });
 
     const updated = await this._centerRepository.update(id, center);

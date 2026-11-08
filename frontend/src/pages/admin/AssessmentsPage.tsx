@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Calendar, CheckCircle2, Clock, XCircle, Ban } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Edit2, Trash2, Calendar, CheckCircle2, Clock, XCircle, Ban, LayoutGrid } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { SearchBox } from '../../components/SearchBox';
 import { Select } from '../../components/Select';
@@ -15,10 +16,13 @@ import {
   updateAssessmentApi,
 } from '../../services/assessmentService';
 import { getAcademicYearsApi } from '../../services/academicYearService';
+import { getSubjectAssignmentsApi } from '../../services/subjectAssignmentService';
+import { getAssessmentSchedulesApi } from '../../services/assessmentScheduleService';
 import type { Assessment, AssessmentStatus } from '../../types/assessment';
 import type { AcademicYear } from '../../types/academicYear';
 
 const AssessmentsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,7 +69,6 @@ const AssessmentsPage: React.FC = () => {
 
   // Toast
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  // const[isAsc,setIsAsc]=useState(true)
 
   // Debounce search
   useEffect(() => {
@@ -138,25 +141,71 @@ const AssessmentsPage: React.FC = () => {
     }
   };
 
-// const sortFn=()=>{
-//   const sorted=[...assessments].sort((a,b)=>{
-//     const comparison= a.name.localeCompare(b.name)
-//     return isAsc ?comparison:-comparison
-//   })
-//   setIsAsc(!isAsc)
-//   setAssessments(sorted)
-// }
-
   const handleUpdateStatus = async (assessment: Assessment, newStatus: AssessmentStatus) => {
     setIsUpdatingStatus(true);
     try {
-      await updateAssessmentApi(assessment.id, { status: newStatus });
+      await updateAssessmentApi(assessment.id, {
+        name: assessment.name,
+        academicYearId: assessment.academicYearId,
+        courseId: assessment.courseId,
+        levelNumber: assessment.levelNumber,
+        startDate: assessment.startDate,
+        endDate: assessment.endDate,
+        status: newStatus,
+      });
       showToast(`Assessment marked as ${newStatus.toLowerCase()}.`, 'success');
       fetchAssessments();
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Failed to update status.', 'error');
     } finally {
       setIsUpdatingStatus(false);
+    }
+  };
+
+  const handleMarkCompletedClick = async (assessment: Assessment) => {
+    try {
+      if (!assessment.courseId) {
+        showToast('Event is not fully scheduled', 'error');
+        return;
+      }
+
+      // Check both assigned subjects and existing schedules for this event
+      const [subRes, schedRes] = await Promise.all([
+        getSubjectAssignmentsApi({
+          courseId: assessment.courseId,
+          levelNumber: assessment.levelNumber,
+          limit: 100,
+        }),
+        getAssessmentSchedulesApi({
+          assessmentId: assessment.id,
+          limit: 100,
+        }),
+      ]);
+
+      const assignedSubjects = subRes.data?.data?.assignments || [];
+      const schedules = schedRes.data?.data?.schedules || [];
+
+      if (assignedSubjects.length === 0 || schedules.length === 0) {
+        showToast('Event is not fully scheduled', 'error');
+        return;
+      }
+
+      const scheduledSubjectIds = new Set(schedules.map((s) => s.subjectId));
+      const hasUnscheduled = assignedSubjects.some((s) => !scheduledSubjectIds.has(s.subjectId));
+
+      if (hasUnscheduled) {
+        showToast('Event is not fully scheduled', 'error');
+        return;
+      }
+
+      // All subjects are scheduled -> show confirmation modal
+      setStatusConfirm({
+        show: true,
+        assessment,
+        targetStatus: 'COMPLETED',
+      });
+    } catch (err: any) {
+      showToast(err?.response?.data?.message || 'Failed to verify schedule status.', 'error');
     }
   };
 
@@ -167,6 +216,12 @@ const AssessmentsPage: React.FC = () => {
         return (
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
             <CheckCircle2 className="h-3 w-3" /> Published
+          </span>
+        );
+      case 'GRADED':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700 border border-indigo-200">
+            <CheckCircle2 className="h-3 w-3" /> Graded
           </span>
         );
       case 'COMPLETED':
@@ -196,8 +251,28 @@ const AssessmentsPage: React.FC = () => {
       header: 'Exam / Assessment',
       sortField: 'name',
       accessor: (a) => (
-        <div>
-          <span className="font-semibold text-neutral-800">{a.name}</span>
+        <button
+          onClick={() => navigate(`/admin/assessments/${a.id}`)}
+          className="text-left font-semibold text-brand-600 hover:text-brand-700 hover:underline cursor-pointer group"
+          title="Open Subject Cards & Timetable"
+        >
+          <span>{a.name}</span>
+          <span className="block text-[11px] font-normal text-neutral-400 group-hover:text-brand-500">
+            View Subject Cards & Timetable →
+          </span>
+        </button>
+      ),
+    },
+    {
+      header: 'Course & Level',
+      accessor: (a) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-neutral-800">
+            {a.courseName ? `${a.courseName} (${a.courseCode || ''})` : '—'}
+          </span>
+          <span className="text-xs font-medium text-neutral-500">
+            {a.levelName || (a.levelNumber ? `Level ${a.levelNumber}` : '')}
+          </span>
         </div>
       ),
     },
@@ -231,123 +306,127 @@ const AssessmentsPage: React.FC = () => {
     {
       header: 'Actions',
       accessor: (a) => {
-        const isCompleted = a.status === 'COMPLETED' || a.status === 'PUBLISHED';
+        const isCompleted = a.status === 'COMPLETED' || a.status === 'GRADED' || a.status === 'PUBLISHED';
 
         return (
           <div className="flex items-center justify-end gap-1.5">
-          {a.status === 'SCHEDULED' && (
-            <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() =>
-                  setStatusConfirm({
-                    show: true,
-                    assessment: a,
-                    targetStatus: 'COMPLETED',
-                  })
-                }
-                className="!text-blue-600 hover:!text-blue-700 hover:bg-blue-50"
-                title="Mark as Completed (concludes exams & opens mark entry)"
-              >
-                <CheckCircle2 className="h-4 w-4 text-blue-600 stroke-[2.5]" />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() =>
-                  setStatusConfirm({
-                    show: true,
-                    assessment: a,
-                    targetStatus: 'CANCELLED',
-                  })
-                }
-                className="!text-red-700 hover:!text-red-800 hover:bg-red-50"
-                title="Cancel Assessment (remains on list as Cancelled)"
-              >
-                <Ban className="h-4 w-4 text-red-700 stroke-[2.5]" />
-              </Button>
-            </>
-          )}
+            {a.status === 'SCHEDULED' && (
+              <>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleMarkCompletedClick(a)}
+                  className="!text-blue-600 hover:!text-blue-700 hover:bg-blue-50"
+                  title="Mark as Completed (concludes exams & opens mark entry)"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-blue-600 stroke-[2.5]" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() =>
+                    setStatusConfirm({
+                      show: true,
+                      assessment: a,
+                      targetStatus: 'CANCELLED',
+                    })
+                  }
+                  className="!text-red-700 hover:!text-red-800 hover:bg-red-50"
+                  title="Cancel Assessment (remains on list as Cancelled)"
+                >
+                  <Ban className="h-4 w-4 text-red-700 stroke-[2.5]" />
+                </Button>
+              </>
+            )}
 
-          {a.status === 'COMPLETED' && (
+            {a.status === 'COMPLETED' && (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled
+                className="opacity-30 cursor-not-allowed !text-neutral-400"
+                title="Completed exams cannot be cancelled"
+              >
+                <Ban className="h-4 w-4 stroke-[2.5]" />
+              </Button>
+            )}
+
+            {a.status === 'CANCELLED' && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  setStatusConfirm({
+                    show: true,
+                    assessment: a,
+                    targetStatus: 'SCHEDULED',
+                  })
+                }
+                className="!text-emerald-600 hover:!text-emerald-700 hover:bg-emerald-50"
+                title="Reopen as Scheduled"
+              >
+                <Clock className="h-4 w-4 text-emerald-600 stroke-[2.5]" />
+              </Button>
+            )}
+
             <Button
               size="sm"
               variant="ghost"
-              disabled
-              className="opacity-30 cursor-not-allowed !text-neutral-400"
-              title="Completed exams cannot be cancelled"
+              onClick={() => navigate(`/admin/assessments/${a.id}`)}
+              className="text-brand-600 hover:text-brand-700 hover:bg-brand-50"
+              title="View Subject Cards & Timetable"
             >
-              <Ban className="h-4 w-4 stroke-[2.5]" />
+              <LayoutGrid className="h-4 w-4" />
             </Button>
-          )}
 
-          {a.status === 'CANCELLED' && (
             <Button
               size="sm"
               variant="ghost"
-              onClick={() =>
-                setStatusConfirm({
-                  show: true,
-                  assessment: a,
-                  targetStatus: 'SCHEDULED',
-                })
+              disabled={isCompleted}
+              onClick={() => {
+                if (isCompleted) return;
+                setSelectedAssessment(a);
+                setShowModal(true);
+              }}
+              className={
+                isCompleted
+                  ? 'opacity-30 cursor-not-allowed text-neutral-400'
+                  : 'text-neutral-500 hover:text-neutral-700'
               }
-              className="!text-emerald-600 hover:!text-emerald-700 hover:bg-emerald-50"
-              title="Reopen as Scheduled"
+              title={
+                isCompleted
+                  ? 'Completed exams cannot be edited'
+                  : 'Edit Assessment'
+              }
             >
-              <Clock className="h-4 w-4 text-emerald-600 stroke-[2.5]" />
+              <Edit2 className="h-4 w-4" />
             </Button>
-          )}
-
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={isCompleted}
-            onClick={() => {
-              if (isCompleted) return;
-              setSelectedAssessment(a);
-              setShowModal(true);
-            }}
-            className={
-              isCompleted
-                ? 'opacity-30 cursor-not-allowed text-neutral-400'
-                : 'text-neutral-500 hover:text-neutral-700'
-            }
-            title={
-              isCompleted
-                ? 'Completed exams cannot be edited'
-                : 'Edit Assessment'
-            }
-          >
-            <Edit2 className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={isCompleted}
-            onClick={() => {
-              if (isCompleted) return;
-              setDeleteConfirm({ show: true, assessment: a });
-            }}
-            className={
-              isCompleted
-                ? 'opacity-30 cursor-not-allowed text-neutral-400'
-                : 'text-red-500 hover:text-red-700'
-            }
-            title={
-              isCompleted
-                ? 'Completed exams cannot be deleted'
-                : 'Delete Assessment'
-            }
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      );
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={isCompleted}
+              onClick={() => {
+                if (isCompleted) return;
+                setDeleteConfirm({ show: true, assessment: a });
+              }}
+              className={
+                isCompleted
+                  ? 'opacity-30 cursor-not-allowed text-neutral-400'
+                  : 'text-red-500 hover:text-red-700'
+              }
+              title={
+                isCompleted
+                  ? 'Completed exams cannot be deleted'
+                  : 'Delete Assessment'
+              }
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
     },
-  },
-];
+  ];
 
   const yearFilterOptions = [
     { value: '', label: 'All Academic Years' },
@@ -359,7 +438,7 @@ const AssessmentsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-  {/* Toast */}
+      {/* Toast */}
       {toast && (
         <div
           className={`fixed bottom-5 right-5 z-[100] flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-300 ${
@@ -370,17 +449,16 @@ const AssessmentsPage: React.FC = () => {
         </div>
       )}
 
-  {/* Header */}
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-800">
             Assessment Events
           </h1>
           <p className="text-sm text-neutral-500">
-            {totalCount} exam session{totalCount !== 1 ? 's' : ''} configured across academic years
+            {totalCount} exam session{totalCount !== 1 ? 's' : ''} configured across courses and academic years
           </p>
         </div>
-        {/* <button onClick={()=>sortFn()} >sort</button> */}
         <Button
           onClick={() => {
             setSelectedAssessment(null);
@@ -393,7 +471,7 @@ const AssessmentsPage: React.FC = () => {
         </Button>
       </div>
 
-  {/* Filter and Search Bar */}
+      {/* Filter and Search Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-xl border border-neutral-200/80 shadow-xs">
         <div className="w-full sm:w-72">
           <SearchBox
@@ -414,7 +492,7 @@ const AssessmentsPage: React.FC = () => {
         </div>
       </div>
 
-{/* Table Content */}
+      {/* Table Content */}
       <div className="bg-white rounded-xl border border-neutral-200/80 shadow-xs overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-sm text-neutral-500">Loading assessments...</div>
@@ -457,12 +535,17 @@ const AssessmentsPage: React.FC = () => {
         )}
       </div>
 
- {/* Create / Edit Modal */}
+      {/* Create / Edit Modal */}
       {showModal && (
         <AssessmentModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          onSuccess={fetchAssessments}
+          onSuccess={(createdId?: string) => {
+            fetchAssessments();
+            if (createdId) {
+              navigate(`/admin/assessments/${createdId}`);
+            }
+          }}
           assessment={selectedAssessment}
         />
       )}

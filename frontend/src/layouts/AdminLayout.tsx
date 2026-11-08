@@ -30,10 +30,8 @@ const adminNavItems: SidebarItem[] = [
     label: 'Assessments',
     icon: ClipboardCheck,
     children: [
-      { label: 'Results', path: '/admin/assessments/results' },
-      { label: 'Schedules', path: '/admin/assessments/schedules' },
-      { label: 'Assessment Criteria', path: '/admin/assessments/criteria' },
       { label: 'Assessment Events', path: '/admin/assessments' },
+      { label: 'Results', path: '/admin/assessments/results' },
     ],
   },
   {

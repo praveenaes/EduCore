@@ -5,6 +5,8 @@ import {
   createAssessmentSchema,
   updateAssessmentSchema,
   assessmentQuerySchema,
+  requestDelegationSchema,
+  reviewDelegationSchema,
 } from '../../validators/assessmentValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
@@ -14,6 +16,8 @@ import { ICreateAssessmentUseCase } from '@/application/ports/use-cases/assessme
 import { IGetAssessmentsUseCase } from '@/application/ports/use-cases/assessments/IGetAssessmentsUseCase';
 import { IUpdateAssessmentUseCase } from '@/application/ports/use-cases/assessments/IUpdateAssessmentUseCase';
 import { IDeleteAssessmentUseCase } from '@/application/ports/use-cases/assessments/IDeleteAssessmentUseCase';
+import { IRequestAssessmentDelegationUseCase } from '@/application/ports/use-cases/assessments/IRequestAssessmentDelegationUseCase';
+import { IReviewAssessmentDelegationUseCase } from '@/application/ports/use-cases/assessments/IReviewAssessmentDelegationUseCase';
 import { AssessmentStatus } from '@/domain/entities/Assessment';
 
 @injectable()
@@ -26,22 +30,27 @@ export class AssessmentController {
     @inject(TYPES.UpdateAssessmentUseCase)
     private _updateAssessmentUseCase: IUpdateAssessmentUseCase,
     @inject(TYPES.DeleteAssessmentUseCase)
-    private _deleteAssessmentUseCase: IDeleteAssessmentUseCase
+    private _deleteAssessmentUseCase: IDeleteAssessmentUseCase,
+    @inject(TYPES.RequestAssessmentDelegationUseCase)
+    private _requestDelegationUseCase: IRequestAssessmentDelegationUseCase,
+    @inject(TYPES.ReviewAssessmentDelegationUseCase)
+    private _reviewDelegationUseCase: IReviewAssessmentDelegationUseCase
   ) {}
 
   getAll = async (req: Request, res: Response): Promise<void> => {
     const parsed = assessmentQuerySchema.safeParse(req.query);
     if (!parsed.success) {
-      const msg = parsed.error.issues[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR;
-      throw new ValidationError(msg);
+      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
     }
 
-    const { page, limit, search, academicYearId, status, sortBy, sortOrder } = parsed.data;
+    const { page, limit, search, academicYearId, courseId, levelNumber, status, sortBy, sortOrder } = parsed.data;
 
     const result = await this._getAssessmentsUseCase.execute(
       {
         search,
         academicYearId,
+        courseId,
+        levelNumber,
         status: status as AssessmentStatus | undefined,
       },
       {
@@ -71,17 +80,37 @@ export class AssessmentController {
     const { id } = req.params;
     const parsed = updateAssessmentSchema.safeParse(req.body);
     if (!parsed.success) {
-      const msg = parsed.error.errors.map((e) => e.message).join(', ') || ERROR_MESSAGES.VALIDATION_ERROR;
-      throw new ValidationError(msg);
+      throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
     }
 
     const result = await this._updateAssessmentUseCase.execute(id, parsed.data);
     ResponseHelper.success(res, 'Assessment updated successfully.', result, HTTP_STATUS.OK);
   };
 
+  
   delete = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await this._deleteAssessmentUseCase.execute(id);
     ResponseHelper.success(res, 'Assessment deleted successfully.', null, HTTP_STATUS.OK);
+  };
+
+  requestDelegation = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const parsed = requestDelegationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError(parsed.error.errors[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR);
+    }
+    const result = await this._requestDelegationUseCase.execute(id, parsed.data);
+    ResponseHelper.success(res, 'Mark entry delegation requested successfully.', result, HTTP_STATUS.OK);
+  };
+
+  reviewDelegation = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const parsed = reviewDelegationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError(parsed.error.errors[0]?.message || ERROR_MESSAGES.VALIDATION_ERROR);
+    }
+    const result = await this._reviewDelegationUseCase.execute(id, parsed.data);
+    ResponseHelper.success(res, `Mark entry delegation ${parsed.data.status.toLowerCase()} successfully.`, result, HTTP_STATUS.OK);
   };
 }

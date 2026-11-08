@@ -45,64 +45,55 @@ export class UpdateAssessmentCriteria implements IUpdateAssessmentCriteriaUseCas
       );
     }
 
-    const courseId = dto.courseId ?? criteria.courseId;
-    const levelNumber =
-      dto.levelNumber !== undefined ? Number(dto.levelNumber) : criteria.levelNumber;
-    const subjectId = dto.subjectId ?? criteria.subjectId;
-    const name = dto.name !== undefined ? dto.name.trim() : criteria.name;
+    const { name, courseId, levelNumber, subjectId, assessmentType, maxMarks, passMarks, hasCe } = dto;
+    const parsedLevelNumber = Number(levelNumber);
+    const parsedMaxMarks = Number(maxMarks);
+    const parsedPassMarks = Number(passMarks);
 
-    const maxMarks = dto.maxMarks !== undefined ? Number(dto.maxMarks) : criteria.maxMarks;
-    const passMarks = dto.passMarks !== undefined ? Number(dto.passMarks) : criteria.passMarks;
-
-    if (passMarks > maxMarks) {
+    if (parsedPassMarks > parsedMaxMarks) {
       throw new ValidationError('Passing marks cannot exceed maximum marks');
     }
 
-    if (dto.courseId && dto.courseId !== criteria.courseId) {
+    if (courseId !== criteria.courseId || parsedLevelNumber !== criteria.levelNumber) {
       const course = await this._courseRepo.findById(courseId);
       if (!course || course.isDeleted) {
         throw new NotFoundError('Selected course not found');
       }
-      const level = course.levels.find((l) => l.levelNumber === levelNumber);
+      const level = course.levels.find((l) => l.levelNumber === parsedLevelNumber);
       if (!level) {
-        throw new ValidationError(`Level ${levelNumber} does not exist in course "${course.name}"`);
+        throw new ValidationError(`Level ${parsedLevelNumber} does not exist in course "${course.name}"`);
       }
     }
 
-    if (dto.subjectId && dto.subjectId !== criteria.subjectId) {
+    if (subjectId !== criteria.subjectId) {
       const subject = await this._subjectRepo.findById(subjectId);
       if (!subject || subject.isDeleted) {
         throw new NotFoundError('Selected subject not found');
       }
     }
 
-    const targetName = dto.name !== undefined ? dto.name.trim() : criteria.name;
-    const targetCourseId = dto.courseId ?? criteria.courseId;
-    const targetLevelNumber =
-      dto.levelNumber !== undefined ? Number(dto.levelNumber) : criteria.levelNumber;
-    const targetSubjectId = dto.subjectId ?? criteria.subjectId;
-
+    const trimmedName = name.trim();
     const existing = await this._criteriaRepo.findByNameAndScope(
-      targetName,
-      targetCourseId,
-      targetLevelNumber,
-      targetSubjectId
+      trimmedName,
+      courseId,
+      parsedLevelNumber,
+      subjectId
     );
     if (existing && existing.id !== id) {
       throw new ConflictError(
-        `Criteria "${targetName}" already exists for this course, level, and subject.`
+        `Criteria "${trimmedName}" already exists for this course, level, and subject.`
       );
     }
 
     criteria.updateDetails({
-      name: dto.name,
-      courseId: dto.courseId,
-      levelNumber: dto.levelNumber !== undefined ? Number(dto.levelNumber) : undefined,
-      subjectId: dto.subjectId,
-      assessmentType: dto.assessmentType,
-      maxMarks: dto.maxMarks !== undefined ? Number(dto.maxMarks) : undefined,
-      passMarks: dto.passMarks !== undefined ? Number(dto.passMarks) : undefined,
-      hasCe: dto.hasCe,
+      name: trimmedName,
+      courseId,
+      levelNumber: parsedLevelNumber,
+      subjectId,
+      assessmentType,
+      maxMarks: parsedMaxMarks,
+      passMarks: parsedPassMarks,
+      hasCe: Boolean(hasCe),
     });
 
     await this._criteriaRepo.update(id, criteria);

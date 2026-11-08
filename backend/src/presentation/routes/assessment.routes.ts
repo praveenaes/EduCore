@@ -20,5 +20,13 @@ export const getAssessmentRoutes = (container: Container): Router => {
     .put(authenticateAdmin, asyncHandler(assessmentController.update.bind(assessmentController)))
     .delete(authenticateAdmin, asyncHandler(assessmentController.delete.bind(assessmentController)));
 
+  router
+    .route(API_ROUTES.ASSESSMENTS.REQUEST_DELEGATION)
+    .post(authenticateUser, asyncHandler(assessmentController.requestDelegation.bind(assessmentController)));
+
+  router
+    .route(API_ROUTES.ASSESSMENTS.REVIEW_DELEGATION)
+    .post(authenticateAdmin, asyncHandler(assessmentController.reviewDelegation.bind(assessmentController)));
+
   return router;
 };

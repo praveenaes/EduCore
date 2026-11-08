@@ -141,8 +141,11 @@ const TYPES = {
   AssessmentRepository: Symbol.for("AssessmentRepository"),
   CreateAssessmentUseCase: Symbol.for("CreateAssessmentUseCase"),
   GetAssessmentsUseCase: Symbol.for("GetAssessmentsUseCase"),
+  GetAssessmentByIdUseCase: Symbol.for("GetAssessmentByIdUseCase"),
   UpdateAssessmentUseCase: Symbol.for("UpdateAssessmentUseCase"),
   DeleteAssessmentUseCase: Symbol.for("DeleteAssessmentUseCase"),
+  RequestAssessmentDelegationUseCase: Symbol.for("RequestAssessmentDelegationUseCase"),
+  ReviewAssessmentDelegationUseCase: Symbol.for("ReviewAssessmentDelegationUseCase"),
   AssessmentController: Symbol.for("AssessmentController"),
   // Assessment Criteria
   AssessmentCriteriaRepository: Symbol.for("AssessmentCriteriaRepository"),
@@ -157,6 +160,8 @@ const TYPES = {
   GetAssessmentSchedulesUseCase: Symbol.for("GetAssessmentSchedulesUseCase"),
   UpdateAssessmentScheduleUseCase: Symbol.for("UpdateAssessmentScheduleUseCase"),
   ToggleAssessmentScheduleStatusUseCase: Symbol.for("ToggleAssessmentScheduleStatusUseCase"),
+  RequestMarkEntryDelegationUseCase: Symbol.for("RequestMarkEntryDelegationUseCase"),
+  ReviewMarkEntryDelegationUseCase: Symbol.for("ReviewMarkEntryDelegationUseCase"),
   DeleteAssessmentScheduleUseCase: Symbol.for("DeleteAssessmentScheduleUseCase"),
   AssessmentScheduleController: Symbol.for("AssessmentScheduleController"),
   // Assessment Results
@@ -168,6 +173,20 @@ const TYPES = {
   GetStudentResultsUseCase: Symbol.for("GetStudentResultsUseCase"),
   GetStudentReportCardUseCase: Symbol.for("GetStudentReportCardUseCase"),
   AssessmentResultController: Symbol.for("AssessmentResultController"),
+  // Fees
+  FeeAssignmentRepository: Symbol.for("FeeAssignmentRepository"),
+  FeePaymentRepository: Symbol.for("FeePaymentRepository"),
+  PaymentService: Symbol.for("PaymentService"),
+  CreateFeeAssignmentsUseCase: Symbol.for("CreateFeeAssignmentsUseCase"),
+  GetFeeAssignmentsUseCase: Symbol.for("GetFeeAssignmentsUseCase"),
+  InitFeePaymentUseCase: Symbol.for("InitFeePaymentUseCase"),
+  ConfirmFeePaymentUseCase: Symbol.for("ConfirmFeePaymentUseCase"),
+  GetPaymentLedgerUseCase: Symbol.for("GetPaymentLedgerUseCase"),
+  ProcessFeeWebhookUseCase: Symbol.for("ProcessFeeWebhookUseCase"),
+  RefundFeePaymentUseCase: Symbol.for("RefundFeePaymentUseCase"),
+  RequestFeeRefundUseCase: Symbol.for("RequestFeeRefundUseCase"),
+  RejectFeeRefundUseCase: Symbol.for("RejectFeeRefundUseCase"),
+  FeeController: Symbol.for("FeeController"),
 };
 
 export { TYPES };

@@ -13,6 +13,10 @@ export interface IAssessmentScheduleDocument extends Document {
   isCompleted: boolean;
   isGraded: boolean;
   isPublished: boolean;
+  delegationStatus: 'NONE' | 'REQUESTED' | 'APPROVED' | 'REJECTED';
+  delegationReason?: string;
+  delegatedAt?: Date;
+  delegationReviewedAt?: Date;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -84,6 +88,22 @@ const AssessmentScheduleSchema = new Schema<IAssessmentScheduleDocument>(
       type: Boolean,
       default: false,
       index: true,
+    },
+    delegationStatus: {
+      type: String,
+      enum: ['NONE', 'REQUESTED', 'APPROVED', 'REJECTED'],
+      default: 'NONE',
+      index: true,
+    },
+    delegationReason: {
+      type: String,
+      trim: true,
+    },
+    delegatedAt: {
+      type: Date,
+    },
+    delegationReviewedAt: {
+      type: Date,
     },
     isDeleted: {
       type: Boolean,

@@ -98,6 +98,8 @@ export const API_ROUTES = {
     ROOT: "/assessments",
     LIST: "/",
     DETAIL: "/:id",
+    REQUEST_DELEGATION: "/:id/request-delegation",
+    REVIEW_DELEGATION: "/:id/review-delegation",
   },
   ASSESSMENT_CRITERIA: {
     ROOT: "/assessments/criteria",
@@ -109,6 +111,8 @@ export const API_ROUTES = {
     LIST: "/",
     DETAIL: "/:id",
     TOGGLE_STATUS: "/:id/toggle-status",
+    REQUEST_DELEGATION: "/:id/request-delegation",
+    REVIEW_DELEGATION: "/:id/review-delegation",
   },
   ASSESSMENT_RESULTS: {
     ROOT: "/assessments/results",
@@ -118,5 +122,17 @@ export const API_ROUTES = {
     MY_RESULTS: "/my-results",
     MY_REPORT_CARD: "/my-report-card/:assessmentId",
     STUDENT_REPORT_CARD: "/report-card/:assessmentId/:studentId",
+  },
+  FEES: {
+    ROOT: "/fees",
+    LIST: "/",
+    TRANSACTIONS: "/transactions",
+    WEBHOOK: "/webhook",
+    REFUND_PAYMENT: "/payments/:paymentId/refund",
+    REJECT_REFUND: "/payments/:paymentId/reject-refund",
+    REQUEST_REFUND: "/:id/request-refund",
+    DETAIL: "/:id",
+    INIT_PAYMENT: "/:id/init",
+    CONFIRM_PAYMENT: "/:id/confirm",
   },
 } as const;

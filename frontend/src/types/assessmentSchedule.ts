@@ -37,6 +37,10 @@ export interface AssessmentSchedule {
   assessmentStatus?: string;
   isGraded?: boolean;
   isPublished?: boolean;
+  delegationStatus?: 'NONE' | 'REQUESTED' | 'APPROVED' | 'REJECTED';
+  delegationReason?: string;
+  delegatedAt?: string;
+  delegationReviewedAt?: string;
   isCompleted: boolean;
   isDeleted: boolean;
   createdAt?: string;

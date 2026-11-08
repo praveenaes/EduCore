@@ -78,23 +78,23 @@ export class Center {
   }
 
   public updateDetails(props: {
-    name?: string;
-    code?: string;
-    phone?: string;
-    email?: string;
-    timezone?: string;
-    address?: ICenterAddress;
+    name: string;
+    code: string;
+    phone: string;
+    email: string;
+    timezone: string;
+    address: ICenterAddress;
     status?: 'active' | 'inactive';
     programs?: (ICenterProgramInfo | string)[];
   }): void {
-    if (props.name) this._props.name = props.name.trim();
-    if (props.code) this._props.code = props.code.trim().toUpperCase();
-    if (props.phone) this._props.phone = props.phone.trim();
-    if (props.email) this._props.email = props.email.trim().toLowerCase();
-    if (props.timezone) this._props.timezone = props.timezone.trim();
-    if (props.address) this._props.address = props.address;
+    this._props.name = props.name.trim();
+    this._props.code = props.code.trim().toUpperCase();
+    this._props.phone = props.phone.trim();
+    this._props.email = props.email.trim().toLowerCase();
+    this._props.timezone = props.timezone.trim();
+    this._props.address = props.address;
     if (props.status) this._props.status = props.status;
-    if (props.programs !== undefined) this._props.programs = props.programs;
+    this._props.programs = props.programs ? [...props.programs] : [];
     this._props.updatedAt = new Date();
   }
 }

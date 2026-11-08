@@ -20,6 +20,7 @@ import { AssessmentController } from "@/presentation/controllers/assessments/Ass
 import { AssessmentCriteriaController } from "@/presentation/controllers/assessment-criteria/AssessmentCriteria.controller";
 import { AssessmentScheduleController } from "@/presentation/controllers/assessment-schedules/AssessmentSchedule.controller";
 import { AssessmentResultController } from "@/presentation/controllers/assessment-results/AssessmentResult.controller";
+import { FeeController } from "@/presentation/controllers/fees/Fee.controller";
 
 export const controllerModule = new ContainerModule((bind) => {
   bind<SettingsController>(TYPES.SettingsController)
@@ -82,4 +83,9 @@ export const controllerModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<AssessmentResultController>(TYPES.AssessmentResultController)
     .to(AssessmentResultController)
+    .inSingletonScope();
+
+  bind<FeeController>(TYPES.FeeController)
+    .to(FeeController)
+    .inSingletonScope();
 });

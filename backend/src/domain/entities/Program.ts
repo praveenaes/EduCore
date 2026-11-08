@@ -45,10 +45,14 @@ export class Program {
   }
 
   // Business Methods
-  updateDetails(name?: string, code?: string, description?: string): void {
-    if (name !== undefined) this._props.name = name.trim();
-    if (code !== undefined) this._props.code = code.trim().toUpperCase();
-    if (description !== undefined) this._props.description = description.trim();
+  updateDetails(details: {
+    name: string;
+    code: string;
+    description: string;
+  }): void {
+    this._props.name = details.name.trim();
+    this._props.code = details.code.trim().toUpperCase();
+    this._props.description = details.description.trim();
     this._props.updatedAt = new Date();
   }
 

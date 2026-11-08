@@ -26,7 +26,11 @@ export class PublishAssessmentResults implements IPublishAssessmentResultsUseCas
         throw new NotFoundError(`Assessment schedule with id "${req.scheduleId}" not found`);
       }
 
-      schedule.updateDetails({ isPublished: req.isPublished });
+      if (req.isPublished) {
+        schedule.publish();
+      } else {
+        schedule.unpublish();
+      }
       await this._scheduleRepo.update(req.scheduleId, schedule);
 
       // Check all active schedules under the parent event to update parent event status if applicable
@@ -39,10 +43,10 @@ export class PublishAssessmentResults implements IPublishAssessmentResultsUseCas
       const assessment = await this._assessmentRepo.findById(assessmentId);
       if (assessment && !assessment.isDeleted) {
         if (allPublished) {
-          assessment.updateDetails({ status: 'PUBLISHED' });
+          assessment.updateStatus('PUBLISHED');
           await this._assessmentRepo.update(assessmentId, assessment);
         } else if (assessment.status === 'PUBLISHED' && !req.isPublished) {
-          assessment.updateDetails({ status: 'COMPLETED' });
+          assessment.updateStatus('COMPLETED');
           await this._assessmentRepo.update(assessmentId, assessment);
         }
       }
@@ -61,14 +65,18 @@ export class PublishAssessmentResults implements IPublishAssessmentResultsUseCas
       }
 
       const newStatus = req.isPublished ? 'PUBLISHED' : 'COMPLETED';
-      assessment.updateDetails({ status: newStatus });
+      assessment.updateStatus(newStatus);
       await this._assessmentRepo.update(req.assessmentId, assessment);
 
       // Update all schedules under this assessment
       const schedules = await this._scheduleRepo.findByAssessmentId(req.assessmentId);
       for (const s of schedules) {
         if (!s.isDeleted && (req.isPublished ? s.isGraded : true)) {
-          s.updateDetails({ isPublished: req.isPublished });
+          if (req.isPublished) {
+            s.publish();
+          } else {
+            s.unpublish();
+          }
           await this._scheduleRepo.update(s.id!, s);
         }
       }

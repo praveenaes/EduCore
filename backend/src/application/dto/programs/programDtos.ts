@@ -5,9 +5,9 @@ export interface CreateProgramDTO {
 }
 
 export interface UpdateProgramDTO {
-  name?: string;
-  code?: string;
-  description?: string;
+  name: string;
+  code: string;
+  description: string;
 }
 
 export interface ProgramResponseDTO {

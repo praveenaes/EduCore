@@ -8,11 +8,11 @@ export interface CreateBatchDTO {
 }
 
 export interface UpdateBatchDTO {
-  name?: string;
-  courseId?: string;
-  levelNumber?: number;
-  centerId?: string;
-  academicYearId?: string;
+  name: string;
+  courseId: string;
+  levelNumber: number;
+  centerId: string;
+  academicYearId: string;
   teacherId?: string | null;
   isActive?: boolean;
 }
