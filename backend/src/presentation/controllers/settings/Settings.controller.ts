@@ -9,15 +9,16 @@ import { ChangePassword } from "@/application/use-cases/auth/ChangePassword";
 import { SendEmailChangeOtp } from "@/application/use-cases/auth/SendEmailChangeOtp";
 import { VerifyEmailChangeOtp } from "@/application/use-cases/auth/VerifyEmailChangeOtp";
 import { ChangeEmail } from "@/application/use-cases/auth/ChangeEmail";
-import { UnauthorizedError, ValidationError } from "@/application/error/AppError";
-import { HTTP_STATUS } from "@/presentation/http/constants/httpStatus";
-import { ERROR_MESSAGES } from "@/presentation/http/constants/messages";
+import { UnauthorizedError, ValidationError } from "@/shared/errors/AppError";
+import { HTTP_STATUS } from "@/presentation/constants/httpStatus";
+import { ERROR_MESSAGES } from "@/presentation/constants/messages";
 import {
   updateOrganizationSchema,
   changePasswordSchema,
   changeEmailSchema,
   verifyEmailChangeOtpSchema,
-} from "@/presentation/http/validators/settingsValidators";
+} from "@/presentation/validators/settingsValidators";
+import { ResponseHelper } from "@/presentation/helpers/ResponseHelper";
 
 @injectable()
 export class SettingsController {
@@ -34,14 +35,16 @@ export class SettingsController {
 
   getOrganization = async (req: Request, res: Response): Promise<void> => {
     const data = await this._getOrgUseCase.execute();
-    res.json({ success: true, data });
+    ResponseHelper.success(res, "Organization settings retrieved successfully", data);
   };
+
 
   updateOrganization = async (req: Request, res: Response): Promise<void> => {
     const result = updateOrganizationSchema.safeParse(req.body);
     if (!result.success) {
       throw new ValidationError(ERROR_MESSAGES.VALIDATION_ERROR);
     }
+
 
     const file = req.file ? {
       buffer: req.file.buffer,
@@ -50,12 +53,9 @@ export class SettingsController {
     } : undefined;
 
     const data = await this._updateOrgUseCase.execute(result.data, file);
-    res.json({
-      success: true,
-      message: "Organization settings updated successfully",
-      data,
-    });
+    ResponseHelper.success(res, "Organization settings updated successfully", data);
   };
+
 
   getMySettings = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
@@ -65,8 +65,9 @@ export class SettingsController {
     }
 
     const data = await this._getMySettingsUseCase.execute(userId, role);
-    res.json({ success: true, data });
+    ResponseHelper.success(res, "User settings retrieved successfully", data);
   };
+
 
   updateMyProfilePhoto = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
@@ -83,12 +84,9 @@ export class SettingsController {
     } : undefined;
 
     const data = await this._updateMyPhotoUseCase.execute(userId, role, removePhoto, file);
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: "Profile photo updated successfully",
-      data,
-    });
+    ResponseHelper.success(res, "Profile photo updated successfully", data, HTTP_STATUS.OK);
   };
+
 
   changePassword = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
@@ -102,11 +100,9 @@ export class SettingsController {
     }
 
     await this._changePasswordUseCase.execute(userId, result.data);
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: "Password changed successfully",
-    });
+    ResponseHelper.success(res, "Password changed successfully", null, HTTP_STATUS.OK);
   };
+
 
   sendEmailChangeOtp = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
@@ -115,11 +111,9 @@ export class SettingsController {
     }
 
     await this._sendEmailOtpUseCase.execute(userId);
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: "OTP sent successfully to your current email address",
-    });
+    ResponseHelper.success(res, "OTP sent successfully to your current email address", null, HTTP_STATUS.OK);
   };
+
 
   verifyEmailChangeOtp = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
@@ -133,13 +127,10 @@ export class SettingsController {
     }
 
     const token = await this._verifyEmailOtpUseCase.execute(userId, result.data.otp);
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: "OTP verified successfully",
-      data: { emailChangeToken: token },
-    });
+    ResponseHelper.success(res, "OTP verified successfully", { emailChangeToken: token }, HTTP_STATUS.OK);
   };
 
+  
   changeEmail = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
     if (!userId) {
@@ -152,9 +143,6 @@ export class SettingsController {
     }
 
     await this._changeEmailUseCase.execute(userId, result.data);
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: "Email address changed successfully",
-    });
+    ResponseHelper.success(res, "Email address changed successfully", null, HTTP_STATUS.OK);
   };
 }

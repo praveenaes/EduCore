@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
-import { IOrganizationRepository } from "../../ports/repositories/IOrganizationRepository";
+import { IOrganizationRepository } from "@/domain/repositories/IOrganizationRepository";
 import { Organization } from "../../../domain/entities/Organization";
 
 import { IGetOrganizationSettings } from "../../ports/use-cases/settings/IGetOrganizationSettingsUseCase";

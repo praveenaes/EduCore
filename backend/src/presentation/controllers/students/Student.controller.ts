@@ -7,10 +7,11 @@ import { IExportStudentsCsv } from '../../../application/ports/use-cases/student
 import { ICreateStudent } from '../../../application/ports/use-cases/students/ICreateStudentUseCase';
 import { IUpdateStudent } from '../../../application/ports/use-cases/students/IUpdateStudentUseCase';
 import { IDeleteStudent } from '../../../application/ports/use-cases/students/IDeleteStudentUseCase';
-import { createStudentSchema, updateStudentSchema } from '../../http/validators/studentValidators';
-import { ValidationError } from '../../../application/error/AppError';
-import { ERROR_MESSAGES } from '@/presentation/http/constants/messages';
-import { HTTP_STATUS } from '@/presentation/http/constants/httpStatus';
+import { createStudentSchema, updateStudentSchema } from '../../validators/studentValidators';
+import { ValidationError } from '@/shared/errors/AppError';
+import { ERROR_MESSAGES } from '@/presentation/constants/messages';
+import { HTTP_STATUS } from '@/presentation/constants/httpStatus';
+import { ResponseHelper } from '../../helpers/ResponseHelper';
 
 @injectable()
 export class StudentController {
@@ -25,29 +26,35 @@ export class StudentController {
 
   getAll = async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
+    const limit = parseInt(req.query.limit as string) || 4;
+    const filterQuery=req.query.isActive
+    const isActive=filterQuery==='true'?true:filterQuery==='false'?false:undefined
     const search = req.query.search as string;
+    const sortBy = req.query.sortBy as string;
+    const sortOrder = req.query.sortOrder as string;
 
-    const result = await this._getStudentsUseCase.execute({ page, limit, search });
-
-    res.status(200).json({
-      success: true,
-      data: result,
+    const result = await this._getStudentsUseCase.execute({ 
+      page, 
+      limit, 
+      search, 
+      sortBy, 
+      sortOrder,
+      isActive,
     });
+
+    ResponseHelper.success(res, "Students retrieved successfully", result, 200);
   };
 
-  toggleStatus = async (req: Request, res: Response): Promise<void> => {
+
+toggleStatus = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { isActive } = req.body;
 
     const result = await this._toggleStudentStatusUseCase.execute({ id, isActive });
 
-    res.json({
-      success: true,
-      message: 'Student status updated successfully',
-      data: result,
-    });
+    ResponseHelper.success(res, 'Student status updated successfully', result);
   };
+
 
   exportCsv = async (req: Request, res: Response): Promise<void> => {
     const search = req.query.search as string;
@@ -59,6 +66,7 @@ export class StudentController {
     res.status(200).send(csv);
   };
 
+
   register = async (req: Request, res: Response): Promise<void> => {
     const result = createStudentSchema.safeParse(req.body);
     if (!result.success) {
@@ -67,12 +75,9 @@ export class StudentController {
 
     const resultDto = await this._createStudentUseCase.execute(result.data, req.file);
 
-    res.status(HTTP_STATUS.CREATED).json({
-      success: true,
-      message: 'Student registered successfully.',
-      data: resultDto,
-    });
+    ResponseHelper.created(res, 'Student registered successfully.', resultDto);
   };
+
 
   update = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
@@ -84,19 +89,13 @@ export class StudentController {
 
     const resultDto = await this._updateStudentUseCase.execute(id, result.data, req.file);
 
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: 'Student updated successfully.',
-      data: resultDto,
-    });
+    ResponseHelper.success(res, 'Student updated successfully.', resultDto, HTTP_STATUS.OK);
   };
 
+  
   delete = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await this._deleteStudentUseCase.execute(id);
-    res.json({
-      success: true,
-      message: 'Student deleted successfully.',
-    });
+    ResponseHelper.success(res, 'Student deleted successfully.', null);
   };
 }

@@ -1,5 +1,5 @@
 import { ErrorRequestHandler } from "express";
-import { AppError, ValidationError } from "@/application/error/AppError";
+import { AppError, ValidationError } from "@/shared/errors/AppError";
 import { z, ZodError } from "zod";
 import {logger} from '@/infra/logger/logger'
 

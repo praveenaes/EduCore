@@ -12,7 +12,7 @@ import type { Student, CreateStudentPayload, UpdateStudentPayload } from '../../
 import { getPhotoUrl } from '../../../utils/photo';
 import { ConfirmationModal } from '../../../components/ConfirmationModal';
 
-// ── Zod schema (mirrors backend student.dto.ts) ──────────────────────────────
+
 const validatePastDate = (val: string) => {
   const date = new Date(val);
   const today = new Date();
@@ -112,7 +112,7 @@ const getYesterdayDateString = () => {
   return yesterday.toISOString().split('T')[0];
 };
 
-// ── Props ────────────────────────────────────────────────────────────────────
+
 interface StudentFormProps {
   mode: 'create' | 'edit';
   defaultValues?: Partial<Student>;
@@ -124,13 +124,13 @@ interface StudentFormProps {
   onCancel: () => void;
 }
 
-// ── Helper: format date to yyyy-MM-dd for input[type=date] ──────────────────
+ //Helper: format date to yyyy-MM-dd for input[type=date] 
 const toDateInputValue = (d?: string) => {
   if (!d) return '';
   return new Date(d).toISOString().split('T')[0];
 };
 
-// ── Component ────────────────────────────────────────────────────────────────
+
 const StudentForm = forwardRef<HTMLFormElement, StudentFormProps>(
   ({ mode, defaultValues, isLoading, onSubmit, onCancel }, ref) => {
     const [photo, setPhoto] = useState<File | null>(null);

@@ -2,9 +2,9 @@ import { ContainerModule } from "inversify";
 import { TYPES } from "../types";
 
 // Ports (Interfaces)
-import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IAuthService } from "@/application/ports/services/IAuthService";
-import { IStudentRepository } from "@/application/ports/repositories/IStudentRepository";
+import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
 import { IEmailService } from "@/application/ports/services/IEmailService";
 import { IStorageService } from "@/application/ports/services/IStorageService";
 
@@ -12,12 +12,14 @@ import { IStorageService } from "@/application/ports/services/IStorageService";
 import { MongoUserRepository } from "@/infra/db/MongoUserRepository";
 import { JwtAuthService } from "@/infra/auth/JwtAuthService";
 import { MongoStudentRepository } from "@/infra/db/MongoStudentRepository";
-import { ITeacherRepository } from "@/application/ports/repositories/ITeacherRepository";
+import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
 import { MongoTeacherRepository } from "@/infra/db/MongoTeacherRepository";
 import { NodemailerEmailService } from "@/infra/services/NodemailerEmailService";
 import { S3StorageService } from "@/infra/services/S3StorageService";
-import { IOrganizationRepository } from "@/application/ports/repositories/IOrganizationRepository";
+import { IOrganizationRepository } from "@/domain/repositories/IOrganizationRepository";
 import { MongoOrganizationRepository } from "@/infra/db/MongoOrganizationRepository";
+import { ITokenBlacklistService } from "@/application/ports/services/ITokenBlacklistService";
+import { MongoTokenBlacklistService } from "@/infra/services/MongoTokenBlacklistService";
 
 export const coreModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
@@ -46,5 +48,9 @@ export const coreModule = new ContainerModule((bind) => {
 
   bind<IStorageService>(TYPES.StorageService)
     .to(S3StorageService)
+    .inSingletonScope();
+
+  bind<ITokenBlacklistService>(TYPES.TokenBlacklistService)
+    .to(MongoTokenBlacklistService)
     .inSingletonScope();
 });

@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { clearUser } from '../../app/slices/authSlice';
-import { clearOrganization, setOrganization } from '../../app/slices/organizationSlice';
-import { logoutUserApi } from '../../api/authApi';
+import { setOrganization } from '../../app/slices/organizationSlice';
 import { getOrganizationSettingsApi } from '../../api/settingsApi';
 import { Badge } from '../Badge';
-import { Menu, LogOut, User, ChevronDown } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -14,7 +12,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const org = useAppSelector((state) => state.organization.organization);
   const displayName = org?.name || 'EduCore';
@@ -45,17 +42,6 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     }
   };
 
-  const handleLogoutClick = async () => {
-    setDropdownOpen(false);
-    try {
-      await logoutUserApi();
-    } catch (err) {
-      console.error("Logout call failed", err);
-    } finally {
-      dispatch(clearUser());
-      dispatch(clearOrganization());
-    }
-  };
 
   return (
     <header className="sticky top-0 z-35 flex h-16 w-full items-center justify-between border-b border-neutral-200/60 bg-white/95 px-4 shadow-sm backdrop-blur-xs sm:px-6">
@@ -86,22 +72,20 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         </div>
       </div>
 
-      {/* Right section: User Profile Menu */}
+      {/* Right section: User Profile Info */}
       <div className="flex items-center gap-4">
         {user && (
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-2 rounded-xl p-1.5 hover:bg-neutral-50 border border-transparent hover:border-neutral-200/40 transition-all duration-200 focus:outline-none"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 overflow-hidden">
+          <div className="flex items-center gap-3">
+            {/* User Profile Info */}
+            <div className="flex items-center gap-2.5 rounded-xl p-1.5 border border-brand-200 bg-neutral-50/50">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 overflow-hidden border border-brand-100/50">
                 {user.photo ? (
                   <img src={user.photo} alt={user.name || 'User'} className="h-full w-full object-cover" />
                 ) : (
                   <User className="h-4.5 w-4.5" />
                 )}
               </div>
-              <div className="hidden text-left sm:block">
+              <div className="hidden text-left sm:block pr-1">
                 <div className="text-xs font-semibold text-neutral-700">
                   {user.email.split('@')[0]}
                 </div>
@@ -109,24 +93,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                   <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
                 </div>
               </div>
-              <ChevronDown className="h-4 w-4 text-neutral-400" />
-            </button>
-
-            {dropdownOpen && (
-              <>
-                {/* Backdrop overlay to close dropdown */}
-                <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
-                <div className="absolute right-0 mt-2 z-50 w-52 rounded-xl border border-neutral-200/50 bg-white p-1 shadow-lg transform origin-top-right transition-all">
-                  <button
-                    onClick={handleLogoutClick}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-colors duration-150"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              </>
-            )}
+            </div>
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import { TYPES } from "../types";
 // Ports (Interfaces)
 import { ILoginUser } from "@/application/ports/use-cases/auth/ILoginUserUseCase";
 import { IRefreshToken } from "@/application/ports/use-cases/auth/IRefreshTokenUseCase";
+import { ILogoutUser } from "@/application/ports/use-cases/auth/ILogoutUserUseCase";
 import { IGetMe } from "@/application/ports/use-cases/auth/IGetMeUseCase";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
 import { IVerifyOtp } from "@/application/ports/use-cases/auth/IVerifyOtpUseCase";
@@ -12,6 +13,7 @@ import { IResetPassword } from "@/application/ports/use-cases/auth/IResetPasswor
 // Implementations
 import { LoginUser } from "@/application/use-cases/auth/LoginUser";
 import { RefreshToken } from "@/application/use-cases/auth/RefreshToken";
+import { LogoutUser } from "@/application/use-cases/auth/LogoutUser";
 import { GetMe } from "@/application/use-cases/auth/GetMe";
 import { ForgotPassword } from "@/application/use-cases/auth/ForgotPassword";
 import { VerifyOtp } from "@/application/use-cases/auth/VerifyOtp";
@@ -92,6 +94,10 @@ export const useCaseModule = new ContainerModule((bind) => {
 
   bind<IRefreshToken>(TYPES.RefreshTokenUseCase)
     .to(RefreshToken)
+    .inSingletonScope();
+
+  bind<ILogoutUser>(TYPES.LogoutUserUseCase)
+    .to(LogoutUser)
     .inSingletonScope();
 
   bind<IGetMe>(TYPES.GetMeUseCase)

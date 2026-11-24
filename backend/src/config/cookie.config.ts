@@ -6,7 +6,7 @@ export const REFRESH_TOKEN_COOKIE_CONFIG = {
     httpOnly: true,
     secure: ENV.NODE_ENV === "production",
     sameSite: (ENV.NODE_ENV === "production" ? "none" : "lax") as "none" | "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000, 
     path: "/",
   },
 } as const;

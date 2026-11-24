@@ -1,9 +1,9 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
-import { ITeacherRepository } from "../../ports/repositories/ITeacherRepository";
-import { IUserRepository } from "../../ports/repositories/IUserRepository";
+import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IStorageService } from "../../ports/services/IStorageService";
-import { NotFoundError, ValidationError } from "../../error/AppError";
+import { NotFoundError, ValidationError } from "@/shared/errors/AppError";
 import { IDeleteTeacher } from "../../ports/use-cases/teachers/IDeleteTeacherUseCase";
 
 @injectable()

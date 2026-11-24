@@ -17,7 +17,7 @@ const consoleFormat = winston.format.combine(
     return `${timestamp} [${level}]: ${message} ${metaString}`;
   }),
 );
-//null → don't filter any keys
+
 
 const fileFormat = winston.format.combine(
   winston.format.timestamp(),
@@ -25,6 +25,7 @@ const fileFormat = winston.format.combine(
   winston.format.json(),
 );
 
+//This creates daily error log files.
 const errorRotateTransport = new DailyRotateFile({//Creates daily error logs.
   dirname: "logs",
   filename: "error-%DATE%.log",
@@ -36,7 +37,7 @@ const errorRotateTransport = new DailyRotateFile({//Creates daily error logs.
 });
 
 
-//Stores ALL logs.
+//This stores your general logs.contains warn,err,info debug
 const combinedRotateTransport = new DailyRotateFile({
   dirname: "logs",
   filename: "combined-%DATE%.log",
@@ -54,7 +55,7 @@ export const logger = winston.createLogger({
     service: "educore-backend",
     env: ENV.NODE_ENV,
   },
-  transports: [errorRotateTransport, combinedRotateTransport],//Send logs to:
+  transports: [errorRotateTransport, combinedRotateTransport],//Send logs tothis location
   exceptionHandlers: [
     new DailyRotateFile({//Captures uncaught exceptions if no try cartch
       dirname: "logs",
@@ -77,6 +78,7 @@ export const logger = winston.createLogger({
   ],
 });
 
+// showing logs in development
 if (ENV.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
@@ -102,5 +104,6 @@ export const morganMiddleware = morgan(
   },
 );
 
-//Morgan gathers the request information; Winston is the engine that outputs and stores it.
+//Morgan gathers the request information sends it to Winston.
+// Winston is the engine that outputs and stores it.
 

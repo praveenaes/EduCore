@@ -115,7 +115,7 @@ export const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
         </div>
       )}
 
-      {/* View Tab */}
+ {/* View Tab */}
       {activeTab === 'view' && (
         <div className="space-y-5">
           {/* Photo + Header */}
@@ -139,7 +139,7 @@ export const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
             </div>
           </div>
 
-          {/* Personal */}
+ {/* Personal */}
           <section>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
               Personal
@@ -164,7 +164,7 @@ export const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
             </div>
           </section>
 
-          {/* Address */}
+{/* Address */}
           <section>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
               Address
@@ -179,7 +179,7 @@ export const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
             </div>
           </section>
 
-          {/* Actions */}
+{/* Actions */}
           <div className="flex justify-between pt-4 border-t border-neutral-100">
             <Button
               variant="danger"
@@ -200,7 +200,7 @@ export const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
         </div>
       )}
 
-      {/* Edit Tab */}
+{/* Edit Tab */}
       {activeTab === 'edit' && (
         <StudentForm
           mode="edit"
@@ -211,7 +211,7 @@ export const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
         />
       )}
 
-      {/* Delete Confirmation Modal */}
+{/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/45 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-neutral-100">

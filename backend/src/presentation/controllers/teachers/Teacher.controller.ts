@@ -7,9 +7,10 @@ import { IDeleteTeacher } from '../../../application/ports/use-cases/teachers/ID
 import { GetTeachers } from '../../../application/use-cases/teachers/GetTeachers';
 import { ToggleTeacherStatus } from '../../../application/use-cases/teachers/ToggleTeacherStatus';
 import { ExportTeachersCsv } from '../../../application/use-cases/teachers/ExportTeachersCsv';
-import { createTeacherSchema, updateTeacherSchema } from '../../http/validators/teacherValidators';
-import { ValidationError } from '../../../application/error/AppError';
-import { ERROR_MESSAGES } from '@/presentation/http/constants/messages';
+import { createTeacherSchema, updateTeacherSchema } from '../../validators/teacherValidators';
+import { ValidationError } from '@/shared/errors/AppError';
+import { ERROR_MESSAGES } from '@/presentation/constants/messages';
+import { ResponseHelper } from '../../helpers/ResponseHelper';
 
 @injectable()
 export class TeacherController {
@@ -29,24 +30,19 @@ export class TeacherController {
 
     const result = await this._getTeachersUseCase.execute({ page, limit, search });
 
-    res.status(200).json({
-      success: true,
-      data: result,
-    });
+    ResponseHelper.success(res, "Teachers retrieved successfully", result, 200);
   };
 
+  
   toggleStatus = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { isActive } = req.body;
 
     const result = await this._toggleTeacherStatusUseCase.execute({ id, isActive });
 
-    res.status(200).json({
-      success: true,
-      message: 'Teacher status updated successfully',
-      data: result,
-    });
+    ResponseHelper.success(res, 'Teacher status updated successfully', result, 200);
   };
+
 
   exportCsv = async (req: Request, res: Response): Promise<void> => {
     const search = req.query.search as string;
@@ -58,6 +54,7 @@ export class TeacherController {
     res.status(200).send(csv);
   };
 
+
   register = async (req: Request, res: Response): Promise<void> => {
     const result = createTeacherSchema.safeParse(req.body);
     if (!result.success) {
@@ -66,12 +63,9 @@ export class TeacherController {
 
     const resultDto = await this._createTeacherUseCase.execute(result.data, req.file);
 
-    res.status(201).json({
-      success: true,
-      message: 'Teacher registered successfully.',
-      data: resultDto,
-    });
+    ResponseHelper.created(res, 'Teacher registered successfully.', resultDto);
   };
+
 
   update = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
@@ -84,21 +78,15 @@ export class TeacherController {
 
     const resultDto = await this._updateTeacherUseCase.execute(id, result.data, req.file);
 
-    res.status(200).json({
-      success: true,
-      message: 'Teacher updated successfully.',
-      data: resultDto,
-    });
+    ResponseHelper.success(res, 'Teacher updated successfully.', resultDto, 200);
   };
+
 
   delete = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     await this._deleteTeacherUseCase.execute(id);
 
-    res.status(200).json({
-      success: true,
-      message: 'Teacher deleted successfully.',
-    });
+    ResponseHelper.success(res, 'Teacher deleted successfully.', null, 200);
   };
 }

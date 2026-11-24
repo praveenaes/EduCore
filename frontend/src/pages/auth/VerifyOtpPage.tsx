@@ -64,8 +64,8 @@ export const VerifyOtpPage: React.FC = () => {
 
     try {
       const response = await verifyOtpApi(email, otp);
-      if (response.success && response.resetToken) {
-        navigate(`/auth/reset-password?email=${encodeURIComponent(email)}&token=${response.resetToken}&role=${role}`);
+      if (response.success && response.data?.resetToken) {
+        navigate(`/auth/reset-password?email=${encodeURIComponent(email)}&token=${response.data.resetToken}&role=${role}`);
       } else {
         setError(response.message || "Failed to verify OTP");
       }

@@ -1,7 +1,9 @@
 import { injectable, inject } from "inversify";
 import { TYPES } from "../../../config/di/types";
-import { ITeacherRepository, TeacherFilters } from "../../ports/repositories/ITeacherRepository";
+import { ITeacherRepository, TeacherFilters } from "@/domain/repositories/ITeacherRepository";
 import { Teacher } from "../../../domain/entities/Teacher";
+
+import { PaginationHelper } from "@/shared/utils/pagination";
 
 export interface GetTeachersRequest {
   page?: number;
@@ -30,12 +32,12 @@ export class GetTeachers {
 
     const result = await this._teacherRepo.findAll(filters, { page, limit });
 
-    return {
-      teachers: result.teachers,
-      total: result.total,
+    return PaginationHelper.toPaginatedResult(
+      "teachers",
+      result.teachers,
+      result.total,
       page,
-      limit,
-      totalPages: Math.ceil(result.total / limit),
-    };
+      limit
+    ) as any;
   }
 }

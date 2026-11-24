@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository } from "@/application/ports/repositories/IUserRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { IEmailService } from "@/application/ports/services/IEmailService";
 import { TYPES } from "@/config/di/types";
-import { NotFoundError, UnauthorizedError } from "@/application/error/AppError";
+import { NotFoundError, UnauthorizedError } from "@/shared/errors/AppError";
 import { IForgotPassword } from "@/application/ports/use-cases/auth/IForgotPasswordUseCase";
 import { UserRole } from "@/domain/enums/UserRole";
 
@@ -17,10 +17,8 @@ export class ForgotPassword implements IForgotPassword {
     const user = await this._userRepo.findByEmail(email);
     if (!user) return
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 60 * 1000); 
-
-    await this._userRepo.savePasswordResetOtp(email, otp, expiresAt);
-    await this._emailSvc.sendPasswordResetOtp(email, otp);
+    user.generatePasswordResetOtp();
+    await this._userRepo.update(user.id!, user);
+    await this._emailSvc.sendPasswordResetOtp(email, user.passwordResetOtp!);
   }
 }

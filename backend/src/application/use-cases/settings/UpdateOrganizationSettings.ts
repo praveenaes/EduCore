@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
-import { IOrganizationRepository } from "../../ports/repositories/IOrganizationRepository";
+import { IOrganizationRepository } from "@/domain/repositories/IOrganizationRepository";
 import { IStorageService } from "../../ports/services/IStorageService";
 import { Organization } from "../../../domain/entities/Organization";
-import { BadRequestError } from "../../error/AppError";
+import { BadRequestError } from "@/shared/errors/AppError";
 
 import { IUpdateOrganizationSettings } from "../../ports/use-cases/settings/IUpdateOrganizationSettingsUseCase";
 

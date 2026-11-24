@@ -4,9 +4,9 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { ENV } from "@/config/env.config";
-import routes from "@/infra/web/express/routes/index";
+import routes from "@/presentation/routes/index";
 import { logger, morganMiddleware } from "@/infra/logger/logger";
-import { globalErrorHandler } from "@/infra/web/express/middleware/globalErrorHandler";
+import { globalErrorHandler } from "@/presentation/middleware/globalErrorHandler";
 
 const app = express();
 
@@ -18,9 +18,9 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());//Converts JSON request bodies into JavaScript objects.
+app.use(express.json());
 app.use(cookieParser());//Reads cookies sent by the browser.
-app.use(morganMiddleware);//Logs every HTTP request.
+app.use(morganMiddleware);
 
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
@@ -31,7 +31,7 @@ app.use((req, res, next) => {
 app.use("/api", routes);
 
 // Global Error Handler
-app.use(globalErrorHandler);//Catches errors from anywhere in the application.
+app.use(globalErrorHandler);
 
 // Database connection & Server Boot
 const bootstrap = async () => {

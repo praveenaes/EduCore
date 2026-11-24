@@ -1,14 +1,17 @@
 import { Router } from "express";
 import { Container } from "inversify";
-import { TeacherController } from "../../../../presentation/controllers/teachers/Teacher.controller";
-import { TYPES } from "../../../../config/di/types";
+import { TeacherController } from "@/presentation/controllers/teachers/Teacher.controller";
+import { TYPES } from "@/config/di/types";
 import { upload } from "../middleware/uploadMiddleware";
-import { asyncHandler } from "../handler/asyncHandler";
-import { API_ROUTES } from "../../../../config/routes.config";
+import { asyncHandler } from "@/presentation/helpers/asyncHandler";
+import { API_ROUTES } from "@/config/routes.config";
+import { authenticateAdmin } from "../middleware/authMiddleware";
 
 export const getTeacherRoutes = (container: Container): Router => {
   const router = Router();
   const teacherController = container.get<TeacherController>(TYPES.TeacherController);
+
+  router.use(authenticateAdmin)
 
   router
     .route("/")

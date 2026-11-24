@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types";
-import { IUserRepository } from "../../ports/repositories/IUserRepository";
-import { IStudentRepository } from "../../ports/repositories/IStudentRepository";
-import { ITeacherRepository } from "../../ports/repositories/ITeacherRepository";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
+import { IStudentRepository } from "@/domain/repositories/IStudentRepository";
+import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
 import { IAuthService } from "../../ports/services/IAuthService";
-import { NotFoundError, BadRequestError } from "../../error/AppError";
+import { NotFoundError, BadRequestError } from "@/shared/errors/AppError";
 
 @injectable()
 export class ChangeEmail {
@@ -58,16 +58,19 @@ export class ChangeEmail {
       throw new BadRequestError("Email address already in use");
     }
 
-    await this._userRepo.update(userId, { email: cleanNewEmail });
+    user.changeEmail(cleanNewEmail);
+    await this._userRepo.update(userId, user);
 
     if (user.role?.toLowerCase() === "student") {
       const student = await this._studentRepo.findByEmail(currentEmail);
       if (student) {
         try {
-          await this._studentRepo.update(student.id!, { email: cleanNewEmail });
+          student.changeEmail(cleanNewEmail);
+          await this._studentRepo.update(student.id!, student);
         } catch (err) {
           // Rollback user update
-          await this._userRepo.update(userId, { email: currentEmail });
+          user.changeEmail(currentEmail);
+          await this._userRepo.update(userId, user);
           throw err;
         }
       }
@@ -75,9 +78,11 @@ export class ChangeEmail {
       const teacher = await this._teacherRepo.findByEmail(currentEmail);
       if (teacher) {
         try {
-          await this._teacherRepo.update(teacher.id!, { email: cleanNewEmail });
+          teacher.changeEmail(cleanNewEmail);
+          await this._teacherRepo.update(teacher.id!, teacher);
         } catch (err) {
-          await this._userRepo.update(userId, { email: currentEmail });
+          user.changeEmail(currentEmail);
+          await this._userRepo.update(userId, user);
           throw err;
         }
       }

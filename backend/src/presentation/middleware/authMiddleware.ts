@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { container } from "../../../../config/di/container";
-import { TYPES } from "../../../../config/di/types";
-import { IAuthService } from "../../../../application/ports/services/IAuthService";
-import { UserRole } from "../../../../domain/enums/UserRole";
+import { container } from "@/config/di/container";
+import { TYPES } from "@/config/di/types";
+import { IAuthService } from "@/application/ports/services/IAuthService";
+import { UserRole } from "@/domain/enums/UserRole";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -12,6 +12,7 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
+// admin role check
 export const authenticateAdmin = async (
   req: AuthenticatedRequest,
   res: Response,
