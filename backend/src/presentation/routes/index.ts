@@ -21,6 +21,8 @@ import { getAssessmentCriteriaRoutes } from "./assessmentCriteria.routes";
 import { getAssessmentScheduleRoutes } from "./assessmentSchedule.routes";
 import { getAssessmentResultRoutes } from "./assessmentResult.routes";
 import { getFeeRoutes } from "./fee.routes";
+import { getNotificationRoutes } from "./notification.routes";
+import { getChatRoutes } from "./chat.routes";
 
 const router = Router();
 
@@ -53,6 +55,7 @@ router.use(API_ROUTES.ASSESSMENT_SCHEDULES.ROOT, getAssessmentScheduleRoutes(con
 router.use(API_ROUTES.ASSESSMENT_RESULTS.ROOT, getAssessmentResultRoutes(container));
 router.use(API_ROUTES.ASSESSMENTS.ROOT, getAssessmentRoutes(container));
 router.use(API_ROUTES.FEES.ROOT, getFeeRoutes(container));
-
+router.use(API_ROUTES.NOTIFICATIONS.ROOT, getNotificationRoutes(container));
+router.use(API_ROUTES.CHAT.ROOT, getChatRoutes(container));
 
 export default router;

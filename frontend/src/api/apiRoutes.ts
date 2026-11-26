@@ -18,6 +18,8 @@ export const API_ROUTES = {
   },
   STUDENTS: {
     BASE: "/students",
+    NEXT_ADMISSION_NUMBER: "/students/next-admission-number",
+    NEXT_NATIONAL_ID: "/students/next-national-id",
     CURRICULUM: "/students/me/curriculum",
     STATUS: (id: string) => `/students/${id}/status`,
     DETAIL: (id: string) => `/students/${id}`,
@@ -116,5 +118,21 @@ export const API_ROUTES = {
     DETAIL: (id: string) => `/fees/${id}`,
     INIT_PAYMENT: (id: string) => `/fees/${id}/init`,
     CONFIRM_PAYMENT: (id: string) => `/fees/${id}/confirm`,
+  },
+  NOTIFICATIONS: {
+    BASE: "/notifications",
+    UNREAD_COUNT: "/notifications/unread-count",
+    MARK_ALL_READ: "/notifications/mark-all-read",
+    SENT: "/notifications/sent",
+    MARK_READ: (id: string) => `/notifications/${id}/read`,
+  },
+  CHAT: {
+    GROUPS: "/chat/groups",
+    GROUP_DETAIL: (groupId: string) => `/chat/groups/${groupId}`,
+    MESSAGES: (groupId: string) => `/chat/groups/${groupId}/messages`,
+    MEMBERS: (groupId: string) => `/chat/groups/${groupId}/members`,
+    MEMBER_DETAIL: (groupId: string, userId: string) => `/chat/groups/${groupId}/members/${userId}`,
+    AI_TUTOR: "/chat/ai-tutor",
+    CANDIDATE_MEMBERS: "/chat/candidate-members",
   },
 } as const;

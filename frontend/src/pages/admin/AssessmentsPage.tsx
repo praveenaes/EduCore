@@ -35,7 +35,7 @@ const AssessmentsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedYearFilter, setSelectedYearFilter] = useState('');
-  const limit = 10;
+  const limit = 5;
 
   // Sorting
   const [sortBy, setSortBy] = useState<string>('startDate');

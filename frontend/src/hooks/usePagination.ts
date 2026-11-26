@@ -53,12 +53,17 @@ export function usePagination(options: UsePaginationOptions = {}): PaginationSta
   /**
    * Call this after a successful API fetch to update total count and totalPages.
    * @param total     - Total number of records from the API
-   * @param totalPages - Total number of pages from the API
+   * @param totalPages - Optional total number of pages from the API (auto-calculated if missing)
    */
-  const setPaginationData = useCallback((total: number, totalPages: number) => {
-    setTotal(total);
-    setTotalPages(totalPages);
-  }, []);
+  const setPaginationData = useCallback((total: number, newTotalPages?: number) => {
+    const validTotal = total || 0;
+    setTotal(validTotal);
+    const calculatedPages =
+      newTotalPages !== undefined && !isNaN(newTotalPages)
+        ? newTotalPages
+        : Math.ceil(validTotal / limit) || 1;
+    setTotalPages(Math.max(calculatedPages, 1));
+  }, [limit]);
 
   return {
     page,

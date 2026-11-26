@@ -1,4 +1,6 @@
 import { ContainerModule } from "inversify";
+import { NotificationController } from "@/presentation/controllers/notifications/Notification.controller";
+import { ChatController } from "@/presentation/controllers/chat/Chat.controller";
 import { TYPES } from "../types";
 
 // Controllers
@@ -87,5 +89,13 @@ export const controllerModule = new ContainerModule((bind) => {
 
   bind<FeeController>(TYPES.FeeController)
     .to(FeeController)
+    .inSingletonScope();
+
+  bind<NotificationController>(TYPES.NotificationController)
+    .to(NotificationController)
+    .inSingletonScope();
+
+  bind<ChatController>(TYPES.ChatController)
+    .to(ChatController)
     .inSingletonScope();
 });

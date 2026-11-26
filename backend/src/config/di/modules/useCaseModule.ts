@@ -1,3 +1,33 @@
+import { ICreateChatGroupUseCase } from '@/application/ports/use-cases/chat/ICreateChatGroupUseCase';
+import { CreateChatGroup } from '@/application/use-cases/chat/CreateChatGroup';
+import { IGetUserChatGroupsUseCase } from '@/application/ports/use-cases/chat/IGetUserChatGroupsUseCase';
+import { GetUserChatGroups } from '@/application/use-cases/chat/GetUserChatGroups';
+import { IGetChatGroupMessagesUseCase } from '@/application/ports/use-cases/chat/IGetChatGroupMessagesUseCase';
+import { GetChatGroupMessages } from '@/application/use-cases/chat/GetChatGroupMessages';
+import { ISendChatMessageUseCase } from '@/application/ports/use-cases/chat/ISendChatMessageUseCase';
+import { SendChatMessage } from '@/application/use-cases/chat/SendChatMessage';
+import { IAddGroupMemberUseCase } from '@/application/ports/use-cases/chat/IAddGroupMemberUseCase';
+import { AddGroupMember } from '@/application/use-cases/chat/AddGroupMember';
+import { IRemoveGroupMemberUseCase } from '@/application/ports/use-cases/chat/IRemoveGroupMemberUseCase';
+import { RemoveGroupMember } from '@/application/use-cases/chat/RemoveGroupMember';
+import { IClearGroupMessagesUseCase } from '@/application/ports/use-cases/chat/IClearGroupMessagesUseCase';
+import { ClearGroupMessages } from '@/application/use-cases/chat/ClearGroupMessages';
+import { IGetOrCreateAiChatGroupUseCase } from '@/application/ports/use-cases/chat/IGetOrCreateAiChatGroupUseCase';
+import { GetOrCreateAiChatGroup } from '@/application/use-cases/chat/GetOrCreateAiChatGroup';
+import { IGetCandidateMembersUseCase } from '@/application/ports/use-cases/chat/IGetCandidateMembersUseCase';
+import { GetCandidateMembers } from '@/application/use-cases/chat/GetCandidateMembers';
+import { ICreateNotificationUseCase } from '@/application/ports/use-cases/notifications/ICreateNotificationUseCase';
+import { CreateNotification } from '@/application/use-cases/notifications/CreateNotification';
+import { IGetUserNotificationsUseCase } from '@/application/ports/use-cases/notifications/IGetUserNotificationsUseCase';
+import { GetUserNotifications } from '@/application/use-cases/notifications/GetUserNotifications';
+import { IGetUnreadCountUseCase } from '@/application/ports/use-cases/notifications/IGetUnreadCountUseCase';
+import { GetUnreadCount } from '@/application/use-cases/notifications/GetUnreadCount';
+import { IMarkNotificationAsReadUseCase } from '@/application/ports/use-cases/notifications/IMarkNotificationAsReadUseCase';
+import { MarkNotificationAsRead } from '@/application/use-cases/notifications/MarkNotificationAsRead';
+import { IMarkAllNotificationsAsReadUseCase } from '@/application/ports/use-cases/notifications/IMarkAllNotificationsAsReadUseCase';
+import { MarkAllNotificationsAsRead } from '@/application/use-cases/notifications/MarkAllNotificationsAsRead';
+import { IGetSentNotificationsUseCase } from '@/application/ports/use-cases/notifications/IGetSentNotificationsUseCase';
+import { GetSentNotifications } from '@/application/use-cases/notifications/GetSentNotifications';
 import { ContainerModule } from "inversify";
 import { TYPES } from "../types";
 
@@ -30,6 +60,10 @@ import { IToggleStudentStatus } from "@/application/ports/use-cases/students/ITo
 import { IExportStudentsCsv } from "@/application/ports/use-cases/students/IExportStudentsCsvUseCase";
 import { ICreateStudent } from "@/application/ports/use-cases/students/ICreateStudentUseCase";
 import { CreateStudent } from "@/application/use-cases/students/CreateStudent";
+import { IGetNextAdmissionNumberUseCase } from "@/application/ports/use-cases/students/IGetNextAdmissionNumberUseCase";
+import { GetNextAdmissionNumber } from "@/application/use-cases/students/GetNextAdmissionNumber";
+import { IGetNextNationalIdUseCase } from "@/application/ports/use-cases/students/IGetNextNationalIdUseCase";
+import { GetNextNationalId } from "@/application/use-cases/students/GetNextNationalId";
 import { IUpdateStudent } from "@/application/ports/use-cases/students/IUpdateStudentUseCase";
 import { UpdateStudent } from "@/application/use-cases/students/UpdateStudent";
 import { IDeleteStudent } from "@/application/ports/use-cases/students/IDeleteStudentUseCase";
@@ -322,6 +356,14 @@ export const useCaseModule = new ContainerModule((bind) => {
 
   bind<ICreateStudent>(TYPES.CreateStudentUseCase)
     .to(CreateStudent)
+    .inSingletonScope();
+
+  bind<IGetNextAdmissionNumberUseCase>(TYPES.GetNextAdmissionNumberUseCase)
+    .to(GetNextAdmissionNumber)
+    .inSingletonScope();
+
+  bind<IGetNextNationalIdUseCase>(TYPES.GetNextNationalIdUseCase)
+    .to(GetNextNationalId)
     .inSingletonScope();
 
   bind<IUpdateStudent>(TYPES.UpdateStudentUseCase)
@@ -642,5 +684,52 @@ export const useCaseModule = new ContainerModule((bind) => {
     .inSingletonScope();
   bind<IRejectFeeRefundUseCase>(TYPES.RejectFeeRefundUseCase)
     .to(RejectFeeRefund)
+    .inSingletonScope();
+
+  bind<ICreateNotificationUseCase>(TYPES.CreateNotificationUseCase)
+    .to(CreateNotification)
+    .inSingletonScope();
+  bind<IGetUserNotificationsUseCase>(TYPES.GetUserNotificationsUseCase)
+    .to(GetUserNotifications)
+    .inSingletonScope();
+  bind<IGetUnreadCountUseCase>(TYPES.GetUnreadCountUseCase)
+    .to(GetUnreadCount)
+    .inSingletonScope();
+  bind<IMarkNotificationAsReadUseCase>(TYPES.MarkNotificationAsReadUseCase)
+    .to(MarkNotificationAsRead)
+    .inSingletonScope();
+  bind<IMarkAllNotificationsAsReadUseCase>(TYPES.MarkAllNotificationsAsReadUseCase)
+    .to(MarkAllNotificationsAsRead)
+    .inSingletonScope();
+  bind<IGetSentNotificationsUseCase>(TYPES.GetSentNotificationsUseCase)
+    .to(GetSentNotifications)
+    .inSingletonScope();
+
+  bind<ICreateChatGroupUseCase>(TYPES.CreateChatGroupUseCase)
+    .to(CreateChatGroup)
+    .inSingletonScope();
+  bind<IGetUserChatGroupsUseCase>(TYPES.GetUserChatGroupsUseCase)
+    .to(GetUserChatGroups)
+    .inSingletonScope();
+  bind<IGetChatGroupMessagesUseCase>(TYPES.GetChatGroupMessagesUseCase)
+    .to(GetChatGroupMessages)
+    .inSingletonScope();
+  bind<ISendChatMessageUseCase>(TYPES.SendChatMessageUseCase)
+    .to(SendChatMessage)
+    .inSingletonScope();
+  bind<IAddGroupMemberUseCase>(TYPES.AddGroupMemberUseCase)
+    .to(AddGroupMember)
+    .inSingletonScope();
+  bind<IRemoveGroupMemberUseCase>(TYPES.RemoveGroupMemberUseCase)
+    .to(RemoveGroupMember)
+    .inSingletonScope();
+  bind<IClearGroupMessagesUseCase>(TYPES.ClearGroupMessagesUseCase)
+    .to(ClearGroupMessages)
+    .inSingletonScope();
+  bind<IGetOrCreateAiChatGroupUseCase>(TYPES.GetOrCreateAiChatGroupUseCase)
+    .to(GetOrCreateAiChatGroup)
+    .inSingletonScope();
+  bind<IGetCandidateMembersUseCase>(TYPES.GetCandidateMembersUseCase)
+    .to(GetCandidateMembers)
     .inSingletonScope();
 });

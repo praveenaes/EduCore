@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setOrganization } from '../../app/slices/organizationSlice';
 import { getOrganizationSettingsApi } from '../../api/settingsApi';
 import { Badge } from '../Badge';
-import { Menu, User } from 'lucide-react';
+import { Menu, User, MessageSquare } from 'lucide-react';
+import { NotificationDropdown } from './NotificationDropdown';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -75,6 +77,16 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
 
       {/* Right section: User Profile Info */}
       <div className="flex items-center gap-4">
+        {user && (
+          <Link
+            to={`/${user.role.toLowerCase()}/chat`}
+            className="relative rounded-lg p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition-colors focus:outline-none"
+            title="Chat & AI Copilot"
+          >
+            <MessageSquare className="h-5 w-5" />
+          </Link>
+        )}
+        {user && user.role?.toLowerCase() !== 'admin' && <NotificationDropdown />}
         {user && (
           <div className="flex items-center gap-3">
             {/* User Profile Info */}

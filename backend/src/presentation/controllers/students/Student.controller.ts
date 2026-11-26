@@ -8,6 +8,8 @@ import { ICreateStudent } from '../../../application/ports/use-cases/students/IC
 import { IUpdateStudent } from '../../../application/ports/use-cases/students/IUpdateStudentUseCase';
 import { IDeleteStudent } from '../../../application/ports/use-cases/students/IDeleteStudentUseCase';
 import { IGetStudentCurriculum } from '../../../application/ports/use-cases/students/IGetStudentCurriculumUseCase';
+import { IGetNextAdmissionNumberUseCase } from '../../../application/ports/use-cases/students/IGetNextAdmissionNumberUseCase';
+import { IGetNextNationalIdUseCase } from '../../../application/ports/use-cases/students/IGetNextNationalIdUseCase';
 import { createStudentSchema, updateStudentSchema } from '../../validators/studentValidators';
 import { ValidationError } from '@/shared/errors/AppError';
 import { ERROR_MESSAGES } from '@/presentation/constants/messages';
@@ -24,7 +26,9 @@ export class StudentController {
     @inject(TYPES.CreateStudentUseCase) private _createStudentUseCase: ICreateStudent,
     @inject(TYPES.UpdateStudentUseCase) private _updateStudentUseCase: IUpdateStudent,
     @inject(TYPES.DeleteStudentUseCase) private _deleteStudentUseCase: IDeleteStudent,
-    @inject(TYPES.GetStudentCurriculumUseCase) private _getStudentCurriculumUseCase: IGetStudentCurriculum
+    @inject(TYPES.GetStudentCurriculumUseCase) private _getStudentCurriculumUseCase: IGetStudentCurriculum,
+    @inject(TYPES.GetNextAdmissionNumberUseCase) private _getNextAdmissionNumberUseCase: IGetNextAdmissionNumberUseCase,
+    @inject(TYPES.GetNextNationalIdUseCase) private _getNextNationalIdUseCase: IGetNextNationalIdUseCase
   ) {}
 
   getAll = async (req: Request, res: Response): Promise<void> => {
@@ -100,5 +104,15 @@ toggleStatus = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user!.id;
     const result = await this._getStudentCurriculumUseCase.execute(userId);
     ResponseHelper.success(res, 'Student curriculum retrieved successfully', result, HTTP_STATUS.OK);
+  };
+
+  getNextAdmissionNumber = async (req: Request, res: Response): Promise<void> => {
+    const nextAdmissionNumber = await this._getNextAdmissionNumberUseCase.execute();
+    ResponseHelper.success(res, "Next admission number retrieved successfully", { nextAdmissionNumber }, 200);
+  };
+
+  getNextNationalId = async (req: Request, res: Response): Promise<void> => {
+    const nextNationalId = await this._getNextNationalIdUseCase.execute();
+    ResponseHelper.success(res, "Next national ID retrieved successfully", { nextNationalId }, 200);
   };
 }

@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";//This reducer manages authentication state.
 import organizationReducer from "./slices/organizationSlice";
+import notificationReducer from "./slices/notificationSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     organization: organizationReducer,
+    notification: notificationReducer,
   },
 });
 

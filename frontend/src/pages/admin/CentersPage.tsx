@@ -251,7 +251,7 @@ const CentersPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-neutral-800">Centers / Campuses</h1>
             <p className="text-sm text-neutral-500">
-              Manage physical and virtual branches of the institution.
+              {pagination.total > 0 ? `${pagination.total} centers configured` : 'Manage physical and virtual branches of the institution.'}
             </p>
           </div>
           <Button onClick={handleAddNew} leftIcon={<Plus className="h-4 w-4" />}>
@@ -303,7 +303,7 @@ const CentersPage: React.FC = () => {
       </div>
 
       {/* Pagination */}
-      {centers.length > 0 && !isLoading && totalPages > 1 && (
+      {centers.length > 0 && !isLoading && (
         <div className="mt-auto pt-6">
           <Pagination
             currentPage={page}

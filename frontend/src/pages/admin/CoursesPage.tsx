@@ -92,7 +92,7 @@ const CoursesPage: React.FC = () => {
         sortOrder,
       });
       setCourses(res.data.data.courses);
-      setPaginationData(res.data.data.total, res.data.data.totalPages);
+      setPaginationData(res.data.data.total, Math.ceil((res.data.data.total || 0) / limit) || 1);
     } catch (err: unknown) {
       const errorMsg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to load courses.';
       setError(errorMsg);
@@ -322,7 +322,7 @@ const CoursesPage: React.FC = () => {
       </div>
 
       {/* Pagination */}
-      {courses.length > 0 && !isLoading && totalPages > 1 && (
+      {courses.length > 0 && !isLoading && (
         <div className="mt-auto pt-6">
           <Pagination
             currentPage={page}

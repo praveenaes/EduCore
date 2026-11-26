@@ -19,6 +19,16 @@ export const createStudentApi = (formData: FormData) =>
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
+export const getNextAdmissionNumberApi = () =>
+  axiosInstance.get<{ success: boolean; data: { nextAdmissionNumber: string } }>(
+    API_ROUTES.STUDENTS.NEXT_ADMISSION_NUMBER
+  );
+
+export const getNextNationalIdApi = () =>
+  axiosInstance.get<{ success: boolean; data: { nextNationalId: string } }>(
+    API_ROUTES.STUDENTS.NEXT_NATIONAL_ID
+  );
+
 export const toggleStudentStatusApi = (id: string, isActive: boolean) =>
   axiosInstance.patch<{ success: boolean; message: string }>(API_ROUTES.STUDENTS.STATUS(id), { isActive });
 

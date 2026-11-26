@@ -33,6 +33,14 @@ export const getStudentRoutes = (container: Container): Router => {
     .get(asyncHandler(studentController.exportCsv.bind(studentController)));
 
   router
+    .route(API_ROUTES.STUDENTS.NEXT_ADMISSION_NUMBER)
+    .get(asyncHandler(studentController.getNextAdmissionNumber.bind(studentController)));
+
+  router
+    .route(API_ROUTES.STUDENTS.NEXT_NATIONAL_ID)
+    .get(asyncHandler(studentController.getNextNationalId.bind(studentController)));
+
+  router
     .route(API_ROUTES.STUDENTS.STATUS)
     .patch(asyncHandler(studentController.toggleStatus.bind(studentController)));
 

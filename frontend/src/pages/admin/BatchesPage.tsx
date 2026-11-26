@@ -8,6 +8,7 @@ import { Pagination } from '../../components/Pagination';
 import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
 import { ConfirmationModal } from '../../components/ConfirmationModal';
+import { usePagination } from '../../hooks/usePagination';
 import BatchModal from '../../features/batches/components/BatchModal';
 import { getBatchesApi, deleteBatchApi } from '../../services/batchService';
 import { getCentersApi } from '../../services/centerService';
@@ -24,14 +25,13 @@ const BatchesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Pagination & Filters
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  const PAGE_LIMIT = 5;
+  const pagination = usePagination({ initialLimit: PAGE_LIMIT });
+  const { page, limit, resetPage, setPaginationData, totalPages, setPage } = pagination;
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCenterFilter, setSelectedCenterFilter] = useState('');
   const [selectedCourseFilter, setSelectedCourseFilter] = useState('');
-  const limit = 10;
 
   // Sorting states
   const [sortBy, setSortBy] = useState<string>('createdAt');
@@ -56,17 +56,17 @@ const BatchesPage: React.FC = () => {
       setSortBy(field);
       setSortOrder('asc');
     }
-    setPage(1);
+    resetPage();
   };
 
   // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search.trim());
-      setPage(1);
+      resetPage();
     }, 300);
     return () => clearTimeout(handler);
-  }, [search]);
+  }, [search, resetPage]);
 
   // Load filter options (Centers and Courses)
   useEffect(() => {
@@ -102,14 +102,13 @@ const BatchesPage: React.FC = () => {
 
       const { batches: list, total } = response.data.data;
       setBatches(list || []);
-      setTotalCount(total || 0);
-      setTotalPages(Math.ceil((total || 0) / limit) || 1);
+      setPaginationData(total || 0, Math.ceil((total || 0) / limit) || 1);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load batches.');
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch, selectedCenterFilter, selectedCourseFilter, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, selectedCenterFilter, selectedCourseFilter, sortBy, sortOrder, setPaginationData]);
 
   useEffect(() => {
     fetchBatches();
@@ -221,7 +220,7 @@ const BatchesPage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col min-h-full space-y-6">
       {/* Toast */}
       {toast && (
         <div
@@ -240,7 +239,7 @@ const BatchesPage: React.FC = () => {
             Batches
           </h1>
           <p className="text-sm text-neutral-500">
-            {totalCount} batch{totalCount !== 1 ? 'es' : ''} configured across courses and centers
+            {pagination.total > 0 ? `${pagination.total} batch${pagination.total !== 1 ? 'es' : ''} configured across courses and centers` : 'Manage your batches and divisions across centers and courses.'}
           </p>
         </div>
         <Button
@@ -270,7 +269,7 @@ const BatchesPage: React.FC = () => {
               value={selectedCenterFilter}
               onChange={(e) => {
                 setSelectedCenterFilter(e.target.value);
-                setPage(1);
+                resetPage();
               }}
               options={[
                 { value: '', label: 'All Centers' },
@@ -286,7 +285,7 @@ const BatchesPage: React.FC = () => {
               value={selectedCourseFilter}
               onChange={(e) => {
                 setSelectedCourseFilter(e.target.value);
-                setPage(1);
+                resetPage();
               }}
               options={[
                 { value: '', label: 'All Courses' },
@@ -334,15 +333,17 @@ const BatchesPage: React.FC = () => {
             sortOrder={sortOrder}
             onSort={handleSort}
           />
-          {totalPages > 1 && (
-            <div className="p-4 border-t border-neutral-100">
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
-            </div>
-          )}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {batches.length > 0 && !isLoading && (
+        <div className="mt-auto pt-6">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       )}
 

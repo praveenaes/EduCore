@@ -1,4 +1,18 @@
 import { ContainerModule } from "inversify";
+import { INotificationRepository } from "@/domain/repositories/INotificationRepository";
+import { NotificationRepository } from "@/infra/db/NotificationRepository";
+import { INotificationRecipientRepository } from "@/domain/repositories/INotificationRecipientRepository";
+import { NotificationRecipientRepository } from "@/infra/db/NotificationRecipientRepository";
+import { INotificationSocketService } from "@/application/ports/services/INotificationSocketService";
+import { SocketNotificationService } from "@/infra/services/SocketNotificationService";
+import { IChatGroupRepository } from "@/domain/repositories/IChatGroupRepository";
+import { ChatGroupRepository } from "@/infra/db/ChatGroupRepository";
+import { IChatMessageRepository } from "@/domain/repositories/IChatMessageRepository";
+import { ChatMessageRepository } from "@/infra/db/ChatMessageRepository";
+import { IAIService } from "@/application/ports/services/IAIService";
+import { GeminiAIService } from "@/infra/services/GeminiAIService";
+import { IChatSocketService } from "@/application/ports/services/IChatSocketService";
+import { SocketChatService } from "@/infra/services/SocketChatService";
 import { TYPES } from "../types";
 
 // Ports (Interfaces)
@@ -9,118 +23,118 @@ import { IEmailService } from "@/application/ports/services/IEmailService";
 import { IStorageService } from "@/application/ports/services/IStorageService";
 
 // Implementations
-import { MongoUserRepository } from "@/infra/db/MongoUserRepository";
+import { UserRepository } from "@/infra/db/UserRepository";
 import { JwtAuthService } from "@/infra/auth/JwtAuthService";
-import { MongoStudentRepository } from "@/infra/db/MongoStudentRepository";
+import { StudentRepository } from "@/infra/db/StudentRepository";
 import { ITeacherRepository } from "@/domain/repositories/ITeacherRepository";
-import { MongoTeacherRepository } from "@/infra/db/MongoTeacherRepository";
+import { TeacherRepository } from "@/infra/db/TeacherRepository";
 import { NodemailerEmailService } from "@/infra/services/NodemailerEmailService";
 import { S3StorageService } from "@/infra/services/S3StorageService";
 import { IOrganizationRepository } from "@/domain/repositories/IOrganizationRepository";
-import { MongoOrganizationRepository } from "@/infra/db/MongoOrganizationRepository";
+import { OrganizationRepository } from "@/infra/db/OrganizationRepository";
 import { ITokenBlacklistService } from "@/application/ports/services/ITokenBlacklistService";
 import { MongoTokenBlacklistService } from "@/infra/services/MongoTokenBlacklistService";
 import { IProgramRepository } from "@/domain/repositories/IProgramRepository";
-import { MongoProgramRepository } from "@/infra/db/MongoProgramRepository";
+import { ProgramRepository } from "@/infra/db/ProgramRepository";
 import { ICourseRepository } from "@/domain/repositories/ICourseRepository";
-import { MongoCourseRepository } from "@/infra/db/MongoCourseRepository";
+import { CourseRepository } from "@/infra/db/CourseRepository";
 import { ISubjectRepository } from "@/domain/repositories/ISubjectRepository";
-import { MongoSubjectRepository } from "@/infra/db/MongoSubjectRepository";
+import { SubjectRepository } from "@/infra/db/SubjectRepository";
 import { ICenterRepository } from "@/domain/repositories/ICenterRepository";
-import { MongoCenterRepository } from "@/infra/db/MongoCenterRepository";
+import { CenterRepository } from "@/infra/db/CenterRepository";
 import { IAcademicYearRepository } from "@/domain/repositories/IAcademicYearRepository";
-import { MongoAcademicYearRepository } from "@/infra/db/MongoAcademicYearRepository";
+import { AcademicYearRepository } from "@/infra/db/AcademicYearRepository";
 import { ISubjectAssignmentRepository } from "@/domain/repositories/ISubjectAssignmentRepository";
-import { MongoSubjectAssignmentRepository } from "@/infra/db/MongoSubjectAssignmentRepository";
+import { SubjectAssignmentRepository } from "@/infra/db/SubjectAssignmentRepository";
 import { IBatchRepository } from "@/domain/repositories/IBatchRepository";
-import { MongoBatchRepository } from "@/infra/db/MongoBatchRepository";
+import { BatchRepository } from "@/infra/db/BatchRepository";
 import { IAttendanceRepository } from "@/domain/repositories/IAttendanceRepository";
-import { MongoAttendanceRepository } from "@/infra/db/MongoAttendanceRepository";
+import { AttendanceRepository } from "@/infra/db/AttendanceRepository";
 import { IHomeworkRepository } from "@/domain/repositories/IHomeworkRepository";
-import { MongoHomeworkRepository } from "@/infra/db/MongoHomeworkRepository";
+import { HomeworkRepository } from "@/infra/db/HomeworkRepository";
 import { ILeaveRequestRepository } from "@/domain/repositories/ILeaveRequestRepository";
-import { MongoLeaveRequestRepository } from "@/infra/db/MongoLeaveRequestRepository";
+import { LeaveRequestRepository } from "@/infra/db/LeaveRequestRepository";
 import { IAssessmentRepository } from "@/domain/repositories/IAssessmentRepository";
-import { MongoAssessmentRepository } from "@/infra/db/MongoAssessmentRepository";
+import { AssessmentRepository } from "@/infra/db/AssessmentRepository";
 import { IAssessmentCriteriaRepository } from "@/domain/repositories/IAssessmentCriteriaRepository";
-import { MongoAssessmentCriteriaRepository } from "@/infra/db/MongoAssessmentCriteriaRepository";
+import { AssessmentCriteriaRepository } from "@/infra/db/AssessmentCriteriaRepository";
 import { IAssessmentScheduleRepository } from "@/domain/repositories/IAssessmentScheduleRepository";
-import { MongoAssessmentScheduleRepository } from "@/infra/db/MongoAssessmentScheduleRepository";
+import { AssessmentScheduleRepository } from "@/infra/db/AssessmentScheduleRepository";
 import { IAssessmentResultRepository } from "@/domain/repositories/IAssessmentResultRepository";
-import { MongoAssessmentResultRepository } from "@/infra/db/MongoAssessmentResultRepository";
+import { AssessmentResultRepository } from "@/infra/db/AssessmentResultRepository";
 import { IFeeAssignmentRepository } from "@/domain/repositories/IFeeAssignmentRepository";
-import { MongoFeeAssignmentRepository } from "@/infra/db/MongoFeeAssignmentRepository";
+import { FeeAssignmentRepository } from "@/infra/db/FeeAssignmentRepository";
 import { IFeePaymentRepository } from "@/domain/repositories/IFeePaymentRepository";
-import { MongoFeePaymentRepository } from "@/infra/db/MongoFeePaymentRepository";
+import { FeePaymentRepository } from "@/infra/db/FeePaymentRepository";
 import { IPaymentService } from "@/application/ports/services/IPaymentService";
 import { RazorpayService } from "@/infra/services/RazorpayService";
 
 export const coreModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
-    .to(MongoUserRepository)
+    .to(UserRepository)
     .inSingletonScope();
 
   bind<IOrganizationRepository>(TYPES.OrganizationRepository)
-    .to(MongoOrganizationRepository)
+    .to(OrganizationRepository)
     .inSingletonScope();
 
   bind<IStudentRepository>(TYPES.StudentRepository)
-    .to(MongoStudentRepository)
+    .to(StudentRepository)
     .inSingletonScope();
 
   bind<ITeacherRepository>(TYPES.TeacherRepository)
-    .to(MongoTeacherRepository)
+    .to(TeacherRepository)
     .inSingletonScope();
   bind<IProgramRepository>(TYPES.ProgramRepository)
-    .to(MongoProgramRepository)
+    .to(ProgramRepository)
     .inSingletonScope();
   bind<ICourseRepository>(TYPES.CourseRepository)
-    .to(MongoCourseRepository)
+    .to(CourseRepository)
     .inSingletonScope();
   bind<ISubjectRepository>(TYPES.SubjectRepository)
-    .to(MongoSubjectRepository)
+    .to(SubjectRepository)
     .inSingletonScope();
   bind<ICenterRepository>(TYPES.CenterRepository)
-    .to(MongoCenterRepository)
+    .to(CenterRepository)
     .inSingletonScope();
   bind<IAcademicYearRepository>(TYPES.AcademicYearRepository)
-    .to(MongoAcademicYearRepository)
+    .to(AcademicYearRepository)
     .inSingletonScope();
   bind<ISubjectAssignmentRepository>(TYPES.SubjectAssignmentRepository)
-    .to(MongoSubjectAssignmentRepository)
+    .to(SubjectAssignmentRepository)
     .inSingletonScope();
   bind<IBatchRepository>(TYPES.BatchRepository)
-    .to(MongoBatchRepository)
+    .to(BatchRepository)
     .inSingletonScope();
   bind<IAttendanceRepository>(TYPES.AttendanceRepository)
-    .to(MongoAttendanceRepository)
+    .to(AttendanceRepository)
     .inSingletonScope();
   bind<IHomeworkRepository>(TYPES.HomeworkRepository)
-    .to(MongoHomeworkRepository)
+    .to(HomeworkRepository)
     .inSingletonScope();
   bind<ILeaveRequestRepository>(TYPES.LeaveRequestRepository)
-    .to(MongoLeaveRequestRepository)
+    .to(LeaveRequestRepository)
     .inSingletonScope();
   bind<IAssessmentRepository>(TYPES.AssessmentRepository)
-    .to(MongoAssessmentRepository)
+    .to(AssessmentRepository)
     .inSingletonScope();
   bind<IAssessmentCriteriaRepository>(TYPES.AssessmentCriteriaRepository)
-    .to(MongoAssessmentCriteriaRepository)
+    .to(AssessmentCriteriaRepository)
     .inSingletonScope();
   bind<IAssessmentScheduleRepository>(TYPES.AssessmentScheduleRepository)
-    .to(MongoAssessmentScheduleRepository)
+    .to(AssessmentScheduleRepository)
     .inSingletonScope();
 
   bind<IAssessmentResultRepository>(TYPES.AssessmentResultRepository)
-    .to(MongoAssessmentResultRepository)
+    .to(AssessmentResultRepository)
     .inSingletonScope();
 
   bind<IFeeAssignmentRepository>(TYPES.FeeAssignmentRepository)
-    .to(MongoFeeAssignmentRepository)
+    .to(FeeAssignmentRepository)
     .inSingletonScope();
 
   bind<IFeePaymentRepository>(TYPES.FeePaymentRepository)
-    .to(MongoFeePaymentRepository)
+    .to(FeePaymentRepository)
     .inSingletonScope();
 
   bind<IPaymentService>(TYPES.PaymentService)
@@ -141,5 +155,33 @@ export const coreModule = new ContainerModule((bind) => {
 
   bind<ITokenBlacklistService>(TYPES.TokenBlacklistService)
     .to(MongoTokenBlacklistService)
+    .inSingletonScope();
+
+  bind<INotificationRepository>(TYPES.NotificationRepository)
+    .to(NotificationRepository)
+    .inSingletonScope();
+
+  bind<INotificationRecipientRepository>(TYPES.NotificationRecipientRepository)
+    .to(NotificationRecipientRepository)
+    .inSingletonScope();
+
+  bind<INotificationSocketService>(TYPES.NotificationSocketService)
+    .to(SocketNotificationService)
+    .inSingletonScope();
+
+  bind<IChatGroupRepository>(TYPES.ChatGroupRepository)
+    .to(ChatGroupRepository)
+    .inSingletonScope();
+
+  bind<IChatMessageRepository>(TYPES.ChatMessageRepository)
+    .to(ChatMessageRepository)
+    .inSingletonScope();
+
+  bind<IAIService>(TYPES.AIService)
+    .to(GeminiAIService)
+    .inSingletonScope();
+
+  bind<IChatSocketService>(TYPES.ChatSocketService)
+    .to(SocketChatService)
     .inSingletonScope();
 });

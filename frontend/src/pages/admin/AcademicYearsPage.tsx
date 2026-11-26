@@ -312,7 +312,7 @@ export const AcademicYearsPage: React.FC = () => {
       </div>
 
       {/* Pagination Footer */}
-      {academicYears.length > 0 && !isLoading && totalPages > 1 && (
+      {academicYears.length > 0 && !isLoading && (
         <div className="mt-auto pt-6">
           <Pagination
             currentPage={page}

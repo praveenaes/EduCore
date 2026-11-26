@@ -13,6 +13,7 @@ import {
   Building2,
   CreditCard,
   Bell,
+  MessageSquare,
 } from 'lucide-react';
 
 //---------------------------------
@@ -48,6 +49,7 @@ const adminNavItems: SidebarItem[] = [
   { label: 'Centers', path: '/admin/centers', icon: Building2 },
   { label: 'Fees', path: '/admin/fees', icon: CreditCard },
   { label: 'Notifications', path: '/admin/notifications', icon: Bell },
+  { label: 'Chat & AI Copilot', path: '/admin/chat', icon: MessageSquare },
 ];
 
 export const AdminLayout: React.FC = () => {
@@ -68,11 +70,14 @@ export const AdminLayout: React.FC = () => {
         />
 
         {/* Content Area */}
-        <main className="flex-1 min-w-0 flex flex-col px-6 pb-6 pt-3 md:px-8 md:pb-8 md:pt-4 max-w-7xl mx-auto w-full transition-all duration-300">
-          <Outlet />
+        <main className="flex-1 overflow-x-hidden p-6 md:p-8">
+          <div className="mx-auto max-w-7xl">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
   );
 };
+
 export default AdminLayout;

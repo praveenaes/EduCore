@@ -1,0 +1,194 @@
+import { injectable } from "inversify";
+import { FilterQuery, Types } from "mongoose";
+import { IStudentRepository, StudentFilters, StudentPagination, StudentListResult } from "../../domain/repositories/IStudentRepository";
+import { Student } from "../../domain/entities/Student";
+import { StudentModel, IStudentDocument } from "./models/StudentModel";
+import { StudentMapper } from "./mappers/StudentMapper";
+import { PaginationHelper } from "@/shared/utils/pagination";
+import { BaseRepository } from "./BaseRepository";
+
+@injectable()
+export class StudentRepository 
+  extends BaseRepository<Student, IStudentDocument> 
+  implements IStudentRepository 
+{
+  protected readonly _model = StudentModel;
+  protected readonly _mapper = StudentMapper;
+
+  override async findById(id: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({ _id: id, isDeleted: false }).populate("batchId", "name");
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
+
+  async findByUserId(userId: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({
+      userId: Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId,
+      isDeleted: false,
+    }).populate("batchId", "name");
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
+
+
+
+  async findByAdmissionNumber(admissionNumber: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({
+      admissionNumber: { $regex: new RegExp(`^${admissionNumber}$`, "i") },
+      isDeleted: false,
+    });
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
+
+  async findByEmail(email: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({
+      email: { $regex: new RegExp(`^${email}$`, "i") },
+      isDeleted: false,
+    });
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
+
+  async findByBatchId(batchId: string): Promise<Student[]> {
+    const docs = await StudentModel.find({
+      batchId: Types.ObjectId.isValid(batchId) ? new Types.ObjectId(batchId) : batchId,
+      isDeleted: false,
+    }).sort({ firstName: 1, lastName: 1 });
+    return docs.map(doc => StudentMapper.toDomain(doc));
+  }
+
+  async findByNationalId(nationalId: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({
+      nationalId: { $regex: new RegExp(`^${nationalId}$`, "i") },
+      isDeleted: false,
+    });
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
+
+  async findByName(firstName: string, lastName: string): Promise<Student | null> {
+    const doc = await StudentModel.findOne({
+      firstName: { $regex: new RegExp(`^${firstName}$`, "i") },
+      lastName: { $regex: new RegExp(`^${lastName}$`, "i") },
+      isDeleted: false,
+    });
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
+
+  async findAll(filters: StudentFilters, pagination: StudentPagination): Promise<StudentListResult> {
+    const query: FilterQuery<IStudentDocument> = { isDeleted: false };
+
+    if (filters.search) {
+      const searchRegex = new RegExp(filters.search, "i");// /john/i
+      query.$or = [
+        { firstName: searchRegex },
+        { lastName: searchRegex },
+        { admissionNumber: searchRegex },
+        { email: searchRegex },
+      ];
+    }
+
+
+
+
+//     {
+//   isDeleted: false,
+//   $or: [
+//     { firstName: /john/i },
+//     { lastName: /john/i },
+//     { admissionNumber: /john/i },
+//     { email: /john/i }
+//   ]
+// }
+
+    const { page, limit, sortBy, sortOrder } = pagination;
+    const { skip } = PaginationHelper.getSkipAndLimit(page, limit);
+
+    let sortOptions: Record<string, 1 | -1> = { createdAt: -1 };
+    if (sortBy) {
+      const order = sortOrder === "desc" ? -1 : 1;
+      if (sortBy === "firstName") {
+        sortOptions = { firstName: order, lastName: order };
+      } else {
+        sortOptions = { [sortBy]: order };
+        //Use the value inside sortBy as the property name.
+      }
+    }
+  
+
+    const [docs, total] = await Promise.all([
+      StudentModel.find(query)
+        .populate("batchId", "name")
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limit),
+      StudentModel.countDocuments(query),
+    ]);
+
+    return {
+      students: docs.map(doc => StudentMapper.toDomain(doc)),
+      total,
+    };
+  }
+
+  async updateStatus(id: string, isActive: boolean): Promise<Student | null> {
+    const doc = await StudentModel.findOneAndUpdate(
+      { _id: id, isDeleted: false },
+      { $set: { isActive } },
+      { new: true }
+    )
+    if (!doc) return null;
+    return StudentMapper.toDomain(doc);
+  }
+
+  async exportAll(filters: StudentFilters): Promise<Student[]> {
+    const query: FilterQuery<IStudentDocument> = { isDeleted: false };
+
+    if (filters.search) {
+      const searchRegex = new RegExp(filters.search, "i");
+      query.$or = [
+        { firstName: searchRegex },
+        { lastName: searchRegex },
+        { admissionNumber: searchRegex },
+        { email: searchRegex },
+      ];
+    }
+
+    const docs = await StudentModel.find(query).sort({ createdAt: -1 });
+    return docs.map(doc => StudentMapper.toDomain(doc));
+  }
+
+  async softDelete(id: string): Promise<boolean> {
+    const result = await StudentModel.updateOne(
+      { _id: id },
+      { $set: { isDeleted: true } }
+    );
+    return result.modifiedCount > 0;
+  }
+
+  async findLastAdmissionNumber(): Promise<string | null> {
+    const doc = await StudentModel.findOne({
+      admissionNumber: { $regex: /^STU\d{3,}$/ },
+    })
+      .sort({ admissionNumber: -1 })
+      .collation({ locale: "en", numericOrdering: true })
+      .select("admissionNumber")
+      .lean();
+
+    return doc ? doc.admissionNumber : null;
+  }
+
+  async findLastNationalId(): Promise<string | null> {
+    const doc = await StudentModel.findOne({
+      nationalId: { $regex: /^NID\d{3,}$/ },
+    })
+      .sort({ nationalId: -1 })
+      .collation({ locale: "en", numericOrdering: true })
+      .select("nationalId")
+      .lean();
+
+    return doc ? doc.nationalId : null;
+  }
+}

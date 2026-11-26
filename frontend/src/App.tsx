@@ -6,10 +6,18 @@ import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { loadUser } from "./app/authThunk";
 import { setOrganization, clearOrganization } from "./app/slices/organizationSlice";
 import { AppRoutes } from "./routes/AppRoutes";
+import { tokenService } from "./utils/tokenService";
+import {
+  connectNotificationSocket,
+  disconnectNotificationSocket,
+} from "./services/notificationSocket";
 
 function AppContent() {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector((state) => state.auth.isLoading);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
+  const user = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -27,6 +35,18 @@ function AppContent() {
 
     initializeAuth();
   }, [dispatch]);
+
+  useEffect(() => {
+    const token = accessToken || tokenService.getToken();
+    if (isAuthenticated && token) {
+      connectNotificationSocket(token, dispatch, user?.id, user?.role);
+    } else {
+      disconnectNotificationSocket();
+    }
+    return () => {
+      disconnectNotificationSocket();
+    };
+  }, [isAuthenticated, accessToken, user?.id, user?.role, dispatch]);
 
   if (isLoading) {
     return (

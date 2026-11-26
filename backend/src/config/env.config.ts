@@ -2,11 +2,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const ENV = {
-  PORT: process.env.PORT || "5000",
-  MONGODB_URI: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/educore",
-  JWT_SECRET: process.env.JWT_SECRET || "mySuperSecret_123",
-  CLIENT_URL: process.env.CLIENT_URL || "http://localhost:5173",
-  NODE_ENV: process.env.NODE_ENV || "development",
+  PORT: process.env.PORT,
+  MONGODB_URI: process.env.MONGODB_URI,
+  JWT_SECRET: process.env.JWT_SECRET ,
+  CLIENT_URL: process.env.CLIENT_URL ,
+  NODE_ENV: process.env.NODE_ENV ,
 
   JWT_ACCESS_EXPIRATION: process.env.JWT_ACCESS_EXPIRATION,
   JWT_REFRESH_EXPIRATION: process.env.JWT_REFRESH_EXPIRATION,
@@ -27,7 +27,9 @@ export const ENV = {
   AWS_REGION: process.env.AWS_REGION,
   AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
 
-  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID ,
-  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET ,
-  RAZORPAY_WEBHOOK_SECRET:process.env.RAZORPAY_WEBHOOK_SECRET
+  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+  RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET,
+
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY ,
 };

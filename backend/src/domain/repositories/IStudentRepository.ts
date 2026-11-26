@@ -28,4 +28,6 @@ export interface IStudentRepository extends IBaseRepository<Student> {
   updateStatus(id: string, isActive: boolean): Promise<Student | null>;
   exportAll(filters: StudentFilters): Promise<Student[]>;
   softDelete(id: string): Promise<boolean>;
+  findLastAdmissionNumber(): Promise<string | null>;
+  findLastNationalId(): Promise<string | null>;
 }

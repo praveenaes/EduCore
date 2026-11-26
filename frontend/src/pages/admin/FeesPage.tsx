@@ -664,7 +664,7 @@ const FeesPage: React.FC = () => {
         )}
       </div>
 
-      {activeTab === 'assignments' && feeAssignments.length > 0 && !isLoading && totalPages > 1 && (
+      {activeTab === 'assignments' && feeAssignments.length > 0 && !isLoading && (
         <div className="mt-auto pt-6">
           <Pagination
             currentPage={page}
@@ -674,7 +674,7 @@ const FeesPage: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'ledger' && transactions.length > 0 && !isLedgerLoading && ledgerPagination.totalPages > 1 && (
+      {activeTab === 'ledger' && transactions.length > 0 && !isLedgerLoading && (
         <div className="mt-auto pt-6">
           <Pagination
             currentPage={ledgerPagination.page}

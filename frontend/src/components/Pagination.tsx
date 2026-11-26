@@ -12,7 +12,11 @@ export const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => {
-  if (totalPages <= 1) return null;
+  if (totalPages < 1) return null;
+
+  const effectiveTotalPages = Math.max(totalPages, 1);
+  const isFirstPage = currentPage <= 1;
+  const isLastPage = currentPage >= effectiveTotalPages;
 
   return (
     <div className="flex items-center justify-between border-t border-neutral-200/60 bg-white px-4 py-3 sm:px-6 rounded-xl shadow-xs border border-neutral-200/50 mt-4">
@@ -20,7 +24,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         <Button
           variant="outline"
           size="sm"
-          disabled={currentPage === 1}
+          disabled={isFirstPage}
           onClick={() => onPageChange(currentPage - 1)}
         >
           Previous
@@ -28,7 +32,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         <Button
           variant="outline"
           size="sm"
-          disabled={currentPage === totalPages}
+          disabled={isLastPage}
           onClick={() => onPageChange(currentPage + 1)}
         >
           Next
@@ -39,7 +43,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         <div>
           <p className="text-sm text-neutral-400">
             Page <span className="font-semibold text-neutral-700">{currentPage}</span> of{' '}
-            <span className="font-semibold text-neutral-700">{totalPages}</span>
+            <span className="font-semibold text-neutral-700">{effectiveTotalPages}</span>
           </p>
         </div>
         <div>
@@ -47,14 +51,14 @@ export const Pagination: React.FC<PaginationProps> = ({
             <Button
               variant="outline"
               size="sm"
-              disabled={currentPage === 1}
+              disabled={isFirstPage}
               onClick={() => onPageChange(currentPage - 1)}
               className="px-2"
             >
               ‹
             </Button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+            {Array.from({ length: effectiveTotalPages }, (_, i) => i + 1).map((page) => {
               const isActive = page === currentPage;
               return (
                 <Button
@@ -72,7 +76,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             <Button
               variant="outline"
               size="sm"
-              disabled={currentPage === totalPages}
+              disabled={isLastPage}
               onClick={() => onPageChange(currentPage + 1)}
               className="px-2"
             >

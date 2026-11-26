@@ -112,7 +112,7 @@ export const StudentFeesPage: React.FC = () => {
     switch (displayStatus) {
       case 'completed':
         return (
-          <span className="inline-flex items-center gap-1.5 c px-3 py-1 text-xs font-bold bg-emerald-600 text-white shadow-xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold bg-emerald-600 text-white shadow-xs">
             <CheckCircle2 className="w-3.5 h-3.5 text-white" />
             Paid
           </span>

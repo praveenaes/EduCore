@@ -1,30 +1,30 @@
 import { ContainerModule } from "inversify";
 import { TYPES } from "../types";
 import { IUserRepository } from "../../../domain/repositories/IUserRepository";
-import { MongoUserRepository } from "../../../infra/db/MongoUserRepository";
+import { UserRepository } from "../../../infra/db/UserRepository";
 import { IStudentRepository } from "../../../domain/repositories/IStudentRepository";
-import { MongoStudentRepository } from "../../../infra/db/MongoStudentRepository";
+import { StudentRepository } from "../../../infra/db/StudentRepository";
 import { ITeacherRepository } from "../../../domain/repositories/ITeacherRepository";
-import { MongoTeacherRepository } from "../../../infra/db/MongoTeacherRepository";
+import { TeacherRepository } from "../../../infra/db/TeacherRepository";
 import { IProgramRepository } from "@/domain/repositories/IProgramRepository";
-import { MongoProgramRepository } from "@/infra/db/MongoProgramRepository";
+import { ProgramRepository } from "@/infra/db/ProgramRepository";
 
 export const repositoryModule = new ContainerModule((bind) => {
   bind<IUserRepository>(TYPES.UserRepository)
-    .to(MongoUserRepository)
+    .to(UserRepository)
     .inSingletonScope();
 
   bind<IStudentRepository>(TYPES.StudentRepository)
-    .to(MongoStudentRepository)
+    .to(StudentRepository)
     .inSingletonScope();
 
   bind<ITeacherRepository>(TYPES.TeacherRepository)
-    .to(MongoTeacherRepository)
+    .to(TeacherRepository)
     .inSingletonScope();
   bind<IProgramRepository>(TYPES.ProgramRepository)
-    .to(MongoProgramRepository)
+    .to(ProgramRepository)
     .inSingletonScope();
   bind<IProgramRepository>(TYPES.ProgramRepository)
-    .to(MongoProgramRepository)
+    .to(ProgramRepository)
     .inSingletonScope();
 });

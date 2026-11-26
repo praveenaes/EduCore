@@ -1,24 +1,12 @@
-//is TYPES object gives every dependency a unique identifier
-//at runtime, TypeScript interfaces don't exist
-//  because they are removed when TypeScript is compiled.
-
-// // So tsyringe needs another way to identify the dependency.
 const TYPES = {
-  // Repositories
   UserRepository: Symbol.for("UserRepository"),
   StudentRepository: Symbol.for("StudentRepository"),
-
-  // Services
   AuthService: Symbol.for("AuthService"),
   EmailService: Symbol.for("EmailService"),
   TokenBlacklistService: Symbol.for("TokenBlacklistService"),
-
-  // Controllers
   AuthController: Symbol.for("AuthController"),
   StudentController: Symbol.for("StudentController"),
   TeacherController: Symbol.for("TeacherController"),
-
-  // Use Cases
   LoginUserUseCase: Symbol.for("LoginUserUseCase"),
   RefreshTokenUseCase: Symbol.for("RefreshTokenUseCase"),
   LogoutUserUseCase: Symbol.for("LogoutUserUseCase"),
@@ -31,6 +19,8 @@ const TYPES = {
   ExportStudentsCsvUseCase: Symbol.for("ExportStudentsCsvUseCase"),
   StorageService: Symbol.for("StorageService"),
   CreateStudentUseCase: Symbol.for("CreateStudentUseCase"),
+  GetNextAdmissionNumberUseCase: Symbol.for("GetNextAdmissionNumberUseCase"),
+  GetNextNationalIdUseCase: Symbol.for("GetNextNationalIdUseCase"),
   UpdateStudentUseCase: Symbol.for("UpdateStudentUseCase"),
   DeleteStudentUseCase: Symbol.for("DeleteStudentUseCase"),
   GetStudentCurriculumUseCase: Symbol.for("GetStudentCurriculumUseCase"),
@@ -44,9 +34,6 @@ const TYPES = {
   GetTeacherCurriculumUseCase: Symbol.for("GetTeacherCurriculumUseCase"),
   GetTeacherBatchesUseCase: Symbol.for("GetTeacherBatchesUseCase"),
   GetTeacherSubjectsUseCase: Symbol.for("GetTeacherSubjectsUseCase"),
-
-
-  // Settings
   OrganizationRepository: Symbol.for("OrganizationRepository"),
   GetOrganizationSettingsUseCase: Symbol.for("GetOrganizationSettingsUseCase"),
   UpdateOrganizationSettingsUseCase: Symbol.for("UpdateOrganizationSettingsUseCase"),
@@ -57,64 +44,54 @@ const TYPES = {
   VerifyEmailChangeOtpUseCase: Symbol.for("VerifyEmailChangeOtpUseCase"),
   ChangeEmailUseCase: Symbol.for("ChangeEmailUseCase"),
   SettingsController: Symbol.for("SettingsController"),
-
-    // Programs
   ProgramRepository: Symbol.for("ProgramRepository"),
   CreateProgramUseCase: Symbol.for("CreateProgramUseCase"),
   GetProgramsUseCase: Symbol.for("GetProgramsUseCase"),
   UpdateProgramUseCase: Symbol.for("UpdateProgramUseCase"),
   DeleteProgramUseCase: Symbol.for("DeleteProgramUseCase"),
   ProgramController: Symbol.for("ProgramController"),
-  // Courses
   CourseRepository: Symbol.for("CourseRepository"),
   CreateCourseUseCase: Symbol.for("CreateCourseUseCase"),
   GetCoursesUseCase: Symbol.for("GetCoursesUseCase"),
   UpdateCourseUseCase: Symbol.for("UpdateCourseUseCase"),
   DeleteCourseUseCase: Symbol.for("DeleteCourseUseCase"),
   CourseController: Symbol.for("CourseController"),
-  // Subjects
   SubjectRepository: Symbol.for("SubjectRepository"),
   CreateSubjectUseCase: Symbol.for("CreateSubjectUseCase"),
   GetSubjectsUseCase: Symbol.for("GetSubjectsUseCase"),
   UpdateSubjectUseCase: Symbol.for("UpdateSubjectUseCase"),
   DeleteSubjectUseCase: Symbol.for("DeleteSubjectUseCase"),
   SubjectController: Symbol.for("SubjectController"),
-  // Centers
   CenterRepository: Symbol.for("CenterRepository"),
   CreateCenterUseCase: Symbol.for("CreateCenterUseCase"),
   GetCentersUseCase: Symbol.for("GetCentersUseCase"),
   UpdateCenterUseCase: Symbol.for("UpdateCenterUseCase"),
   DeleteCenterUseCase: Symbol.for("DeleteCenterUseCase"),
   CenterController: Symbol.for("CenterController"),
-  // Academic Years
   AcademicYearRepository: Symbol.for("AcademicYearRepository"),
   CreateAcademicYearUseCase: Symbol.for("CreateAcademicYearUseCase"),
   GetAcademicYearsUseCase: Symbol.for("GetAcademicYearsUseCase"),
   UpdateAcademicYearUseCase: Symbol.for("UpdateAcademicYearUseCase"),
   DeleteAcademicYearUseCase: Symbol.for("DeleteAcademicYearUseCase"),
   AcademicYearController: Symbol.for("AcademicYearController"),
-  // Subject Assignments
   SubjectAssignmentRepository: Symbol.for("SubjectAssignmentRepository"),
   CreateSubjectAssignmentUseCase: Symbol.for("CreateSubjectAssignmentUseCase"),
   GetSubjectAssignmentsUseCase: Symbol.for("GetSubjectAssignmentsUseCase"),
   UpdateSubjectAssignmentUseCase: Symbol.for("UpdateSubjectAssignmentUseCase"),
   DeleteSubjectAssignmentUseCase: Symbol.for("DeleteSubjectAssignmentUseCase"),
   SubjectAssignmentController: Symbol.for("SubjectAssignmentController"),
-  // Batches
   BatchRepository: Symbol.for("BatchRepository"),
   CreateBatchUseCase: Symbol.for("CreateBatchUseCase"),
   GetBatchesUseCase: Symbol.for("GetBatchesUseCase"),
   UpdateBatchUseCase: Symbol.for("UpdateBatchUseCase"),
   DeleteBatchUseCase: Symbol.for("DeleteBatchUseCase"),
   BatchController: Symbol.for("BatchController"),
-  // Attendance
   AttendanceRepository: Symbol.for("AttendanceRepository"),
   GetBatchAttendanceUseCase: Symbol.for("GetBatchAttendanceUseCase"),
   CreateBatchAttendanceUseCase: Symbol.for("CreateBatchAttendanceUseCase"),
   UpdateBatchAttendanceUseCase: Symbol.for("UpdateBatchAttendanceUseCase"),
   GetStudentAttendanceUseCase: Symbol.for("GetStudentAttendanceUseCase"),
   AttendanceController: Symbol.for("AttendanceController"),
-  // Homework
   HomeworkRepository: Symbol.for("HomeworkRepository"),
   CreateHomeworkUseCase: Symbol.for("CreateHomeworkUseCase"),
   UpdateHomeworkUseCase: Symbol.for("UpdateHomeworkUseCase"),
@@ -127,7 +104,6 @@ const TYPES = {
   RequestHomeworkExtensionUseCase: Symbol.for("RequestHomeworkExtensionUseCase"),
   ReviewHomeworkExtensionUseCase: Symbol.for("ReviewHomeworkExtensionUseCase"),
   HomeworkController: Symbol.for("HomeworkController"),
-  // Leaves
   LeaveRequestRepository: Symbol.for("LeaveRequestRepository"),
   ApplyLeaveUseCase: Symbol.for("ApplyLeaveUseCase"),
   GetStudentLeavesUseCase: Symbol.for("GetStudentLeavesUseCase"),
@@ -137,7 +113,6 @@ const TYPES = {
   RescheduleStudentLeaveUseCase: Symbol.for("RescheduleStudentLeaveUseCase"),
   CancelStudentLeaveUseCase: Symbol.for("CancelStudentLeaveUseCase"),
   LeaveController: Symbol.for("LeaveController"),
-  // Assessments
   AssessmentRepository: Symbol.for("AssessmentRepository"),
   CreateAssessmentUseCase: Symbol.for("CreateAssessmentUseCase"),
   GetAssessmentsUseCase: Symbol.for("GetAssessmentsUseCase"),
@@ -147,14 +122,12 @@ const TYPES = {
   RequestAssessmentDelegationUseCase: Symbol.for("RequestAssessmentDelegationUseCase"),
   ReviewAssessmentDelegationUseCase: Symbol.for("ReviewAssessmentDelegationUseCase"),
   AssessmentController: Symbol.for("AssessmentController"),
-  // Assessment Criteria
   AssessmentCriteriaRepository: Symbol.for("AssessmentCriteriaRepository"),
   CreateAssessmentCriteriaUseCase: Symbol.for("CreateAssessmentCriteriaUseCase"),
   GetAssessmentCriteriaUseCase: Symbol.for("GetAssessmentCriteriaUseCase"),
   UpdateAssessmentCriteriaUseCase: Symbol.for("UpdateAssessmentCriteriaUseCase"),
   DeleteAssessmentCriteriaUseCase: Symbol.for("DeleteAssessmentCriteriaUseCase"),
   AssessmentCriteriaController: Symbol.for("AssessmentCriteriaController"),
-  // Assessment Schedules
   AssessmentScheduleRepository: Symbol.for("AssessmentScheduleRepository"),
   CreateAssessmentScheduleUseCase: Symbol.for("CreateAssessmentScheduleUseCase"),
   GetAssessmentSchedulesUseCase: Symbol.for("GetAssessmentSchedulesUseCase"),
@@ -164,7 +137,6 @@ const TYPES = {
   ReviewMarkEntryDelegationUseCase: Symbol.for("ReviewMarkEntryDelegationUseCase"),
   DeleteAssessmentScheduleUseCase: Symbol.for("DeleteAssessmentScheduleUseCase"),
   AssessmentScheduleController: Symbol.for("AssessmentScheduleController"),
-  // Assessment Results
   AssessmentResultRepository: Symbol.for("AssessmentResultRepository"),
   SaveAssessmentMarksUseCase: Symbol.for("SaveAssessmentMarksUseCase"),
   GetAssessmentResultsUseCase: Symbol.for("GetAssessmentResultsUseCase"),
@@ -173,7 +145,6 @@ const TYPES = {
   GetStudentResultsUseCase: Symbol.for("GetStudentResultsUseCase"),
   GetStudentReportCardUseCase: Symbol.for("GetStudentReportCardUseCase"),
   AssessmentResultController: Symbol.for("AssessmentResultController"),
-  // Fees
   FeeAssignmentRepository: Symbol.for("FeeAssignmentRepository"),
   FeePaymentRepository: Symbol.for("FeePaymentRepository"),
   PaymentService: Symbol.for("PaymentService"),
@@ -187,6 +158,30 @@ const TYPES = {
   RequestFeeRefundUseCase: Symbol.for("RequestFeeRefundUseCase"),
   RejectFeeRefundUseCase: Symbol.for("RejectFeeRefundUseCase"),
   FeeController: Symbol.for("FeeController"),
+  NotificationRepository: Symbol.for("NotificationRepository"),
+  NotificationRecipientRepository: Symbol.for("NotificationRecipientRepository"),
+  NotificationSocketService: Symbol.for("NotificationSocketService"),
+  CreateNotificationUseCase: Symbol.for("CreateNotificationUseCase"),
+  GetUserNotificationsUseCase: Symbol.for("GetUserNotificationsUseCase"),
+  GetUnreadCountUseCase: Symbol.for("GetUnreadCountUseCase"),
+  MarkNotificationAsReadUseCase: Symbol.for("MarkNotificationAsReadUseCase"),
+  MarkAllNotificationsAsReadUseCase: Symbol.for("MarkAllNotificationsAsReadUseCase"),
+  GetSentNotificationsUseCase: Symbol.for("GetSentNotificationsUseCase"),
+  NotificationController: Symbol.for("NotificationController"),
+  ChatGroupRepository: Symbol.for("ChatGroupRepository"),
+  ChatMessageRepository: Symbol.for("ChatMessageRepository"),
+  AIService: Symbol.for("AIService"),
+  ChatSocketService: Symbol.for("ChatSocketService"),
+  CreateChatGroupUseCase: Symbol.for("CreateChatGroupUseCase"),
+  GetUserChatGroupsUseCase: Symbol.for("GetUserChatGroupsUseCase"),
+  GetChatGroupMessagesUseCase: Symbol.for("GetChatGroupMessagesUseCase"),
+  SendChatMessageUseCase: Symbol.for("SendChatMessageUseCase"),
+  AddGroupMemberUseCase: Symbol.for("AddGroupMemberUseCase"),
+  RemoveGroupMemberUseCase: Symbol.for("RemoveGroupMemberUseCase"),
+  ClearGroupMessagesUseCase: Symbol.for("ClearGroupMessagesUseCase"),
+  GetOrCreateAiChatGroupUseCase: Symbol.for("GetOrCreateAiChatGroupUseCase"),
+  GetCandidateMembersUseCase: Symbol.for("GetCandidateMembersUseCase"),
+  ChatController: Symbol.for("ChatController"),
 };
 
 export { TYPES };

@@ -17,6 +17,8 @@ import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
 import { Modal } from '../../components/Modal';
 import MarkEntryModal from '../../features/assessments/components/MarkEntryModal';
+import { Pagination } from '../../components/Pagination';
+import { usePagination } from '../../hooks/usePagination';
 import {
   getAssessmentsApi,
   requestAssessmentDelegationApi,
@@ -24,6 +26,8 @@ import {
 import { getAssessmentSchedulesApi } from '../../services/assessmentScheduleService';
 import type { Assessment } from '../../types/assessment';
 import type { AssessmentSchedule } from '../../types/assessmentSchedule';
+
+const PAGE_LIMIT = 5;
 
 export const TeacherMarkEntryPage: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -33,6 +37,8 @@ export const TeacherMarkEntryPage: React.FC = () => {
     setTimeout(() => setToast(null), 4000);
   };
 
+  const pagination = usePagination({ initialLimit: PAGE_LIMIT });
+  const { page, limit, resetPage, setPaginationData, totalPages, setPage } = pagination;
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [eventSchedules, setEventSchedules] = useState<AssessmentSchedule[]>([]);
@@ -59,9 +65,10 @@ export const TeacherMarkEntryPage: React.FC = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search.trim());
+      resetPage();
     }, 300);
     return () => clearTimeout(handler);
-  }, [search]);
+  }, [search, resetPage]);
 
   // Load Assessment Events
   const fetchAssessments = useCallback(async () => {
@@ -69,16 +76,19 @@ export const TeacherMarkEntryPage: React.FC = () => {
     setError(null);
     try {
       const res = await getAssessmentsApi({
-        limit: 100,
+        page,
+        limit,
         search: debouncedSearch || undefined,
       });
-      setAssessments(res.data.data.assessments || []);
+      const data = res.data.data;
+      setAssessments(data.assessments || []);
+      setPaginationData(data.total, Math.ceil((data.total || 0) / limit) || 1);
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to load assessment events');
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch]);
+  }, [page, limit, debouncedSearch, setPaginationData]);
 
   useEffect(() => {
     fetchAssessments();
@@ -315,11 +325,20 @@ export const TeacherMarkEntryPage: React.FC = () => {
                 description="Assessment events created by Admin will appear here once scheduled."
               />
             ) : (
-              <Table<Assessment>
-                data={assessments}
-                columns={eventColumns}
-                keyExtractor={(a) => a.id}
-              />
+              <>
+                <Table<Assessment>
+                  data={assessments}
+                  columns={eventColumns}
+                  keyExtractor={(a) => a.id}
+                />
+                <div className="p-4 border-t border-neutral-100">
+                  <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                  />
+                </div>
+              </>
             )}
           </div>
         </>

@@ -18,7 +18,7 @@ import type { SubjectAssignment } from '../../types/subjectAssignment';
 import type { Course } from '../../types/course';
 import SubjectAssignmentModal from '../../features/subject-assignments/components/SubjectAssignmentModal';
 
-const PAGE_LIMIT = 10;
+const PAGE_LIMIT = 5;
 
 const SubjectAssignmentsPage: React.FC = () => {
   const [assignments, setAssignments] = useState<SubjectAssignment[]>([]);
@@ -233,7 +233,7 @@ const SubjectAssignmentsPage: React.FC = () => {
             Subject Assignments
           </h1>
           <p className="text-sm text-neutral-500">
-            Map curriculum subjects to course levels and designate teaching faculty.
+            {pagination.total > 0 ? `${pagination.total} assignments configured` : 'Map curriculum subjects to course levels and designate teaching faculty.'}
           </p>
 
         </div>
@@ -309,15 +309,17 @@ const SubjectAssignmentsPage: React.FC = () => {
             sortOrder={sortOrder}
             onSort={handleSort}
           />
-          {totalPages > 1 && (
-            <div className="p-4 border-t border-neutral-100">
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
-            </div>
-          )}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {assignments.length > 0 && !isLoading && (
+        <div className="mt-auto pt-6">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       )}
 

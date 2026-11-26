@@ -73,7 +73,7 @@ const SubjectsPage: React.FC = () => {
         sortOrder,
       });
       setSubjects(res.data.data.subjects);
-      setPaginationData(res.data.data.total, res.data.data.totalPages);
+      setPaginationData(res.data.data.total, Math.ceil((res.data.data.total || 0) / limit) || 1);
     } catch (err: unknown) {
       const errorMsg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to load subjects.';
       setError(errorMsg);
@@ -248,7 +248,7 @@ const SubjectsPage: React.FC = () => {
       </div>
 
       {/* Pagination */}
-      {subjects.length > 0 && !isLoading && totalPages > 1 && (
+      {subjects.length > 0 && !isLoading && (
         <div className="mt-auto pt-6">
           <Pagination
             currentPage={page}

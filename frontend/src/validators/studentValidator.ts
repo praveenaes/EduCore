@@ -38,7 +38,7 @@ const baseSchema = {
     .trim()
     .min(1, 'National ID is required')
     .max(30)
-    .regex(/^NID\d{3}$/, 'National ID must be in the format NID001'),
+    .regex(/^NID\d{3,}$/, 'National ID must start with NID followed by at least 3 digits (e.g. NID001)'),
   phone: z
     .string()
     .trim()
@@ -85,7 +85,7 @@ export const createStudentSchema = z.object({
     .trim()
     .min(1, 'Admission number is required')
     .max(50)
-    .regex(/^STU\d{3}$/, 'Admission Number must be in the format STU001'),
+    .regex(/^STU\d{3,}$/, 'Admission Number must start with STU followed by at least 3 digits (e.g. STU001)'),
   ...baseSchema,
 });
 

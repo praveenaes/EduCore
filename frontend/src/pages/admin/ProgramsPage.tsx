@@ -72,7 +72,7 @@ const ProgramsPage: React.FC = () => {
         sortOrder,
       });
       setPrograms(res.data.data.programs);
-      setPaginationData(res.data.data.total, res.data.data.totalPages);
+      setPaginationData(res.data.data.total, Math.ceil((res.data.data.total || 0) / limit) || 1);
     } catch (err: unknown) {
       const errorMsg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to load programs.';
       setError(errorMsg);
@@ -250,8 +250,8 @@ const ProgramsPage: React.FC = () => {
         )}
       </div>
 
-{/* Pagination */}
-      {programs.length > 0 && !isLoading && totalPages > 1 && (
+      {/* Pagination */}
+      {programs.length > 0 && !isLoading && (
         <div className="mt-auto pt-6">
           <Pagination
             currentPage={page}
